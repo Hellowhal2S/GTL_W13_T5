@@ -244,6 +244,46 @@ void UEditorEngine::Tick(float DeltaTime)
                 }
             }
         }
+        else if (WorldContext->WorldType == EWorldType::PhysicsAssetViewer)
+        {
+            if (UWorld* World = WorldContext->World())
+            {
+                World->Tick(DeltaTime);
+                EditorPlayer->Tick(DeltaTime);
+                ULevel* Level = World->GetActiveLevel();
+                TArray CachedActors = Level->Actors;
+                if (Level)
+                {
+                    for (AActor* Actor : CachedActors)
+                    {
+                        if (Actor)
+                        {
+                            Actor->Tick(DeltaTime);
+
+                            // 물리기반 시뮬레이션을 위한 TickGroup 처리
+                            for (auto* Comp : Actor->GetComponents())
+                            {
+                                Comp->TickComponent(DeltaTime);
+                            }
+                        }
+                    }
+
+                    // PhysicsAssetViewer에서도 물리 시뮬레이션 실행
+                    PhysicsManager->Simulate(DeltaTime);
+
+                    for (AActor* Actor : CachedActors)
+                    {
+                        if (Actor)
+                        {
+                            for (auto* Comp : Actor->GetComponents())
+                            {
+                                Comp->EndPhysicsTickComponent(DeltaTime);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -269,6 +309,9 @@ void UEditorEngine::StartPIE()
 
     PIEWorldContext.SetCurrentWorld(PIEWorld);
     ActiveWorld = PIEWorld;
+
+    // PVD 시뮬레이션 리셋 (프레임 카운터를 0으로 초기화)
+    PhysicsManager->ResetPVDSimulation();
 
     SetPhysXScene(PIEWorld);
     
@@ -561,10 +604,19 @@ void UEditorEngine::BindEssentialObjects()
 
 void UEditorEngine::SetPhysXScene(UWorld* World)
 {
-    PhysicsManager->CreateScene(PIEWorld);
-    PhysicsManager->SetCurrentScene(PIEWorld);
+    // World 매개변수를 실제로 사용하도록 수정
+    UWorld* TargetWorld = World ? World : PIEWorld;
+    
+    PhysicsManager->CreateScene(TargetWorld);
+    PhysicsManager->SetCurrentScene(TargetWorld);
 
-    for (const auto& Actor : World->GetActiveLevel()->Actors)
+    // PVD 재연결 확인 및 강제 리프레시
+    if (!PhysicsManager->IsPVDConnected())
+    {
+        PhysicsManager->ReconnectPVD();
+    }
+
+    for (const auto& Actor : TargetWorld->GetActiveLevel()->Actors)
     {
         UPrimitiveComponent* Prim = Actor->GetComponentByClass<UPrimitiveComponent>();
         if (Prim && Prim->bSimulate)
@@ -663,6 +715,7 @@ void UEditorEngine::EndPhysicsAssetViewer()
 
         ClearActorSelection();
         ClearComponentSelection();
+        PhysicsManager->CleanupScene();
     }
     ActiveWorld = EditorWorld;
 

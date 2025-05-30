@@ -22,6 +22,9 @@
 #define PHONG "LIGHTING_MODEL_BLINN_PHONG"
 #define PBR "LIGHTING_MODEL_PBR"
 
+#define SAFE_RELEASE(p) if (p) { (p)->Release(); (p) = nullptr; }
+#define SAFE_RELEASE_PX(p) if (p) { (p)->release(); (p) = nullptr; }
+
 // Material Subset
 struct FMaterialSubset
 {

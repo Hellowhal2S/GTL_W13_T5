@@ -40,15 +40,7 @@ void FPhysicsManager::InitPhysX()
 {
     Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, Allocator, ErrorCallback);
 
-    // PVD 생성 및 연결
-    Pvd = PxCreatePvd(*Foundation);
-    if (Pvd) {
-        // TCP 연결 (기본 포트 5425)
-        Transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-        if (Transport) {
-            Pvd->connect(*Transport, PxPvdInstrumentationFlag::eALL);
-        }
-    }
+    InitializePVD();
     
     Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), true, Pvd);
     
@@ -57,85 +49,88 @@ void FPhysicsManager::InitPhysX()
     PxInitExtensions(*Physics, Pvd);
 }
 
-PxScene* FPhysicsManager::CreateScene(UWorld* World)
+void FPhysicsManager::InitializePVD()
 {
-    if (SceneMap[World])
-    {
-        // PVD 클라이언트 생성 및 씬 연결
-        if (Pvd && Pvd->isConnected()) {
-            PxPvdSceneClient* pvdClient = SceneMap[World]->getScenePvdClient();
-            if (pvdClient) {
-                pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-                pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-                pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-            }
-        }
-        return SceneMap[World];
-    }
-    
-    PxSceneDesc SceneDesc(Physics->getTolerancesScale());
-    
-    SceneDesc.gravity = PxVec3(0, 0, -9.81f);
-    
-    unsigned int hc = std::thread::hardware_concurrency();
-    Dispatcher = PxDefaultCpuDispatcherCreate(hc-2);
-    SceneDesc.cpuDispatcher = Dispatcher;
-    
-    SceneDesc.filterShader = PxDefaultSimulationFilterShader;
-    
-    // sceneDesc.simulationEventCallback = gMyCallback; // TODO: 이벤트 핸들러 등록(옵저버 or component 별 override)
-    
-    SceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
-    SceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
-    SceneDesc.flags |= PxSceneFlag::eENABLE_PCM;
-    
-    PxScene* NewScene = Physics->createScene(SceneDesc);
-    SceneMap.Add(World, NewScene);
-
-    // PVD 클라이언트 생성 및 씬 연결
-    if (Pvd && Pvd->isConnected()) {
-        PxPvdSceneClient* pvdClient = NewScene->getScenePvdClient();
-        if (pvdClient) {
-            pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-            pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-            pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-        }
+    if (Pvd) {
+        printf("PVD가 이미 초기화됨\n");
+        return;
     }
 
-    return NewScene;
-}
-
-bool FPhysicsManager::ConnectPVD()
-{
-    // PVD 생성
     Pvd = PxCreatePvd(*Foundation);
     if (!Pvd) {
         printf("PVD 생성 실패\n");
-        return false;
+        return;
     }
 
-    // 네트워크 전송 생성 (TCP)
-    Transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-    if (!Transport) {
+    // Transport 생성 시도
+    if (!CreatePVDTransport()) {
         printf("PVD Transport 생성 실패\n");
+        return;
+    }
+
+    // 연결 시도
+    if (!ConnectToPVD()) {
+        printf("PVD 연결 실패 - 오프라인 모드로 계속\n");
+    }
+}
+
+bool FPhysicsManager::CreatePVDTransport()
+{
+    SAFE_RELEASE_PX(Transport)
+
+    Transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+    return Transport != nullptr;
+}
+
+bool FPhysicsManager::ConnectToPVD()
+{
+    if (!Pvd || !Transport) {
         return false;
     }
 
-    // PVD 연결 및 계측 플래그 설정
-    bool connected = Pvd->connect(*Transport, 
-        PxPvdInstrumentationFlag::eALL);  // 모든 데이터 전송
-    // 또는 특정 플래그만:
-    // PxPvdInstrumentationFlag::eDEBUG | 
-    // PxPvdInstrumentationFlag::ePROFILE |
-    // PxPvdInstrumentationFlag::eMEMORY
-
+    bool connected = Pvd->connect(*Transport, PxPvdInstrumentationFlag::eALL);
     if (connected) {
         printf("PVD 연결 성공\n");
     } else {
         printf("PVD 연결 실패\n");
     }
-
+    
     return connected;
+}
+
+PxScene* FPhysicsManager::CreateScene(UWorld* World)
+{
+    // 기존 씬 처리
+    if (SceneMap.Contains(World)) {
+        PxScene* ExistingScene = SceneMap[World];
+        
+        // PVD 재연결 상태 확인 및 클라이언트 재설정
+        if (IsPVDConnected()) {
+            SetupPVDForScene(ExistingScene, World);
+            printf("기존 씬 PVD 클라이언트 재설정 완료: %s\n", World ? "Valid World" : "NULL World");
+        }
+        //RefreshPVDClientSettings(ExistingScene);
+        // CurrentScene 업데이트
+        CurrentScene = ExistingScene;
+        return ExistingScene;
+    }
+    
+    PxSceneDesc SceneDesc(Physics->getTolerancesScale());
+    ConfigureSceneDesc(SceneDesc);
+    
+    PxScene* NewScene = Physics->createScene(SceneDesc);
+    SceneMap.Add(World, NewScene);
+    CurrentScene = NewScene;
+
+    // PVD 클라이언트 생성 및 씬 연결
+    if (IsPVDConnected()) {
+        SetupPVDForScene(NewScene, World);
+        printf("새 씬 PVD 클라이언트 설정 완료: %s\n", World ? "Valid World" : "NULL World");
+    } else {
+        printf("PVD 연결되지 않음 - 오프라인 모드\n");
+    }
+
+    return NewScene;
 }
 
 GameObject FPhysicsManager::CreateBox(const PxVec3& Pos, const PxVec3& HalfExtents) const
@@ -707,11 +702,9 @@ void FPhysicsManager::Simulate(float DeltaTime)
 
 void FPhysicsManager::ShutdownPhysX()
 {
-    if(CurrentScene)
-    {
-        CurrentScene->release();
-        CurrentScene = nullptr;
-    }
+    // 모든 씬 정리 (PVD 포함)
+    CleanupAllScenes();
+    
     if(Dispatcher)
     {
         Dispatcher->release();
@@ -722,6 +715,10 @@ void FPhysicsManager::ShutdownPhysX()
         Material->release();
         Material = nullptr;
     }
+    
+    // PVD 정리
+    CleanupPVD();
+    
     if(Physics)
     {
         Physics->release();
@@ -750,9 +747,187 @@ void FPhysicsManager::CleanupPVD() {
 
 void FPhysicsManager::CleanupScene()
 {
-    if (CurrentScene)
-    {
-        CurrentScene->release();
+    // CurrentScene만 정리 (SceneMap은 건드리지 않음)
+    if (CurrentScene) {
+        printf("현재 활성 씬 정리\n");
         CurrentScene = nullptr;
     }
+}
+
+// 새로운 PVD 정리 전용 함수
+void FPhysicsManager::CleanupScenePVD(PxScene* Scene, UWorld* World)
+{
+    if (!Scene || !IsPVDConnected()) {
+        return;
+    }
+
+    PxPvdSceneClient* pvdClient = Scene->getScenePvdClient();
+    if (pvdClient) {
+        // PVD에서 씬 전송 중단
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, false);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, false);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, false);
+        
+        printf("씬 PVD 클라이언트 정리 완료: %s\n", World ? "Valid World" : "NULL World");
+    }
+}
+
+// 모든 씬 정리 함수 (ShutdownPhysX에서 사용)
+void FPhysicsManager::CleanupAllScenes()
+{
+    printf("모든 씬 정리 시작\n");
+    
+    // 모든 씬에 대해 PVD 정리 후 해제
+    for (auto& ScenePair : SceneMap) {
+        PxScene* Scene = ScenePair.Value;
+        UWorld* World = ScenePair.Key;
+        
+        if (Scene) {
+            CleanupScenePVD(Scene, World);
+            Scene->release();
+        }
+    }
+    
+    // SceneMap 정리
+    SceneMap.Empty();
+    CurrentScene = nullptr;
+    
+    printf("모든 씬 정리 완료\n");
+}
+
+void FPhysicsManager::ConfigureSceneDesc(PxSceneDesc& SceneDesc)
+{
+    SceneDesc.gravity = PxVec3(0, 0, -9.81f);
+    
+    unsigned int hc = std::thread::hardware_concurrency();
+    Dispatcher = PxDefaultCpuDispatcherCreate(hc-2);
+    SceneDesc.cpuDispatcher = Dispatcher;
+    
+    SceneDesc.filterShader = PxDefaultSimulationFilterShader;
+    
+    SceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
+    SceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
+    SceneDesc.flags |= PxSceneFlag::eENABLE_PCM;
+}
+
+// PVD 관련 함수들 구현
+void FPhysicsManager::SetupPVDForScene(PxScene* Scene, UWorld* World)
+{
+    if (!Scene || !IsPVDConnected()) {
+        return;
+    }
+
+    PxPvdSceneClient* pvdClient = Scene->getScenePvdClient();
+    if (!pvdClient) {
+        printf("PVD 클라이언트 생성 실패: %s\n", World ? "Valid World" : "NULL World");
+        return;
+    }
+
+    // 모든 전송 플래그 활성화
+    pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+    pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+    pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+    
+    printf("씬 PVD 클라이언트 설정 완료: %s\n", World ? "Valid World" : "NULL World");
+}
+
+void FPhysicsManager::RefreshPVDClientSettings(PxScene* Scene)
+{
+    if (!Scene || !IsPVDConnected()) {
+        return;
+    }
+
+    PxPvdSceneClient* pvdClient = Scene->getScenePvdClient();
+    if (pvdClient) {
+        // 기존 설정 리프레시
+        SetupPVDForScene(Scene, nullptr);
+        printf("기존 씬 PVD 클라이언트 재설정 완료\n");
+    }
+}
+
+void FPhysicsManager::ReconnectPVD()
+{
+    if (!Pvd) {
+        printf("PVD가 초기화되지 않음\n");
+        return;
+    }
+
+    // 기존 연결 정리
+    if (Pvd->isConnected()) {
+        Pvd->disconnect();
+        printf("기존 PVD 연결 해제\n");
+    }
+
+    // 재연결 시도
+    if (ConnectToPVD()) {
+        // 모든 기존 씬에 대해 PVD 클라이언트 재설정
+        for (auto& ScenePair : SceneMap) {
+            SetupPVDForScene(ScenePair.Value, ScenePair.Key);
+        }
+        printf("PVD 재연결 및 씬 재설정 완료\n");
+    }
+}
+
+void FPhysicsManager::ResetPVDSimulation()
+{
+    if (!IsPVDConnected()) {
+        printf("PVD가 연결되지 않음 - 리셋 불가\n");
+        return;
+    }
+
+    printf("PVD 시뮬레이션 리셋 시작\n");
+
+    // 1. 모든 씬의 PVD 클라이언트 정리
+    for (auto& ScenePair : SceneMap) {
+        CleanupScenePVD(ScenePair.Value, ScenePair.Key);
+    }
+
+    // 2. PVD 연결 해제 및 재연결 (프레임 카운터 리셋을 위해)
+    if (Pvd->isConnected()) {
+        Pvd->disconnect();
+        printf("PVD 연결 해제\n");
+    }
+
+    // 3. 재연결 (새로운 시뮬레이션 세션 시작)
+    if (ConnectToPVD()) {
+        printf("PVD 재연결 완료 - 새로운 시뮬레이션 세션 시작\n");
+        
+        // 4. 기존 씬들에 대해 PVD 클라이언트 재설정
+        for (auto& ScenePair : SceneMap) {
+            SetupPVDForScene(ScenePair.Value, ScenePair.Key);
+        }
+        
+        printf("모든 씬의 PVD 클라이언트 재설정 완료\n");
+    } else {
+        printf("PVD 재연결 실패\n");
+    }
+}
+
+void FPhysicsManager::RemoveScene(UWorld* World)
+{
+    if (!World || !SceneMap.Contains(World)) {
+        return;
+    }
+    
+    PxScene* Scene = SceneMap[World];
+    if (!Scene) {
+        SceneMap.Remove(World);
+        return;
+    }
+
+    // PVD 클라이언트 정리
+    CleanupScenePVD(Scene, World);
+    
+    // CurrentScene이 제거될 씬과 같다면 nullptr로 설정
+    if (CurrentScene == Scene) {
+        CurrentScene = nullptr;
+    }
+    
+    // 씬 해제
+    Scene->release();
+    
+    // SceneMap에서 제거
+    SceneMap.Remove(World);
+    
+    printf("씬 제거 완료: %s\n", World ? "Valid World" : "NULL World");
 }
