@@ -21,6 +21,8 @@ public:
 
     TMap<FString, sol::object> ExposedProperties;
 
+    // PIE 모드 델리게이트 핸들 관리를 위한 멤버 추가
+    TMap<FDelegateHandle, FString> DelegateHandleToKeyMap; // 핸들과 키의 매핑
 
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -43,6 +45,12 @@ public:
     }
 
     FOnLocationTenUp FOnLocationTenUp;
+    
+    // 델리게이트 핸들 정리를 위한 헬퍼 메서드
+    void CleanupDelegateHandles();
+    
+    // 델리게이트 핸들 추가를 위한 public 메서드 (HotReload와 PIE 모드 지원)
+    void AddDelegateHandle(const FDelegateHandle& Handle, const FString& Key);
     
 private:
     // Lua 환경 초기화

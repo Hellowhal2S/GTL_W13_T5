@@ -26,7 +26,7 @@ struct FBodyInstance
     // ==================== 질량과 관성 ====================
     
     /** 바디의 질량 (킬로그램) */
-    UPROPERTY_WITH_FLAGS(EditAnywhere, float, MassInKg, = 100.0f)
+    UPROPERTY_WITH_FLAGS(EditAnywhere, float, MassInKg, = 10.0f)
     
     /** 질량 중심 오프셋 */
     UPROPERTY_WITH_FLAGS(EditAnywhere, FVector, COMNudge)

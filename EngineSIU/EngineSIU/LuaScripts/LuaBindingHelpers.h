@@ -1,5 +1,4 @@
-﻿
-#pragma once
+﻿#pragma once
 #include <sol/sol.hpp>
 #include "Runtime/Core/Math/Vector.h"
 #include "Runtime/Engine/UserInterface/Console.h"
@@ -7,6 +6,7 @@
 
 #include "Engine/Engine.h"
 #include "World/World.h"
+#include "Physics/PhysicsManager.h"
 
 namespace LuaBindingHelpers
 {
@@ -162,10 +162,119 @@ namespace LuaBindingHelpers
     inline void BindController(sol::state& Lua)
     {
         Lua.set_function("controller",
-            [](const std::string& Key, const std::function<void(float)>& Callback)
+            [&Lua](const std::string& Key, const std::function<void(float)>& Callback)
             {
-                //FString 주면 됨
-                GEngine->ActiveWorld->GetPlayerController()->BindAction(FString(Key), Callback);
+                if (GEngine && GEngine->ActiveWorld)
+                {
+                    APlayerController* PC = GEngine->ActiveWorld->GetPlayerController();
+                    if (PC && PC->GetInputComponent())
+                    {
+                        // 현재 실행 중인 LuaScriptComponent를 Lua 상태에서 가져오기
+                        sol::object ScriptComponentObj = Lua["__current_script_component"];
+                        if (ScriptComponentObj.valid())
+                        {
+                            if (ULuaScriptComponent* ScriptComponent = ScriptComponentObj.as<ULuaScriptComponent*>())
+                            {
+                                // 새로운 핸들 반환 메서드를 사용하여 델리게이트 핸들 추적
+                                FString KeyString = FString(Key.c_str());
+                                FDelegateHandle Handle = PC->BindActionWithHandle(KeyString, Callback);
+                                
+                                // public 메서드를 통해 델리게이트 핸들 추가
+                                ScriptComponent->AddDelegateHandle(Handle, KeyString);
+                                
+                                UE_LOG(ELogLevel::Display, TEXT("Controller binding registered for key: %s with handle"), *KeyString);
+                            }
+                        }
+                        else
+                        {
+                            // 폴백: 핸들 추적 없이 바인딩
+                            PC->BindAction(FString(Key.c_str()), Callback);
+                            UE_LOG(ELogLevel::Warning, TEXT("Controller binding registered for key: %s without handle tracking"), *FString(Key.c_str()));
+                        }
+                    }
+                }
+            }
+        );
+    }
+    
+    // 물리 함수 바인딩
+    inline void BindPhysics(sol::state& Lua)
+    {
+        // PhysicsManager를 통한 토크 적용
+        Lua.set_function("ApplyTorque", 
+            [](const FVector& Torque, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager)
+                {
+                    if (AActor* CurrentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor())
+                    {
+                        GEngine->PhysicsManager->ApplyTorqueToActor(CurrentActor, Torque, ForceMode);
+                    }
+                }
+            }
+        );
+        
+        // PhysicsManager를 통한 힘 적용
+        Lua.set_function("ApplyForce", 
+            [](const FVector& Force, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager)
+                {
+                    if (AActor* CurrentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor())
+                    {
+                        GEngine->PhysicsManager->ApplyForceToActor(CurrentActor, Force, ForceMode);
+                    }
+                }
+            }
+        );
+        
+        // PhysicsManager를 통한 위치별 힘 적용
+        Lua.set_function("ApplyForceAtPosition", 
+            [](const FVector& Force, const FVector& Position, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager)
+                {
+                    if (AActor* CurrentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor())
+                    {
+                        GEngine->PhysicsManager->ApplyForceAtPositionToActor(CurrentActor, Force, Position, ForceMode);
+                    }
+                }
+            }
+        );
+        
+        // PhysicsManager를 통한 점프 충격 적용
+        Lua.set_function("ApplyJumpImpulse", 
+            [](float JumpForce)
+            {
+                if (GEngine && GEngine->PhysicsManager)
+                {
+                    if (AActor* CurrentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor())
+                    {
+                        GEngine->PhysicsManager->ApplyJumpImpulseToActor(CurrentActor, JumpForce);
+                    }
+                }
+            }
+        );
+        
+        // 특정 액터에 토크 적용
+        Lua.set_function("ApplyTorqueToActor", 
+            [](AActor* Actor, const FVector& Torque, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager && Actor)
+                {
+                    GEngine->PhysicsManager->ApplyTorqueToActor(Actor, Torque, ForceMode);
+                }
+            }
+        );
+        
+        // 특정 액터에 힘 적용
+        Lua.set_function("ApplyForceToActor", 
+            [](AActor* Actor, const FVector& Force, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager && Actor)
+                {
+                    GEngine->PhysicsManager->ApplyForceToActor(Actor, Force, ForceMode);
+                }
             }
         );
     }

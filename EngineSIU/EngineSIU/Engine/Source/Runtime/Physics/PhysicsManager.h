@@ -54,6 +54,18 @@ public:
     
     void DestroyGameObject(GameObject* GameObject) const;
     
+    // 토크와 힘 적용 함수들
+    void ApplyTorque(GameObject* Obj, const FVector& Torque, int ForceMode = 0);
+    void ApplyTorqueToActor(class AActor* Actor, const FVector& Torque, int ForceMode = 0);
+    void ApplyForce(GameObject* Obj, const FVector& Force, int ForceMode = 0);
+    void ApplyForceToActor(class AActor* Actor, const FVector& Force, int ForceMode = 0);
+    void ApplyForceAtPosition(GameObject* Obj, const FVector& Force, const FVector& Position, int ForceMode = 0);
+    void ApplyForceAtPositionToActor(class AActor* Actor, const FVector& Force, const FVector& Position, int ForceMode = 0);
+    void ApplyJumpImpulse(GameObject* Obj, float JumpForce);
+    void ApplyJumpImpulseToActor(class AActor* Actor, float JumpForce);
+    
+    GameObject* FindGameObjectByActor(class AActor* Actor);
+    
     GameObject CreateBox(const PxVec3& Pos, const PxVec3& HalfExtents) const;
     GameObject* CreateGameObject(const PxVec3& Pos, const PxQuat& Rot, FBodyInstance* BodyInstance, UBodySetup* BodySetup, ERigidBodyType RigidBodyType =
                                      ERigidBodyType::DYNAMIC) const;
@@ -111,5 +123,8 @@ private:
     void ApplyLockConstraints(PxRigidDynamic* DynamicBody, const FBodyInstance* BodyInstance) const;
     void ApplyCollisionSettings(const PxRigidActor* Actor, const FBodyInstance* BodyInstance) const;
     void ApplyShapeCollisionSettings(PxShape* Shape, const FBodyInstance* BodyInstance) const;
+    
+    // ForceMode 변환 헬퍼 함수
+    PxForceMode::Enum ConvertForceMode(int ForceMode) const;
 };
 
