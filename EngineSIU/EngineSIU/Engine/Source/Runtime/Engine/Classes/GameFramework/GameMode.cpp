@@ -7,12 +7,12 @@
 #include "Engine/Engine.h"
 #include "Engine/World/World.h"
 
-AGameMode::AGameMode()
+void AGameMode::PostSpawnInitialize()
 {
+    AActor::PostSpawnInitialize();
+
     OnGameInit.AddLambda([]() { UE_LOG(ELogLevel::Display, TEXT("Game Initialized")); });
     
-    //LuaScriptComp->GetOuter()->
-
     SetActorTickInEditor(false); // PIE 모드에서만 Tick 수행
 
     if (FSlateAppMessageHandler* Handler = GEngineLoop.GetAppMessageHandler())
@@ -41,13 +41,6 @@ AGameMode::AGameMode()
                 }
             });
     }
-}
-
-
-
-AGameMode::~AGameMode()
-{
-    // EndMatch(false);
 }
 
 void AGameMode::InitializeComponent()
@@ -91,6 +84,7 @@ void AGameMode::Tick(float DeltaTime)
 
     if (bGameRunning && !bGameEnded)
     {
+        // TODO: 아래 코드에서 DeltaTime을 2로 나누는 이유가?
         GameInfo.ElapsedGameTime += DeltaTime / 2.0f;
     }
 }
