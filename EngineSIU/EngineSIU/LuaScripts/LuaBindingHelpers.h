@@ -1,5 +1,4 @@
-﻿
-#pragma once
+﻿#pragma once
 #include <sol/sol.hpp>
 #include "Runtime/Core/Math/Vector.h"
 #include "Runtime/Engine/UserInterface/Console.h"
@@ -7,6 +6,7 @@
 
 #include "Engine/Engine.h"
 #include "World/World.h"
+#include "Physics/PhysicsManager.h"
 
 namespace LuaBindingHelpers
 {
@@ -166,6 +166,88 @@ namespace LuaBindingHelpers
             {
                 //FString 주면 됨
                 GEngine->ActiveWorld->GetPlayerController()->BindAction(FString(Key), Callback);
+            }
+        );
+    }
+    
+    // 물리 함수 바인딩
+    inline void BindPhysics(sol::state& Lua)
+    {
+        // PhysicsManager를 통한 토크 적용
+        Lua.set_function("ApplyTorque", 
+            [](const FVector& Torque, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager)
+                {
+                    if (AActor* CurrentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor())
+                    {
+                        GEngine->PhysicsManager->ApplyTorqueToActor(CurrentActor, Torque, ForceMode);
+                    }
+                }
+            }
+        );
+        
+        // PhysicsManager를 통한 힘 적용
+        Lua.set_function("ApplyForce", 
+            [](const FVector& Force, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager)
+                {
+                    if (AActor* CurrentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor())
+                    {
+                        GEngine->PhysicsManager->ApplyForceToActor(CurrentActor, Force, ForceMode);
+                    }
+                }
+            }
+        );
+        
+        // PhysicsManager를 통한 위치별 힘 적용
+        Lua.set_function("ApplyForceAtPosition", 
+            [](const FVector& Force, const FVector& Position, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager)
+                {
+                    if (AActor* CurrentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor())
+                    {
+                        GEngine->PhysicsManager->ApplyForceAtPositionToActor(CurrentActor, Force, Position, ForceMode);
+                    }
+                }
+            }
+        );
+        
+        // PhysicsManager를 통한 점프 충격 적용
+        Lua.set_function("ApplyJumpImpulse", 
+            [](float JumpForce)
+            {
+                if (GEngine && GEngine->PhysicsManager)
+                {
+                    if (AActor* CurrentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor())
+                    {
+                        GEngine->PhysicsManager->ApplyJumpImpulseToActor(CurrentActor, JumpForce);
+                    }
+                }
+            }
+        );
+        
+        // 특정 액터에 토크 적용
+        Lua.set_function("ApplyTorqueToActor", 
+            [](AActor* Actor, const FVector& Torque, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager && Actor)
+                {
+                    GEngine->PhysicsManager->ApplyTorqueToActor(Actor, Torque, ForceMode);
+                }
+            }
+        );
+        
+        // 특정 액터에 힘 적용
+        Lua.set_function("ApplyForceToActor", 
+            [](AActor* Actor, const FVector& Force, int ForceMode)
+            {
+                if (GEngine && GEngine->PhysicsManager && Actor)
+                {
+                    GEngine->PhysicsManager->ApplyForceToActor(Actor, Force, ForceMode);
+                }
             }
         );
     }

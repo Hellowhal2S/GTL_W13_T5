@@ -944,3 +944,113 @@ void FPhysicsManager::RemoveScene(UWorld* World)
     
     printf("씬 제거 완료: %s\n", World ? "Valid World" : "NULL World");
 }
+
+// === 토크와 힘 적용 함수들 구현 ===
+
+PxForceMode::Enum FPhysicsManager::ConvertForceMode(int ForceMode) const
+{
+    switch (ForceMode)
+    {
+    case 0: return PxForceMode::eFORCE;          // 연속적인 힘 (질량 고려)
+    case 1: return PxForceMode::eIMPULSE;        // 즉시 충격 (질량 고려)
+    case 2: return PxForceMode::eVELOCITY_CHANGE; // 속도 변화 (질량 무시)
+    case 3: return PxForceMode::eACCELERATION;   // 가속도 (질량 무시)
+    default: return PxForceMode::eFORCE;
+    }
+}
+
+void FPhysicsManager::ApplyTorque(GameObject* Obj, const FVector& Torque, int ForceMode)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXTorque(Torque.X, -Torque.Y, Torque.Z); // Y축 반전 (언리얼->PhysX 좌표계)
+    PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
+    
+    Obj->DynamicRigidBody->addTorque(PhysXTorque, PhysXForceMode);
+}
+
+void FPhysicsManager::ApplyTorqueToActor(AActor* Actor, const FVector& Torque, int ForceMode)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        UE_LOG(ELogLevel::Warning, TEXT("ApplyTorqueToActor: %s, Torque: %s, ForceMode: %d"), *Actor->GetName(), *Torque.ToString(), ForceMode);
+        ApplyTorque(Obj, Torque, ForceMode);
+    }
+}
+
+void FPhysicsManager::ApplyForce(GameObject* Obj, const FVector& Force, int ForceMode)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXForce(Force.X, -Force.Y, Force.Z); // Y축 반전 (언리얼->PhysX 좌표계)
+    PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
+    
+    Obj->DynamicRigidBody->addForce(PhysXForce, PhysXForceMode);
+}
+
+void FPhysicsManager::ApplyForceToActor(AActor* Actor, const FVector& Force, int ForceMode)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        ApplyForce(Obj, Force, ForceMode);
+    }
+}
+
+void FPhysicsManager::ApplyForceAtPosition(GameObject* Obj, const FVector& Force, const FVector& Position, int ForceMode)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXForce(Force.X, -Force.Y, Force.Z);
+    PxVec3 PhysXPosition(Position.X, -Position.Y, Position.Z);
+    PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
+    
+    PxRigidBodyExt::addForceAtPos(*Obj->DynamicRigidBody, PhysXForce, PhysXPosition, PhysXForceMode);
+}
+
+void FPhysicsManager::ApplyForceAtPositionToActor(AActor* Actor, const FVector& Force, const FVector& Position, int ForceMode)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        ApplyForceAtPosition(Obj, Force, Position, ForceMode);
+    }
+}
+
+void FPhysicsManager::ApplyJumpImpulse(GameObject* Obj, float JumpForce)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    // 위쪽 방향으로 충격 적용
+    PxVec3 JumpImpulse(0.0f, 0.0f, JumpForce);
+    Obj->DynamicRigidBody->addForce(JumpImpulse, PxForceMode::eIMPULSE);
+}
+
+void FPhysicsManager::ApplyJumpImpulseToActor(AActor* Actor, float JumpForce)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        ApplyJumpImpulse(Obj, JumpForce);
+    }
+}
+
+GameObject* FPhysicsManager::FindGameObjectByActor(AActor* Actor)
+{
+    if (!Actor) return nullptr;
+    
+    // Actor의 PrimitiveComponent를 찾아서 BodyInstance를 통해 GameObject 찾기
+    for (auto* Component : Actor->GetComponents())
+    {
+        if (auto* PrimComp = Cast<class UPrimitiveComponent>(Component))
+        {
+            if (PrimComp->BodyInstance && PrimComp->BodyInstance->BIGameObject)
+            {
+                return PrimComp->BodyInstance->BIGameObject;
+            }
+        }
+    }
+    
+    return nullptr;
+}

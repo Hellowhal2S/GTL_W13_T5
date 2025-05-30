@@ -135,6 +135,7 @@ void ULuaScriptComponent::BindEngineAPI()
     LuaBindingHelpers::BindFVector(LuaState);   // 2) FVector 바인딩
     LuaBindingHelpers::BindFRotator(LuaState);
     LuaBindingHelpers::BindController(LuaState);
+    LuaBindingHelpers::BindPhysics(LuaState);    // 물리 함수 바인딩
     
     auto ActorType = LuaState.new_usertype<AActor>("Actor",
         sol::constructors<>(),
