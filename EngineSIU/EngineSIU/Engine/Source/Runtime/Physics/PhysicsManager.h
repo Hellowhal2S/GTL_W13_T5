@@ -42,7 +42,7 @@ class FPhysicsManager
 {
 public:
     FPhysicsManager();
-    ~FPhysicsManager() = default;
+    ~FPhysicsManager();
 
     void InitPhysX();
     

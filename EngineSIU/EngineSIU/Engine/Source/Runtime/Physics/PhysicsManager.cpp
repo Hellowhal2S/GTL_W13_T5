@@ -36,6 +36,11 @@ FPhysicsManager::FPhysicsManager()
 {
 }
 
+FPhysicsManager::~FPhysicsManager()
+{
+    ShutdownPhysX();
+}
+
 void FPhysicsManager::InitPhysX()
 {
     Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, Allocator, ErrorCallback);

@@ -77,7 +77,6 @@ void UEditorEngine::Release()
         WorldContext->World()->Release();
     }
     WorldList.Empty();
-    PhysicsManager->ShutdownPhysX();
     
     Super::Release();
 }
