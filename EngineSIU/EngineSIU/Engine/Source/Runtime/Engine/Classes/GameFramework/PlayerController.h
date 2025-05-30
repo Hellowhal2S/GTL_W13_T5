@@ -36,6 +36,9 @@ public:
     
     virtual void BindAction(const FString& Key, const std::function<void(float)>& Callback);
 
+    // PIE 모드 및 HotReload 델리게이트 핸들 관리를 위한 메서드
+    virtual FDelegateHandle BindActionWithHandle(const FString& Key, const std::function<void(float)>& Callback);
+
     AActor* GetPossessedActor() const { return PossessedActor; }
     
     // 카메라 관련 함수

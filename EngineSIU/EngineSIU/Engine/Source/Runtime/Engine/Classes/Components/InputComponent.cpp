@@ -95,3 +95,24 @@ void UInputComponent::BindAction(const FString& Key, const std::function<void(fl
         Callback(DeltaTime);
     });
 }
+
+FDelegateHandle UInputComponent::BindActionWithHandle(const FString& Key, const std::function<void(float)>& Callback)
+{
+    if (Callback == nullptr)
+    {
+        // TODO: Handle error case
+    }
+
+    return KeyBindDelegate[Key].AddLambda([this, Callback](float DeltaTime)
+    {
+        Callback(DeltaTime);
+    });
+}
+
+void UInputComponent::UnbindAction(const FString& Key, const FDelegateHandle& Handle)
+{
+    if (KeyBindDelegate.Contains(Key))
+    {
+        KeyBindDelegate[Key].Remove(Handle);
+    }
+}
