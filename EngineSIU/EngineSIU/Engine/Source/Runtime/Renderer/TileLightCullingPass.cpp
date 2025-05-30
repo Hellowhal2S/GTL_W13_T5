@@ -15,8 +15,6 @@
 #include "Components/Light/SpotLightComponent.h"
 #include "UObject/UObjectIterator.h"
 
-#define SAFE_RELEASE(p) if (p) { (p)->Release(); (p) = nullptr; }
-
 #define PRINTDEBUG FALSE
 
 
