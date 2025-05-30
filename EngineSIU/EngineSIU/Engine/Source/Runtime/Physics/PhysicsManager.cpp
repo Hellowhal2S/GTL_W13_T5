@@ -974,7 +974,6 @@ void FPhysicsManager::ApplyTorqueToActor(AActor* Actor, const FVector& Torque, i
     GameObject* Obj = FindGameObjectByActor(Actor);
     if (Obj)
     {
-        UE_LOG(ELogLevel::Warning, TEXT("ApplyTorqueToActor: %s, Torque: %s, ForceMode: %d"), *Actor->GetName(), *Torque.ToString(), ForceMode);
         ApplyTorque(Obj, Torque, ForceMode);
     }
 }
