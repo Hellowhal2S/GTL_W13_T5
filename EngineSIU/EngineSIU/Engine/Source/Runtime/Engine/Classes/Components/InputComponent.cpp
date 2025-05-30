@@ -18,6 +18,10 @@ void UInputComponent::ProcessInput(float DeltaTime)
     {
         KeyBindDelegate[FString("D")].Broadcast(DeltaTime);
     }
+    if (PressedKeys.Contains(EKeys::SpaceBar))
+    {
+        KeyBindDelegate[FString("SpaceBar")].Broadcast(DeltaTime);
+    }
 }
 
 void UInputComponent::SetPossess()
@@ -68,59 +72,13 @@ void UInputComponent::ClearBindDelegate()
 
 void UInputComponent::InputKey(const FKeyEvent& InKeyEvent)
 {
-    // 일반적인 단일 키 이벤트
-    switch (InKeyEvent.GetCharacter())
+    if (InKeyEvent.GetInputEvent() == IE_Pressed)
     {
-    case 'W':
-        {
-            if (InKeyEvent.GetInputEvent() == IE_Pressed)
-            {
-                PressedKeys.Add(EKeys::W);
-            }
-            else if (InKeyEvent.GetInputEvent() == IE_Released)
-            {
-                PressedKeys.Remove(EKeys::W);
-            }
-            break;
-        }
-    case 'A':
-        {
-            if (InKeyEvent.GetInputEvent() == IE_Pressed)
-            {
-                PressedKeys.Add(EKeys::A);
-            }
-            else if (InKeyEvent.GetInputEvent() == IE_Released)
-            {
-                PressedKeys.Remove(EKeys::A);
-            }
-            break;
-        }
-    case 'S':
-        {
-            if (InKeyEvent.GetInputEvent() == IE_Pressed)
-            {
-                PressedKeys.Add(EKeys::S);
-            }
-            else if (InKeyEvent.GetInputEvent() == IE_Released)
-            {
-                PressedKeys.Remove(EKeys::S);
-            }
-            break;
-        }
-    case 'D':
-        {
-            if (InKeyEvent.GetInputEvent() == IE_Pressed)
-            {
-                PressedKeys.Add(EKeys::D);
-            }
-            else if (InKeyEvent.GetInputEvent() == IE_Released)
-            {
-                PressedKeys.Remove(EKeys::D);
-            }
-            break;
-        }
-    default:
-        break;
+        PressedKeys.Add(InKeyEvent.GetKey());
+    }
+    else if (InKeyEvent.GetInputEvent() == IE_Released)
+    {
+        PressedKeys.Remove(InKeyEvent.GetKey());
     }
 }
 
