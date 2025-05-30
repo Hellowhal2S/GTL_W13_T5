@@ -309,7 +309,7 @@ void UEditorEngine::StartPIE()
     PIEWorld->WorldType = EWorldType::PIE;
 
     PIEWorldContext.SetCurrentWorld(PIEWorld);
-    ActiveWorld = PIEWorld;
+    ActiveWorld = PIEWorld; 
 
     // PVD 시뮬레이션 리셋 (프레임 카운터를 0으로 초기화)
     PhysicsManager->ResetPVDSimulation();

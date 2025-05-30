@@ -1,5 +1,7 @@
 #include "ControlEditorPanel.h"
 
+#include <DirectXColors.h>
+
 #include "World/World.h"
 
 #include "Actors/Player.h"
@@ -41,6 +43,7 @@
 
 #include "Animation/SkeletalMeshActor.h"
 #include "Engine/Classes/Engine/AssetManager.h"
+#include "Engine/Contents/Actor/SnowBall.h"
 #include "Particles/ParticleSystemComponent.h"
 
 
@@ -374,6 +377,7 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
             { .Label = "CapsuleCol",        .OBJ = OBJ_CAPSULE_COLLISION },
             { .Label = "SkeletalMeshActor", .OBJ = OBJ_SKELETALMESH },
             { .Label = "SequencerPlayer",   .OBJ = OBJ_SEQUENCERPLAYER },
+            { .Label = "SnowBall",          .OBJ = OBJ_SNOWBALL },
         };
 
         for (const auto& primitive : primitives)
@@ -494,6 +498,11 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                 {
                     SpawnedActor = World->SpawnActor<ASequencerPlayer>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_SEQUENCERPLAYER"));
+                }
+                case OBJ_SNOWBALL:
+                {
+                    SpawnedActor = World->SpawnActor<ASnowBall>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_SNOWBALL"));
                 }
                 case OBJ_CAMERA:
                 case OBJ_PLAYER:
