@@ -270,7 +270,7 @@ void UEditorEngine::StartPIE()
     PIEWorld->WorldType = EWorldType::PIE;
 
     PIEWorldContext.SetCurrentWorld(PIEWorld);
-    ActiveWorld = PIEWorld;
+    ActiveWorld = PIEWorld; 
 
     SetPhysXScene(PIEWorld);
     
