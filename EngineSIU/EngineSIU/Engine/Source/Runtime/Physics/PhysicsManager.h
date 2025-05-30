@@ -48,8 +48,7 @@ public:
     
     PxScene* CreateScene(UWorld* World);
     PxScene* GetScene(UWorld* World) { return SceneMap[World]; }
-    bool ConnectPVD();
-    void RemoveScene(UWorld* World) { SceneMap.Remove(World); }
+    void RemoveScene(UWorld* World);
     void SetCurrentScene(UWorld* World) { CurrentScene = SceneMap[World]; }
     void SetCurrentScene(PxScene* Scene) { CurrentScene = Scene; }
     
@@ -73,6 +72,11 @@ public:
     void CleanupPVD();
     void CleanupScene();
 
+    // PVD 관리 함수들
+    bool IsPVDConnected() const { return Pvd && Pvd->isConnected(); }
+    void ReconnectPVD();
+    void ResetPVDSimulation(); // PIE 재시작 시 PVD 프레임 카운터 리셋
+
 private:
     PxDefaultAllocator Allocator;
     PxDefaultErrorCallback ErrorCallback;
@@ -82,9 +86,22 @@ private:
     PxScene* CurrentScene = nullptr;
     PxMaterial* Material = nullptr;
     PxDefaultCpuDispatcher* Dispatcher = nullptr;
-    // 디버깅용
-    PxPvd* Pvd;
-    PxPvdTransport* Transport;
+    
+    // PVD 관련 변수들 (간소화)
+    PxPvd* Pvd = nullptr;
+    PxPvdTransport* Transport = nullptr;
+
+    // PVD 내부 함수들
+    void InitializePVD();
+    bool CreatePVDTransport();
+    bool ConnectToPVD();
+    void SetupPVDForScene(PxScene* Scene, UWorld* World);
+    void RefreshPVDClientSettings(PxScene* Scene);
+    void ConfigureSceneDesc(PxSceneDesc& SceneDesc);
+    
+    // 씬 정리 함수들
+    void CleanupScenePVD(PxScene* Scene, UWorld* World);
+    void CleanupAllScenes();
 
     PxRigidDynamic* CreateDynamicRigidBody(const PxVec3& Pos, const PxQuat& Rot, FBodyInstance* BodyInstance, UBodySetup* BodySetups) const;
     PxRigidStatic* CreateStaticRigidBody(const PxVec3& Pos, const PxQuat& Rot, FBodyInstance* BodyInstance, UBodySetup* BodySetups) const;
