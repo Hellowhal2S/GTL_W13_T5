@@ -7,6 +7,7 @@
 #include "Engine/Engine.h"
 #include "World/World.h"
 #include "Physics/PhysicsManager.h"
+#include "LuaScriptComponent.h"  // ULuaScriptComponent 클래스를 위해 추가
 
 namespace LuaBindingHelpers
 {
@@ -274,6 +275,40 @@ namespace LuaBindingHelpers
                 if (GEngine && GEngine->PhysicsManager && Actor)
                 {
                     GEngine->PhysicsManager->ApplyForceToActor(Actor, Force, ForceMode);
+                }
+            }
+        );
+        
+        // PhysX Contact 이벤트 바인딩
+        Lua.set_function("BindContactEvents", 
+            [&Lua]()
+            {
+                // 현재 실행 중인 LuaScriptComponent를 Lua 상태에서 가져오기
+                sol::object ScriptComponentObj = Lua["__current_script_component"];
+                if (ScriptComponentObj.valid())
+                {
+                    if (ULuaScriptComponent* ScriptComponent = ScriptComponentObj.as<ULuaScriptComponent*>())
+                    {
+                        // 현재 Actor 가져오기
+                        AActor* Owner = ScriptComponent->GetOwner();
+                        if (Owner && GEngine && GEngine->PhysicsManager)
+                        {
+                            // Lua 함수들 가져오기
+                            sol::function OnContactBegin = Lua["OnContactBegin"];
+                            sol::function OnContactEnd = Lua["OnContactEnd"];
+                            
+                            if (OnContactBegin.valid() && OnContactEnd.valid())
+                            {
+                                // PhysicsManager에 콜백 등록
+                                GEngine->PhysicsManager->RegisterContactCallback(Owner, OnContactBegin, OnContactEnd);
+                                UE_LOG(ELogLevel::Display, TEXT("Contact events bound successfully for Actor: %s"), *Owner->GetName());
+                            }
+                            else
+                            {
+                                UE_LOG(ELogLevel::Warning, TEXT("OnContactBegin or OnContactEnd function not found in Lua script"));
+                            }
+                        }
+                    }
                 }
             }
         );

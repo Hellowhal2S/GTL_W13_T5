@@ -10,6 +10,7 @@
 #include "Container/Map.h"
 #include "PhysicsEngine/ConstraintInstance.h"
 #include "PhysicsEngine/PhysicsAsset.h"
+#include "sol/forward.hpp"
 
 
 enum class ERigidBodyType : uint8;
@@ -36,6 +37,20 @@ struct GameObject {
     }
 
     void SetRigidBodyType(ERigidBodyType RigidBody) const;
+};
+
+// PhysX Contact 이벤트 콜백 클래스
+class FPhysXContactCallback : public PxSimulationEventCallback
+{
+public:
+    virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override {}
+    virtual void onWake(PxActor** actors, PxU32 count) override {}
+    virtual void onSleep(PxActor** actors, PxU32 count) override {}
+    virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override {}
+    virtual void onAdvance(const PxRigidBody* const* bodyBuffer, const PxTransform* poseBuffer, const PxU32 count) override {}
+    
+    // Contact 이벤트 처리
+    virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override;
 };
 
 class FPhysicsManager
@@ -89,6 +104,14 @@ public:
     void ReconnectPVD();
     void ResetPVDSimulation(); // PIE 재시작 시 PVD 프레임 카운터 리셋
 
+    // Contact 이벤트 콜백 관리
+    void RegisterContactCallback(class AActor* Actor, sol::function OnContactBegin, sol::function OnContactEnd);
+    void UnregisterContactCallback(class AActor* Actor);
+    
+    // Contact 이벤트 트리거 (내부 사용)
+    void TriggerContactBegin(class AActor* Actor, class AActor* OtherActor, const FVector& ContactPoint);
+    void TriggerContactEnd(class AActor* Actor, class AActor* OtherActor, const FVector& ContactPoint);
+
 private:
     PxDefaultAllocator Allocator;
     PxDefaultErrorCallback ErrorCallback;
@@ -98,6 +121,12 @@ private:
     PxScene* CurrentScene = nullptr;
     PxMaterial* Material = nullptr;
     PxDefaultCpuDispatcher* Dispatcher = nullptr;
+    
+    // Contact 이벤트 콜백
+    FPhysXContactCallback ContactCallback;
+    
+    // Actor별 Contact 콜백 함수들
+    TMap<class AActor*, TPair<sol::function, sol::function>> ContactCallbacks;
     
     // PVD 관련 변수들 (간소화)
     PxPvd* Pvd = nullptr;
