@@ -12,8 +12,8 @@ USpringArmComponent::USpringArmComponent()
 {
     // SetRelativeRotation(FRotator(FVector(-3, -14, -5)));
 
-    TargetArmLength = 5.f;
-    TargetOffset = FVector(-13.f, 0.f, 4.f); // 부모에 대한 상대 위치
+    TargetArmLength = 20.0f;
+    TargetOffset = FVector(-13.f, 0.f, 45.f); // 부모에 대한 상대 위치
 
     bUsePawnControlRotation = true;
     bDoCollisionTest = false;
@@ -30,7 +30,6 @@ USpringArmComponent::USpringArmComponent()
     CameraLagMaxDistance = 0.f;
 
     bAbsoluteRotation = false;
-    
 }
 
 FRotator USpringArmComponent::GetDesiredRotation() const
@@ -271,4 +270,31 @@ bool USpringArmComponent::RaySweepBox(const FVector& Start, const FVector& Dir,
 
     OutT = tMin / MaxDist;
     return true;
+}
+
+UObject* USpringArmComponent::Duplicate(UObject* InOuter)
+{
+    ThisClass* NewComponent = Cast<ThisClass>(Super::Duplicate(InOuter));
+
+    NewComponent->TargetOffset = TargetOffset;
+    NewComponent->TargetArmLength = TargetArmLength;
+    NewComponent->ProbeSize = ProbeSize;
+    NewComponent->bDoCollisionTest = bDoCollisionTest;
+    NewComponent->bUsePawnControlRotation = bUsePawnControlRotation;
+    NewComponent->bInheritPitch = bInheritPitch;
+    NewComponent->bInheritRoll = bInheritRoll;
+    NewComponent->bInheritYaw = bInheritYaw;
+    NewComponent->bEnableCameraLag = bEnableCameraLag;
+    NewComponent->bEnableCameraRotationLag = bEnableCameraRotationLag;
+    NewComponent->bUseCameraLagSubstepping = bUseCameraLagSubstepping;
+    NewComponent->CameraLagSpeed = CameraLagSpeed;
+    NewComponent->CameraRotationLagSpeed = CameraRotationLagSpeed;
+    NewComponent->CameraLagMaxTimeStep = CameraLagMaxTimeStep;
+    NewComponent->CameraLagMaxDistance = CameraLagMaxDistance;
+    NewComponent->PreviousDesiredLoc = PreviousDesiredLoc;
+    NewComponent->PreviousDesiredRot = PreviousDesiredRot;
+    NewComponent->PreviousArmOrigin = PreviousArmOrigin;
+    NewComponent->RelativeSocketLocation = RelativeSocketLocation;
+    NewComponent->RelativeSocketRotation = RelativeSocketRotation;
+    return NewComponent;
 }

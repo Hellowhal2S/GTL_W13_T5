@@ -12,7 +12,9 @@ class ASnowBall : public APlayer
 
 public:
     ASnowBall();
-
+    virtual void Tick(float DeltaTime) override;
+    
+    USceneComponent* DefaultSceneComponent = nullptr;
     UStaticMeshComponent* SnowBallComponent = nullptr;
     USphereComponent* SphereCollision = nullptr;
     USpringArmComponent* SpringArmComponent = nullptr;
