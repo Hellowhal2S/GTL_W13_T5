@@ -18,6 +18,10 @@ void UInputComponent::ProcessInput(float DeltaTime)
     {
         KeyBindDelegate[FString("D")].Broadcast(DeltaTime);
     }
+    if (PressedKeys.Contains(EKeys::SpaceBar))
+    {
+        KeyBindDelegate[FString("SpaceBar")].Broadcast(DeltaTime);
+    }
 }
 
 void UInputComponent::SetPossess()
@@ -68,59 +72,13 @@ void UInputComponent::ClearBindDelegate()
 
 void UInputComponent::InputKey(const FKeyEvent& InKeyEvent)
 {
-    // 일반적인 단일 키 이벤트
-    switch (InKeyEvent.GetCharacter())
+    if (InKeyEvent.GetInputEvent() == IE_Pressed)
     {
-    case 'W':
-        {
-            if (InKeyEvent.GetInputEvent() == IE_Pressed)
-            {
-                PressedKeys.Add(EKeys::W);
-            }
-            else if (InKeyEvent.GetInputEvent() == IE_Released)
-            {
-                PressedKeys.Remove(EKeys::W);
-            }
-            break;
-        }
-    case 'A':
-        {
-            if (InKeyEvent.GetInputEvent() == IE_Pressed)
-            {
-                PressedKeys.Add(EKeys::A);
-            }
-            else if (InKeyEvent.GetInputEvent() == IE_Released)
-            {
-                PressedKeys.Remove(EKeys::A);
-            }
-            break;
-        }
-    case 'S':
-        {
-            if (InKeyEvent.GetInputEvent() == IE_Pressed)
-            {
-                PressedKeys.Add(EKeys::S);
-            }
-            else if (InKeyEvent.GetInputEvent() == IE_Released)
-            {
-                PressedKeys.Remove(EKeys::S);
-            }
-            break;
-        }
-    case 'D':
-        {
-            if (InKeyEvent.GetInputEvent() == IE_Pressed)
-            {
-                PressedKeys.Add(EKeys::D);
-            }
-            else if (InKeyEvent.GetInputEvent() == IE_Released)
-            {
-                PressedKeys.Remove(EKeys::D);
-            }
-            break;
-        }
-    default:
-        break;
+        PressedKeys.Add(InKeyEvent.GetKey());
+    }
+    else if (InKeyEvent.GetInputEvent() == IE_Released)
+    {
+        PressedKeys.Remove(InKeyEvent.GetKey());
     }
 }
 
@@ -136,4 +94,25 @@ void UInputComponent::BindAction(const FString& Key, const std::function<void(fl
     {
         Callback(DeltaTime);
     });
+}
+
+FDelegateHandle UInputComponent::BindActionWithHandle(const FString& Key, const std::function<void(float)>& Callback)
+{
+    if (Callback == nullptr)
+    {
+        // TODO: Handle error case
+    }
+
+    return KeyBindDelegate[Key].AddLambda([this, Callback](float DeltaTime)
+    {
+        Callback(DeltaTime);
+    });
+}
+
+void UInputComponent::UnbindAction(const FString& Key, const FDelegateHandle& Handle)
+{
+    if (KeyBindDelegate.Contains(Key))
+    {
+        KeyBindDelegate[Key].Remove(Handle);
+    }
 }

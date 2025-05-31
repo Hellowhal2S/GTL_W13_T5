@@ -17,6 +17,10 @@ public:
     virtual ~UInputComponent() override = default;
     void BindAction(const FString& Key, const std::function<void(float)>& Callback);
 
+    // PIE 모드 델리게이트 핸들 관리를 위한 메서드 추가
+    FDelegateHandle BindActionWithHandle(const FString& Key, const std::function<void(float)>& Callback);
+    void UnbindAction(const FString& Key, const FDelegateHandle& Handle);
+
     void ProcessInput(float DeltaTime);
     
     void SetPossess();

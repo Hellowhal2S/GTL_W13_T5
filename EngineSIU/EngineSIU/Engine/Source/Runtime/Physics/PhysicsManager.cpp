@@ -7,6 +7,9 @@
 #include "World/World.h"
 #include <thread>
 
+// sol 헤더 추가 (Lua 콜백을 위해)
+#include "LuaScripts/LuaBindingHelpers.h"
+
 
 void GameObject::SetRigidBodyType(ERigidBodyType RigidBodyType) const
 {
@@ -34,6 +37,11 @@ void GameObject::SetRigidBodyType(ERigidBodyType RigidBodyType) const
 
 FPhysicsManager::FPhysicsManager()
 {
+}
+
+FPhysicsManager::~FPhysicsManager()
+{
+    ShutdownPhysX();
 }
 
 void FPhysicsManager::InitPhysX()
@@ -409,6 +417,19 @@ void FPhysicsManager::ApplyShapeCollisionSettings(PxShape* Shape, const FBodyIns
     }
     
     Shape->setFlags(ShapeFlags);
+    
+    // Contact 이벤트를 위한 Contact 보고 설정
+    if (ShapeFlags & PxShapeFlag::eSIMULATION_SHAPE)
+    {
+        // Simulation Shape인 경우 Contact 이벤트 활성화
+        PxFilterData filterData = Shape->getSimulationFilterData();
+        // Contact 이벤트를 위한 커스텀 필터 데이터 설정 가능
+        Shape->setSimulationFilterData(filterData);
+        
+        // Contact offset 설정 (옵션)
+        Shape->setContactOffset(0.02f); // 2cm
+        Shape->setRestOffset(0.0f);
+    }
 }
 
 // // === 런타임 설정 변경 함수들 === TODO : 필요하면 GameObject 안으로 옮기기
@@ -457,9 +478,18 @@ void FPhysicsManager::CreateJoint(const GameObject* Obj1, const GameObject* Obj2
 {
     PxTransform GlobalPose1 = Obj1->DynamicRigidBody->getGlobalPose();
     PxTransform GlobalPose2 = Obj2->DynamicRigidBody->getGlobalPose();
-        
-    PxTransform LocalFrameParent = GlobalPose1.getInverse() * GlobalPose2;
-    PxTransform LocalFrameChild = PxTransform(PxVec3(0));
+
+    PxQuat AxisCorrection = PxQuat(PxMat33(
+        PxVec3(0.0f, 0.0f, 1.0f),
+        PxVec3(1.0f, 0.0f, 0.0f),
+        PxVec3(0.0f, 1.0f, 0.0f)
+    ));
+    AxisCorrection.normalize();
+
+    PxTransform LocalFrameChild(PxVec3(0.0f), AxisCorrection);
+
+    PxTransform ChildJointFrameInWorld = GlobalPose2 * LocalFrameChild;
+    PxTransform LocalFrameParent = GlobalPose1.getInverse() * ChildJointFrameInWorld;
 
     // PhysX D6 Joint 생성
     PxD6Joint* Joint = PxD6JointCreate(*Physics,
@@ -637,6 +667,10 @@ void FPhysicsManager::CreateJoint(const GameObject* Obj1, const GameObject* Obj2
         
         // 파괴 임계값 설정 (선택사항)
         Joint->setBreakForce(PX_MAX_F32, PX_MAX_F32);  // 무한대로 설정하여 파괴되지 않음
+
+        Joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
+        Joint->setProjectionLinearTolerance(0.01f);
+        Joint->setProjectionAngularTolerance(0.017f);
     }
 
     ConstraintInstance->ConstraintData = Joint;
@@ -803,7 +837,30 @@ void FPhysicsManager::ConfigureSceneDesc(PxSceneDesc& SceneDesc)
     Dispatcher = PxDefaultCpuDispatcherCreate(hc-2);
     SceneDesc.cpuDispatcher = Dispatcher;
     
-    SceneDesc.filterShader = PxDefaultSimulationFilterShader;
+    // Contact 이벤트를 활성화하는 커스텀 필터 셰이더
+    SceneDesc.filterShader = [](
+        PxFilterObjectAttributes attributes0, PxFilterData filterData0,
+        PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+        PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize) -> PxFilterFlags
+    {
+        // 기본 필터링 (충돌 감지)
+        if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+        {
+            pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+            return PxFilterFlag::eDEFAULT;
+        }
+        
+        // Contact 이벤트 활성화
+        pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+        pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;      // Contact Begin 이벤트
+        pairFlags |= PxPairFlag::eNOTIFY_TOUCH_LOST;       // Contact End 이벤트
+        pairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS;   // Contact 점 정보
+        
+        return PxFilterFlag::eDEFAULT;
+    };
+    
+    // Contact 이벤트 콜백 설정
+    SceneDesc.simulationEventCallback = &ContactCallback;
     
     SceneDesc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
     SceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
@@ -930,4 +987,242 @@ void FPhysicsManager::RemoveScene(UWorld* World)
     SceneMap.Remove(World);
     
     printf("씬 제거 완료: %s\n", World ? "Valid World" : "NULL World");
+}
+
+// === 토크와 힘 적용 함수들 구현 ===
+
+PxForceMode::Enum FPhysicsManager::ConvertForceMode(int ForceMode) const
+{
+    switch (ForceMode)
+    {
+    case 0: return PxForceMode::eFORCE;          // 연속적인 힘 (질량 고려)
+    case 1: return PxForceMode::eIMPULSE;        // 즉시 충격 (질량 고려)
+    case 2: return PxForceMode::eVELOCITY_CHANGE; // 속도 변화 (질량 무시)
+    case 3: return PxForceMode::eACCELERATION;   // 가속도 (질량 무시)
+    default: return PxForceMode::eFORCE;
+    }
+}
+
+void FPhysicsManager::ApplyTorque(GameObject* Obj, const FVector& Torque, int ForceMode)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXTorque(Torque.X, -Torque.Y, Torque.Z); // Y축 반전 (언리얼->PhysX 좌표계)
+    PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
+    
+    Obj->DynamicRigidBody->addTorque(PhysXTorque, PhysXForceMode);
+}
+
+void FPhysicsManager::ApplyTorqueToActor(AActor* Actor, const FVector& Torque, int ForceMode)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        ApplyTorque(Obj, Torque, ForceMode);
+    }
+}
+
+void FPhysicsManager::ApplyForce(GameObject* Obj, const FVector& Force, int ForceMode)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXForce(Force.X, -Force.Y, Force.Z); // Y축 반전 (언리얼->PhysX 좌표계)
+    PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
+    
+    Obj->DynamicRigidBody->addForce(PhysXForce, PhysXForceMode);
+}
+
+void FPhysicsManager::ApplyForceToActor(AActor* Actor, const FVector& Force, int ForceMode)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        ApplyForce(Obj, Force, ForceMode);
+    }
+}
+
+void FPhysicsManager::ApplyForceAtPosition(GameObject* Obj, const FVector& Force, const FVector& Position, int ForceMode)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXForce(Force.X, -Force.Y, Force.Z);
+    PxVec3 PhysXPosition(Position.X, -Position.Y, Position.Z);
+    PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
+    
+    PxRigidBodyExt::addForceAtPos(*Obj->DynamicRigidBody, PhysXForce, PhysXPosition, PhysXForceMode);
+}
+
+void FPhysicsManager::ApplyForceAtPositionToActor(AActor* Actor, const FVector& Force, const FVector& Position, int ForceMode)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        ApplyForceAtPosition(Obj, Force, Position, ForceMode);
+    }
+}
+
+void FPhysicsManager::ApplyJumpImpulse(GameObject* Obj, float JumpForce)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    // 위쪽 방향으로 충격 적용
+    PxVec3 JumpImpulse(0.0f, 0.0f, JumpForce);
+    Obj->DynamicRigidBody->addForce(JumpImpulse, PxForceMode::eIMPULSE);
+}
+
+void FPhysicsManager::ApplyJumpImpulseToActor(AActor* Actor, float JumpForce)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        ApplyJumpImpulse(Obj, JumpForce);
+    }
+}
+
+GameObject* FPhysicsManager::FindGameObjectByActor(AActor* Actor)
+{
+    if (!Actor) return nullptr;
+    
+    // Actor의 PrimitiveComponent를 찾아서 BodyInstance를 통해 GameObject 찾기
+    for (auto* Component : Actor->GetComponents())
+    {
+        if (auto* PrimComp = Cast<class UPrimitiveComponent>(Component))
+        {
+            if (PrimComp->BodyInstance && PrimComp->BodyInstance->BIGameObject)
+            {
+                return PrimComp->BodyInstance->BIGameObject;
+            }
+        }
+    }
+    
+    return nullptr;
+}
+
+// PhysX Contact 콜백 구현
+void FPhysXContactCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+{
+    // Actor에서 BodyInstance를 가져와서 소유 Actor 찾기
+    auto GetActorFromRigidActor = [](const PxRigidActor* rigidActor) -> AActor*
+    {
+        if (!rigidActor || !rigidActor->userData) return nullptr;
+        
+        FBodyInstance* bodyInstance = static_cast<FBodyInstance*>(rigidActor->userData);
+        if (!bodyInstance) return nullptr;
+        
+        // BodyInstance에서 소유 Component 찾기
+        UPrimitiveComponent* component = bodyInstance->OwnerComponent;
+        if (!component) return nullptr;
+        
+        return component->GetOwner();
+    };
+
+    AActor* Actor0 = GetActorFromRigidActor(pairHeader.actors[0]);
+    AActor* Actor1 = GetActorFromRigidActor(pairHeader.actors[1]);
+    
+    if (!Actor0 || !Actor1) return;
+
+    // Contact 점 정보 추출
+    for (PxU32 i = 0; i < nbPairs; i++)
+    {
+        const PxContactPair& cp = pairs[i];
+        
+        // Contact 시작/종료 이벤트 확인
+        if (cp.events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+        {
+            // Contact Begin
+            FVector ContactPoint = FVector::ZeroVector;
+            
+            // Contact 점 정보가 있으면 추출
+            if (cp.contactCount > 0)
+            {
+                PxContactPairPoint contactPoints[1];
+                PxU32 nbContacts = cp.extractContacts(contactPoints, 1);
+                if (nbContacts > 0)
+                {
+                    PxVec3 point = contactPoints[0].position;
+                    ContactPoint = FVector(point.x, -point.y, point.z); // Y축 반전
+                }
+            }
+            
+            // PhysicsManager에서 등록된 콜백 호출
+            if (GEngine && GEngine->PhysicsManager)
+            {
+                GEngine->PhysicsManager->TriggerContactBegin(Actor0, Actor1, ContactPoint);
+                GEngine->PhysicsManager->TriggerContactBegin(Actor1, Actor0, ContactPoint);
+            }
+        }
+        
+        if (cp.events & PxPairFlag::eNOTIFY_TOUCH_LOST)
+        {
+            // Contact End
+            FVector ContactPoint = FVector::ZeroVector; // Contact 종료시는 점 정보가 없을 수 있음
+            
+            // PhysicsManager에서 등록된 콜백 호출
+            if (GEngine && GEngine->PhysicsManager)
+            {
+                GEngine->PhysicsManager->TriggerContactEnd(Actor0, Actor1, ContactPoint);
+                GEngine->PhysicsManager->TriggerContactEnd(Actor1, Actor0, ContactPoint);
+            }
+        }
+    }
+}
+
+// Contact 콜백 관리 함수들 구현
+void FPhysicsManager::RegisterContactCallback(AActor* Actor, sol::function OnContactBegin, sol::function OnContactEnd)
+{
+    if (!Actor) return;
+    
+    ContactCallbacks.Add(Actor, TPair<sol::function, sol::function>(OnContactBegin, OnContactEnd));
+    UE_LOG(ELogLevel::Display, TEXT("Contact callback registered for Actor: %s"), *Actor->GetName());
+}
+
+void FPhysicsManager::UnregisterContactCallback(AActor* Actor)
+{
+    if (!Actor) return;
+    
+    ContactCallbacks.Remove(Actor);
+    UE_LOG(ELogLevel::Display, TEXT("Contact callback unregistered for Actor: %s"), *Actor->GetName());
+}
+
+// Contact 이벤트 트리거 함수들 (FPhysXContactCallback에서 호출)
+void FPhysicsManager::TriggerContactBegin(AActor* Actor, AActor* OtherActor, const FVector& ContactPoint)
+{
+    if (!Actor || !OtherActor) return;
+    
+    if (ContactCallbacks.Contains(Actor))
+    {
+        const auto& Callbacks = ContactCallbacks[Actor];
+        if (Callbacks.Key.valid()) // OnContactBegin 콜백이 유효하면
+        {
+            try
+            {
+                Callbacks.Key(OtherActor, ContactPoint);
+            }
+            catch (const std::exception& e)
+            {
+                UE_LOG(ELogLevel::Error, TEXT("Error in OnContactBegin callback: %s"), *FString(e.what()));
+            }
+        }
+    }
+}
+
+void FPhysicsManager::TriggerContactEnd(AActor* Actor, AActor* OtherActor, const FVector& ContactPoint)
+{
+    if (!Actor || !OtherActor) return;
+    
+    if (ContactCallbacks.Contains(Actor))
+    {
+        const auto& Callbacks = ContactCallbacks[Actor];
+        if (Callbacks.Value.valid()) // OnContactEnd 콜백이 유효하면
+        {
+            try
+            {
+                Callbacks.Value(OtherActor, ContactPoint);
+            }
+            catch (const std::exception& e)
+            {
+                UE_LOG(ELogLevel::Error, TEXT("Error in OnContactEnd callback: %s"), *FString(e.what()));
+            }
+        }
+    }
 }

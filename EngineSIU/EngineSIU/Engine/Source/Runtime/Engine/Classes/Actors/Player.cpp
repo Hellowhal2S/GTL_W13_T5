@@ -637,9 +637,9 @@ void ASequencerPlayer::PostSpawnInitialize()
 {
     APlayer::PostSpawnInitialize();
     
-    RootComponent = AddComponent<USceneComponent>();
+    RootComponent = AddComponent<USceneComponent>("SceneComponent_0");
 
-    CameraComponent = AddComponent<UCameraComponent>();
+    CameraComponent = AddComponent<UCameraComponent>("CameraComponent_0");
     CameraComponent->SetupAttachment(RootComponent);
 }
 

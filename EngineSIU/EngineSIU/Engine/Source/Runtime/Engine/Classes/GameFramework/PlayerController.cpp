@@ -104,6 +104,15 @@ void APlayerController::BindAction(const FString& Key, const std::function<void(
     }
 }
 
+FDelegateHandle APlayerController::BindActionWithHandle(const FString& Key, const std::function<void(float)>& Callback)
+{
+    if (InputComponent)
+    {
+        return InputComponent->BindActionWithHandle(Key, Callback);
+    }
+    // TODO: Handle error case
+}
+
 AActor* APlayerController::GetViewTarget() const
 {
     AActor* CameraManagerViewTarget = PlayerCameraManager ? PlayerCameraManager->GetViewTarget() : nullptr;

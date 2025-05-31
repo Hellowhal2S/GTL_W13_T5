@@ -10,6 +10,7 @@
 #include "Container/Map.h"
 #include "PhysicsEngine/ConstraintInstance.h"
 #include "PhysicsEngine/PhysicsAsset.h"
+#include "sol/forward.hpp"
 
 
 enum class ERigidBodyType : uint8;
@@ -38,11 +39,25 @@ struct GameObject {
     void SetRigidBodyType(ERigidBodyType RigidBody) const;
 };
 
+// PhysX Contact 이벤트 콜백 클래스
+class FPhysXContactCallback : public PxSimulationEventCallback
+{
+public:
+    virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override {}
+    virtual void onWake(PxActor** actors, PxU32 count) override {}
+    virtual void onSleep(PxActor** actors, PxU32 count) override {}
+    virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override {}
+    virtual void onAdvance(const PxRigidBody* const* bodyBuffer, const PxTransform* poseBuffer, const PxU32 count) override {}
+    
+    // Contact 이벤트 처리
+    virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override;
+};
+
 class FPhysicsManager
 {
 public:
     FPhysicsManager();
-    ~FPhysicsManager() = default;
+    ~FPhysicsManager();
 
     void InitPhysX();
     
@@ -53,6 +68,18 @@ public:
     void SetCurrentScene(PxScene* Scene) { CurrentScene = Scene; }
     
     void DestroyGameObject(GameObject* GameObject) const;
+    
+    // 토크와 힘 적용 함수들
+    void ApplyTorque(GameObject* Obj, const FVector& Torque, int ForceMode = 0);
+    void ApplyTorqueToActor(class AActor* Actor, const FVector& Torque, int ForceMode = 0);
+    void ApplyForce(GameObject* Obj, const FVector& Force, int ForceMode = 0);
+    void ApplyForceToActor(class AActor* Actor, const FVector& Force, int ForceMode = 0);
+    void ApplyForceAtPosition(GameObject* Obj, const FVector& Force, const FVector& Position, int ForceMode = 0);
+    void ApplyForceAtPositionToActor(class AActor* Actor, const FVector& Force, const FVector& Position, int ForceMode = 0);
+    void ApplyJumpImpulse(GameObject* Obj, float JumpForce);
+    void ApplyJumpImpulseToActor(class AActor* Actor, float JumpForce);
+    
+    GameObject* FindGameObjectByActor(class AActor* Actor);
     
     GameObject CreateBox(const PxVec3& Pos, const PxVec3& HalfExtents) const;
     GameObject* CreateGameObject(const PxVec3& Pos, const PxQuat& Rot, FBodyInstance* BodyInstance, UBodySetup* BodySetup, ERigidBodyType RigidBodyType =
@@ -77,6 +104,14 @@ public:
     void ReconnectPVD();
     void ResetPVDSimulation(); // PIE 재시작 시 PVD 프레임 카운터 리셋
 
+    // Contact 이벤트 콜백 관리
+    void RegisterContactCallback(class AActor* Actor, sol::function OnContactBegin, sol::function OnContactEnd);
+    void UnregisterContactCallback(class AActor* Actor);
+    
+    // Contact 이벤트 트리거 (내부 사용)
+    void TriggerContactBegin(class AActor* Actor, class AActor* OtherActor, const FVector& ContactPoint);
+    void TriggerContactEnd(class AActor* Actor, class AActor* OtherActor, const FVector& ContactPoint);
+
 private:
     PxDefaultAllocator Allocator;
     PxDefaultErrorCallback ErrorCallback;
@@ -86,6 +121,12 @@ private:
     PxScene* CurrentScene = nullptr;
     PxMaterial* Material = nullptr;
     PxDefaultCpuDispatcher* Dispatcher = nullptr;
+    
+    // Contact 이벤트 콜백
+    FPhysXContactCallback ContactCallback;
+    
+    // Actor별 Contact 콜백 함수들
+    TMap<class AActor*, TPair<sol::function, sol::function>> ContactCallbacks;
     
     // PVD 관련 변수들 (간소화)
     PxPvd* Pvd = nullptr;
@@ -111,5 +152,8 @@ private:
     void ApplyLockConstraints(PxRigidDynamic* DynamicBody, const FBodyInstance* BodyInstance) const;
     void ApplyCollisionSettings(const PxRigidActor* Actor, const FBodyInstance* BodyInstance) const;
     void ApplyShapeCollisionSettings(PxShape* Shape, const FBodyInstance* BodyInstance) const;
+    
+    // ForceMode 변환 헬퍼 함수
+    PxForceMode::Enum ConvertForceMode(int ForceMode) const;
 };
 
