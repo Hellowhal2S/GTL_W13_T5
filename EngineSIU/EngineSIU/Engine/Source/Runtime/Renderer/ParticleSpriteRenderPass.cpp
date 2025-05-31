@@ -1,4 +1,4 @@
-﻿#include "ParticleSpriteRenderPass.h"
+#include "ParticleSpriteRenderPass.h"
 
 #include "RendererHelpers.h"
 #include "UnrealClient.h"
@@ -130,7 +130,8 @@ void FParticleSpriteRenderPass::DrawParticles()
         FParticleDynamicData* Particle = PSC->GetParticleDynamicData();
         if (Particle)
         {
-            UpdateObjectConstant(PSC->GetWorldMatrix(), FVector4(), false);
+            //UpdateObjectConstant(PSC->GetWorldMatrix(), FVector4(), false);
+            UpdateObjectConstant(FMatrix::Identity, FVector4(), false);
             
             for (auto Emitter : Particle->DynamicEmitterDataArray)
             {
