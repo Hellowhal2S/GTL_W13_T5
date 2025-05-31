@@ -25,6 +25,7 @@ public:
     static bool RaySweepBox(const FVector& Start, const FVector& Dir, float MaxDist, const FMatrix& BoxMatrix,
                             const FVector& BoxExtents, float ProbeRadius, float& OutT);
 
+    virtual UObject* Duplicate(UObject* InOuter) override;
 public:
     FRotator GetDesiredRotation() const;
     FRotator GetTargetRotation() const;

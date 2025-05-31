@@ -7,10 +7,10 @@
 
 ASnowBall::ASnowBall()
 {
+    
     SnowBallComponent = AddComponent<UStaticMeshComponent>("SnowBall");
-    SetRootComponent(SnowBallComponent);
-
     SnowBallComponent->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/Reference/Reference.obj"));
+    SetRootComponent(SnowBallComponent);
     
     SphereCollision = AddComponent<USphereComponent>("Collision");
     SphereCollision->SetupAttachment(SnowBallComponent);
@@ -19,4 +19,14 @@ ASnowBall::ASnowBall()
     SpringArmComponent->SetupAttachment(SnowBallComponent);
     CameraComponent = AddComponent<UCameraComponent>("Camera");
     CameraComponent->SetupAttachment(SpringArmComponent);
+    CameraComponent->SetRelativeRotation(FRotator(-30, 0, 0));
 }
+
+void ASnowBall::Tick(float DeltaTime)
+{
+    APlayer::Tick(DeltaTime);
+    //
+    // SetActorLocation(SnowBallComponent->GetRelativeLocation());
+    // SnowBallComponent->SetRelativeLocation(FVector(0, 0, 0));
+}
+
