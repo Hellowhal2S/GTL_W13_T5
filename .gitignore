@@ -460,3 +460,6 @@ FodyWeavers.xsd
 
 # Game engine save files
 **/AutoSaves.scene
+
+# Copilot Instructions
+*.md
