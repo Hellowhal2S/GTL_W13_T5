@@ -204,6 +204,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Contents\Actor\MyPlayer.cpp" />
     <ClCompile Include="Engine\Contents\Actor\SnowBall.cpp" />
     <ClCompile Include="Engine\Contents\AnimInstance\LuaScriptAnimInstance.cpp" />
     <ClCompile Include="Engine\Contents\Objects\DamageCameraShake.cpp" />
@@ -515,6 +516,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Contents\Actor\MyPlayer.h" />
     <ClInclude Include="Engine\Contents\Actor\SnowBall.h" />
     <ClInclude Include="Engine\Contents\AnimInstance\LuaScriptAnimInstance.h" />
     <ClInclude Include="Engine\Contents\Objects\DamageCameraShake.h" />

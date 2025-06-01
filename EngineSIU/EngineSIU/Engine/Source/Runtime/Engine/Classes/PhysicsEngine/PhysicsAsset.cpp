@@ -14,6 +14,16 @@ void UBodySetupCore::SerializeAsset(FArchive& Ar)
     Ar << BoneName;
 }
 
+UObject* UBodySetup::Duplicate(UObject* InOuter)
+{
+    UBodySetup* NewBodySetup = Cast<UBodySetup>(Super::Duplicate(InOuter));
+
+    NewBodySetup->BoneName = BoneName;
+    NewBodySetup->AggGeom = AggGeom;
+    NewBodySetup->GeomAttributes = GeomAttributes;
+    return NewBodySetup;
+}
+
 void UBodySetup::SerializeAsset(FArchive& Ar)
 {
     UBodySetupCore::SerializeAsset(Ar);

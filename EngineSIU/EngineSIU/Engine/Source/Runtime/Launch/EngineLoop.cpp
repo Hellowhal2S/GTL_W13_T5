@@ -170,6 +170,11 @@ void FEngineLoop::Tick()
 
         const float DeltaTime = static_cast<float>(ElapsedTime / 1000.f);
 
+        int count =0;
+        for (auto k : TObjectRange<UBodySetup>())
+            count++;
+        UE_LOG(ELogLevel::Error, "%d",count);
+        
         GEngine->Tick(DeltaTime);
         LevelEditor->Tick(DeltaTime);
         Render();

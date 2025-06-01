@@ -165,6 +165,11 @@ UPrimitiveComponent::UPrimitiveComponent()
     BodySetup = FObjectFactory::ConstructObject<UBodySetup>(this);
 }
 
+UPrimitiveComponent::~UPrimitiveComponent()
+{
+    // GUObjectArray.MarkRemoveObject()
+}
+
 UObject* UPrimitiveComponent::Duplicate(UObject* InOuter)
 {
     ThisClass* NewComponent = Cast<ThisClass>(Super::Duplicate(InOuter));
@@ -175,6 +180,10 @@ UObject* UPrimitiveComponent::Duplicate(UObject* InOuter)
     NewComponent->GeomAttributes = GeomAttributes;
     NewComponent->RigidBodyType = RigidBodyType;
 
+    NewComponent->BodySetup->AggGeom = BodySetup->AggGeom;
+    NewComponent->BodySetup->GeomAttributes = BodySetup->GeomAttributes;
+
+    // NewComponent->BodyInstance = BodyInstance;
     return NewComponent;
 }
 

@@ -6,13 +6,14 @@ class USphereComponent;
 class UStaticMeshComponent;
 class USkeletalMeshComponent;
 
-class ASnowBall : public APlayer
+class ASnowBall : public AActor
 {
-    DECLARE_CLASS(ASnowBall, APlayer)
+    DECLARE_CLASS(ASnowBall, AActor)
 
 public:
     ASnowBall();
     virtual void Tick(float DeltaTime) override;
+
     
     USceneComponent* DefaultSceneComponent = nullptr;
     UStaticMeshComponent* SnowBallComponent = nullptr;
