@@ -457,3 +457,6 @@ FodyWeavers.xsd
 
 **/imgui.ini
 **/editor.ini
+
+# Game engine save files
+**/AutoSaves.scene
