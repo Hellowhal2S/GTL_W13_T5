@@ -31,6 +31,7 @@ public:
 
 private:
     void SetLuaDefaultTypes();
+    void BindEngineAPIs(); // 엔진 API 바인딩 함수 추가
 
 public:
 

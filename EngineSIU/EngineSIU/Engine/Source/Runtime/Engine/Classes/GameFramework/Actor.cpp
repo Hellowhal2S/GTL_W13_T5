@@ -437,6 +437,24 @@ bool AActor::BindSelfLuaProperties()
     // 자기 자신 객체를 따로 넘겨주어야만 AActor:GetName() 같은 함수를 실행시켜줄 수 있다.
     LuaTable["this"] = this;
     LuaTable["Name"] = *GetName(); // FString 해결되기 전까지 임시로 Table로 전달.
+    
+    // 스크립트 환경에 엔진 글로벌 함수들 접근 가능하도록 설정
+    sol::state& LuaState = FLuaScriptManager::Get().GetLua();
+    LuaTable["print"] = LuaState["print"];
+    LuaTable["UE_LOG"] = LuaState["UE_LOG"];
+    LuaTable["controller"] = LuaState["controller"];
+    LuaTable["ApplyForce"] = LuaState["ApplyForce"];
+    LuaTable["ApplyTorque"] = LuaState["ApplyTorque"];
+    LuaTable["ApplyJumpImpulse"] = LuaState["ApplyJumpImpulse"];
+    LuaTable["ApplyForceAtPosition"] = LuaState["ApplyForceAtPosition"];
+    
+    // EngineTypes 테이블도 접근 가능하도록 설정
+    LuaTable["EngineTypes"] = LuaState["EngineTypes"];
+    
+    // Contact 이벤트 바인딩 함수들 추가
+    LuaTable["RegisterContactCallback"] = LuaState["RegisterContactCallback"];
+    LuaTable["UnregisterContactCallback"] = LuaState["UnregisterContactCallback"];
+
     // 이 아래에서 또는 하위 클래스 함수에서 멤버 변수 등록.
 
     return true;

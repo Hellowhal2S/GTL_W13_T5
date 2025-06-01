@@ -4,11 +4,12 @@
 #include "PhysicsEngine/ConstraintInstance.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
+#include "Engine/Engine.h"
 #include "World/World.h"
 #include <thread>
 
-// sol 헤더 추가 (Lua 콜백을 위해)
-#include "LuaScripts/LuaBindingHelpers.h"
+// sol 헤더는 Contact 콜백을 위해 필요
+#include "sol/sol.hpp"
 
 
 void GameObject::SetRigidBodyType(ERigidBodyType RigidBodyType) const

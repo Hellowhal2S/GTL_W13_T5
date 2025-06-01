@@ -1,10 +1,21 @@
 -- 공 굴리기 컨트롤러
 -- 토크를 사용하여 물리적으로 자연스러운 굴리기 구현
 
+setmetatable(_ENV, { __index = EngineTypes })
+
+local ReturnTable = {} -- Return용 table. cpp에서 Table 단위로 객체 관리.
+
+local FVector = EngineTypes.FVector -- EngineTypes로 등록된 FVector local로 선언.
+
 -- 설정값
 local rollTorque = 10.0        -- 굴리기 토크 강도
-local jumpForce = 10.0         -- 점프 힘
+local jumpForce = 100.0         -- 점프 힘
 local airControlForce = 0.0   -- 공중에서의 제어력
+
+-- 바닥 감지 변수
+local isGrounded = false       -- 바닥에 닿아있는지 여부
+local groundCheckDelay = 0.1   -- 바닥 감지 딜레이 (초)
+local timeSinceLastContact = 0.0
 
 -- ForceMode 상수 정의
 local FORCE_MODE = {
@@ -14,65 +25,115 @@ local FORCE_MODE = {
     ACCELERATION = 3     -- 가속도 (질량 무시)
 }
 
-function BeginPlay()
+function ReturnTable:BeginPlay()
     print("Ball Rolling Controller Started")
+    self:InitializeLua()
 end
 
-function EndPlay()
+function ReturnTable:EndPlay()
     print("Ball Rolling Controller Ended")
 end
 
-function OnOverlap(OtherActor)
+function ReturnTable:OnOverlap(OtherActor)
     -- 충돌 처리가 필요하면 여기에 구현
 end
 
-function InitializeLua()
-    -- 키 바인딩
-    controller("W", OnPressW)    -- 앞으로 굴리기
-    controller("S", OnPressS)    -- 뒤로 굴리기
-    controller("A", OnPressA)    -- 왼쪽으로 굴리기
-    controller("D", OnPressD)    -- 오른쪽으로 굴리기
-    controller("SpaceBar", OnPressSpace) -- 점프
+-- PhysX Contact 이벤트 처리
+function ReturnTable:OnContactBegin(OtherActor, ContactPoint)
+    -- 바닥과의 접촉 시작
+    isGrounded = true
+    timeSinceLastContact = 0.0
+end
+
+function ReturnTable:OnContactEnd(OtherActor, ContactPoint)
+    -- 바닥과의 접촉 종료
+    -- 즉시 false로 설정하지 않고 약간의 딜레이를 둠
+end
+
+-- 키 바인딩
+function ReturnTable:InitializeLua()
+    controller("W", function(dt) self:OnPressW(dt) end)    -- 앞으로 굴리기
+    controller("S", function(dt) self:OnPressS(dt) end)    -- 뒤로 굴리기
+    controller("A", function(dt) self:OnPressA(dt) end)    -- 왼쪽으로 굴리기
+    controller("D", function(dt) self:OnPressD(dt) end)    -- 오른쪽으로 굴리기
+    controller("SpaceBar", function(dt) self:OnPressSpace(dt) end) -- 점프
+    
+    -- PhysX Contact 이벤트 바인딩
+    self:BindContactEvents()
+end
+
+-- Contact 이벤트 바인딩 함수
+function ReturnTable:BindContactEvents()
+    if not self.this then
+        print("Error: Actor reference (this) not found for Contact event binding")
+        return
+    end
+    
+    -- Contact 콜백 등록
+    RegisterContactCallback(
+        self.this,
+        function(otherActor, contactPoint) 
+            self:OnContactBegin(otherActor, contactPoint) 
+        end,
+        function(otherActor, contactPoint) 
+            self:OnContactEnd(otherActor, contactPoint) 
+        end
+    )
+    
+    print("Contact events bound successfully")
 end
 
 -- 앞으로 굴리기 (X축 토크)
-function OnPressW(dt)
+function ReturnTable:OnPressW(dt)
     -- ms 보정
     local torque = FVector(-rollTorque * dt * 1000, 0, 0)
     ApplyTorque(torque, FORCE_MODE.FORCE)
 end
 
 -- 뒤로 굴리기 (-X축 토크)
-function OnPressS(dt)
+function ReturnTable:OnPressS(dt)
     local torque = FVector(rollTorque * dt * 1000, 0, 0)
     ApplyTorque(torque, FORCE_MODE.FORCE)
 end
 
 -- 왼쪽으로 굴리기 (Y축 토크)
-function OnPressA(dt)
+function ReturnTable:OnPressA(dt)
     local torque = FVector(0, rollTorque * dt * 1000, 0)
     ApplyTorque(torque, FORCE_MODE.FORCE)
 end
 
 -- 오른쪽으로 굴리기 (-Y축 토크)
-function OnPressD(dt)
+function ReturnTable:OnPressD(dt)
     local torque = FVector(0, -rollTorque * dt * 1000, 0)
     ApplyTorque(torque, FORCE_MODE.FORCE)
 end
 
 -- 점프
-function OnPressSpace(dt)
-    print("Jumping")
-    ApplyJumpImpulse(jumpForce)
+function ReturnTable:OnPressSpace(dt)
+    if isGrounded then
+        ApplyJumpImpulse(jumpForce)
+        -- 점프 후 즉시 grounded를 false로 설정하여 연속 점프 방지
+        isGrounded = false
+    end
 end
 
-function Tick(dt)
+function ReturnTable:Tick(dt)
     -- 매 프레임마다 실행되는 로직
     -- 필요하면 공중에서의 추가 제어나 댐핑 등을 구현
+    if not isGrounded then
+        timeSinceLastContact = timeSinceLastContact + dt
+        
+        -- 일정 시간 후에도 접촉이 없으면 완전히 공중 상태로 간주
+        if timeSinceLastContact > groundCheckDelay then
+            isGrounded = false
+        end
+    end
 end
 
-function BeginOverlap()
+function ReturnTable:BeginOverlap()
 end
 
-function EndOverlap()
+function ReturnTable:EndOverlap()
 end
+
+return ReturnTable

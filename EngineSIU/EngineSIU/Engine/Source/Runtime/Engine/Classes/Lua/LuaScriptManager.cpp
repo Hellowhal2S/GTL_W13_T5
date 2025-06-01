@@ -6,6 +6,10 @@
 #include "Lua/LuaScriptComponent.h"
 #include "Animation/AnimStateMachine.h"
 #include "GameFramework/Actor.h"
+#include "Engine/Engine.h"
+#include "World/World.h"
+#include "Physics/PhysicsManager.h"
+#include "GameFramework/PlayerController.h"
 
 TMap<FString, FLuaTableScriptInfo> FLuaScriptManager::ScriptCacheMap;
 TSet<ULuaScriptComponent*> FLuaScriptManager::ActiveLuaComponents;
@@ -52,6 +56,90 @@ void FLuaScriptManager::SetLuaDefaultTypes()
     LuaTypes::FBindLua<FRotator>::Bind(TypeTable);
     LuaTypes::FBindLua<FQuat>::Bind(TypeTable);
     LuaTypes::FBindLua<FMatrix>::Bind(TypeTable);
+    
+    // 엔진 API 바인딩 추가
+    BindEngineAPIs();
+}
+
+void FLuaScriptManager::BindEngineAPIs()
+{
+    // print 함수 바인딩
+    LuaState.set_function("print", [](const std::string& msg) {
+        UE_LOG(ELogLevel::Display, TEXT("%s"), *FString(msg.c_str()));
+    });
+
+    // UE_LOG 함수 바인딩  
+    LuaState.set_function("UE_LOG", [](const std::string& level, const std::string& msg) {
+        FString converted = FString(msg.c_str());
+        if (level == "Error") {
+            UE_LOG(ELogLevel::Error, TEXT("%s"), *converted);
+        } else if (level == "Warning") {
+            UE_LOG(ELogLevel::Warning, TEXT("%s"), *converted);
+        } else {
+            UE_LOG(ELogLevel::Display, TEXT("%s"), *converted);
+        }
+    });
+
+    // controller 함수 바인딩
+    LuaState.set_function("controller", [this](const std::string& key, const std::function<void(float)>& callback) {
+        if (GEngine && GEngine->ActiveWorld) {
+            APlayerController* PC = GEngine->ActiveWorld->GetPlayerController();
+            if (PC && PC->GetInputComponent()) {
+                PC->BindAction(FString(key.c_str()), callback);
+                UE_LOG(ELogLevel::Display, TEXT("Controller binding registered for key: %s"), *FString(key.c_str()));
+            }
+        }
+    });
+
+    // 물리 함수들 바인딩
+    LuaState.set_function("ApplyForce", [](const FVector& force, int forceMode) {
+        if (GEngine && GEngine->PhysicsManager) {
+            if (AActor* currentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor()) {
+                GEngine->PhysicsManager->ApplyForceToActor(currentActor, force, forceMode);
+            }
+        }
+    });
+
+    LuaState.set_function("ApplyTorque", [](const FVector& torque, int forceMode) {
+        if (GEngine && GEngine->PhysicsManager) {
+            if (AActor* currentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor()) {
+                GEngine->PhysicsManager->ApplyTorqueToActor(currentActor, torque, forceMode);
+            }
+        }
+    });
+
+    // 점프 함수 바인딩 추가
+    LuaState.set_function("ApplyJumpImpulse", [](float jumpForce) {
+        if (GEngine && GEngine->PhysicsManager) {
+            if (AActor* currentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor()) {
+                GEngine->PhysicsManager->ApplyJumpImpulseToActor(currentActor, jumpForce);
+            }
+        }
+    });
+
+    // 특정 위치에 힘 적용 함수 바인딩 추가
+    LuaState.set_function("ApplyForceAtPosition", [](const FVector& force, const FVector& position, int forceMode) {
+        if (GEngine && GEngine->PhysicsManager) {
+            if (AActor* currentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor()) {
+                GEngine->PhysicsManager->ApplyForceAtPositionToActor(currentActor, force, position, forceMode);
+            }
+        }
+    });
+
+    // Contact 이벤트 바인딩 함수 추가
+    LuaState.set_function("RegisterContactCallback", [](AActor* actor, sol::function onContactBegin, sol::function onContactEnd) {
+        if (GEngine && GEngine->PhysicsManager && actor) {
+            GEngine->PhysicsManager->RegisterContactCallback(actor, onContactBegin, onContactEnd);
+        }
+    });
+
+    LuaState.set_function("UnregisterContactCallback", [](AActor* actor) {
+        if (GEngine && GEngine->PhysicsManager && actor) {
+            GEngine->PhysicsManager->UnregisterContactCallback(actor);
+        }
+    });
+
+    UE_LOG(ELogLevel::Display, TEXT("Engine APIs bound to Lua"));
 }
 
 FLuaScriptManager& FLuaScriptManager::Get()
