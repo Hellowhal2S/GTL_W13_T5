@@ -27,4 +27,8 @@ public:
     UCameraComponent* Camera = nullptr;;
     USceneComponent* DefaultSceneComponent = nullptr;
     ASnowBall* Target;
+    bool FirstCT =false;
+    bool SecondCT =false;
+
+    float AccTime = 0.0f;
 };

@@ -832,7 +832,7 @@ void FPhysicsManager::CleanupAllScenes()
 
 void FPhysicsManager::ConfigureSceneDesc(PxSceneDesc& SceneDesc)
 {
-    SceneDesc.gravity = PxVec3(0, 0, -9.81f);
+    SceneDesc.gravity = PxVec3(0, 0, -9.81 * 1.5f);
     
     unsigned int hc = std::thread::hardware_concurrency();
     Dispatcher = PxDefaultCpuDispatcherCreate(hc-2);

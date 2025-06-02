@@ -24,71 +24,91 @@ void AMyPlayer::BeginPlay()
     APlayer::BeginPlay();
     
     // PIE 모드에서만 마우스 커서 숨기기
-    if (GEngine && GEngine->ActiveWorld && GEngine->ActiveWorld->WorldType == EWorldType::PIE)
-    {
-        ShowCursor(FALSE);
-    }
+    // if (GEngine && GEngine->ActiveWorld && GEngine->ActiveWorld->WorldType == EWorldType::PIE)
+    // {
+    //     ShowCursor(FALSE);
+    // }
+    //
+
 }
 
 void AMyPlayer::Tick(float DeltaTime)
 {
     APlayer::Tick(DeltaTime);
-    UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
-    bool bExist = false;
-    for (auto iter : GetWorld()->GetActiveLevel()->Actors)
+    AccTime += DeltaTime;
+    if (!FirstCT)
     {
-        if (Cast<ASnowBall>(iter))
-        {
-            bExist = true;
-            Target = Cast<ASnowBall>(iter);
-        }
+        FViewTargetTransitionParams Params;
+        Params.BlendTime = 10.0f;
+        Params.BlendFunction = VTBlend_EaseIn;
+        Params.BlendExp = 3.f;
+        
+        AActor* TargetActor = GEngine->ActiveWorld->SpawnActor<AActor>();
+        TargetActor->SetActorLocation(FVector(1100,0,600));
+        TargetActor->SetActorRotation(FRotator(0.f, 90.f, 0.f));
+        GEngine->ActiveWorld->GetPlayerController()->SetViewTarget(TargetActor, Params);
+        FirstCT = true;
     }
-    if (bExist)
-        SetActorLocation(Target->SnowBallComponent->GetRelativeLocation());
-    
-    // PIE 모드에서만 마우스 제어 처리
-    if (GEngine && GEngine->ActiveWorld && GEngine->ActiveWorld->WorldType == EWorldType::PIE)
+    else if (AccTime > 15.0f)
     {
-        // 마우스 모드 전환 처리
-        bool bCurrentAltState = GetAsyncKeyState(VK_LCONTROL) & 0x8000;
-        
-        // Alt 키가 눌렸을 때 (이전에 안 눌려있었고 현재 눌려있음)
-        if (!bPrevAltState && bCurrentAltState || Engine->PIEWorld->GetGameMode()->bGameOver)
+        return;
+        UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
+        bool bExist = false;
+        for (auto iter : GetWorld()->GetActiveLevel()->Actors)
         {
-            bCameraMode = false;
-            ShowCursor(TRUE);  // 마우스 커서 보이기
-        }
-        
-        // 마우스 왼쪽 버튼 클릭 시 카메라 모드로 복귀
-        if (!bCameraMode && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) && !Engine->PIEWorld->GetGameMode()->bGameOver)
-        {
-            // 마우스 커서가 활성 뷰포트 영역 안에 있는지 확인
-            POINT cursorPos;
-            GetCursorPos(&cursorPos);
-            
-            // 활성 뷰포트 클라이언트 가져오기
-            if (auto* LevelEditor = GEngineLoop.GetLevelEditor())
+            if (Cast<ASnowBall>(iter))
             {
-                if (auto ActiveViewport = LevelEditor->GetActiveViewportClient())
+                bExist = true;
+                Target = Cast<ASnowBall>(iter);
+            }
+        }
+        if (bExist)
+            SetActorLocation(Target->SnowBallComponent->GetRelativeLocation());
+    
+        // PIE 모드에서만 마우스 제어 처리
+        if (GEngine && GEngine->ActiveWorld && GEngine->ActiveWorld->WorldType == EWorldType::PIE)
+        {
+            // 마우스 모드 전환 처리
+            bool bCurrentAltState = GetAsyncKeyState(VK_LCONTROL) & 0x8000;
+        
+            // Alt 키가 눌렸을 때 (이전에 안 눌려있었고 현재 눌려있음)
+            if (!bPrevAltState && bCurrentAltState || Engine->PIEWorld->GetGameMode()->bGameOver)
+            {
+                bCameraMode = false;
+                ShowCursor(TRUE);  // 마우스 커서 보이기
+            }
+        
+            // 마우스 왼쪽 버튼 클릭 시 카메라 모드로 복귀
+            if (!bCameraMode && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) && !Engine->PIEWorld->GetGameMode()->bGameOver)
+            {
+                // 마우스 커서가 활성 뷰포트 영역 안에 있는지 확인
+                POINT cursorPos;
+                GetCursorPos(&cursorPos);
+            
+                // 활성 뷰포트 클라이언트 가져오기
+                if (auto* LevelEditor = GEngineLoop.GetLevelEditor())
                 {
-                    FVector2D mousePos(static_cast<float>(cursorPos.x), static_cast<float>(cursorPos.y));
-                    
-                    if (ActiveViewport->GetViewport()->bIsHovered(mousePos))
+                    if (auto ActiveViewport = LevelEditor->GetActiveViewportClient())
                     {
-                        bCameraMode = true;
-                        ShowCursor(FALSE); // 마우스 커서 숨기기
-                        CursorInit = false; // 카메라 모드 재초기화
+                        FVector2D mousePos(static_cast<float>(cursorPos.x), static_cast<float>(cursorPos.y));
+                    
+                        if (ActiveViewport->GetViewport()->bIsHovered(mousePos))
+                        {
+                            bCameraMode = true;
+                            ShowCursor(FALSE); // 마우스 커서 숨기기
+                            CursorInit = false; // 카메라 모드 재초기화
+                        }
                     }
                 }
             }
-        }
         
-        bPrevAltState = bCurrentAltState;
+            bPrevAltState = bCurrentAltState;
         
-        // 카메라 모드일 때만 카메라 회전 업데이트
-        if (bCameraMode)
-        {
-            UpdateCameraRotation();
+            // 카메라 모드일 때만 카메라 회전 업데이트
+            if (bCameraMode)
+            {
+                UpdateCameraRotation();
+            }
         }
     }
 }
