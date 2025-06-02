@@ -9,7 +9,7 @@ local FVector = EngineTypes.FVector -- EngineTypes로 등록된 FVector local로
 
 -- 설정값
 local rollTorque = 100.0        -- 굴리기 토크 강도
-local jumpForce = 200.0         -- 점프 힘
+local jumpForce = 2000.0         -- 점프 힘
 local airControlForce = 0.0   -- 공중에서의 제어력
 
 -- 바닥 감지 변수
