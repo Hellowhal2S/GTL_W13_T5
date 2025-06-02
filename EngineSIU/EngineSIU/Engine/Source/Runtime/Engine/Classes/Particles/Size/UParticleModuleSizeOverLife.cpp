@@ -8,7 +8,7 @@ UParticleModuleSizeOverLife::UParticleModuleSizeOverLife()
     bUpdateModule = true;
 
     EndSize = FVector::One() * 0.1f;
-    ChangeScale = 1.0f;
+    ChangeScale = 0.01f;
 
     ModuleName = "SizeOverLife";
 }

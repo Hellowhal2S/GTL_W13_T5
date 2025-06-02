@@ -41,6 +41,10 @@
 #include "Engine/Classes/Engine/AssetManager.h"
 #include "Particles/ParticleSystemComponent.h"
 
+#include "Engine/Contents/ObstacleWall.h"
+#include "Engine/Contents/ObstacleFireball.h"
+#include "Engine/Contents/ObstacleMud.h"
+
 ControlEditorPanel::ControlEditorPanel()
 {
     SetSupportedWorldTypes(EWorldTypeBitFlag::Editor | EWorldTypeBitFlag::PIE | EWorldTypeBitFlag::SkeletalViewer | EWorldTypeBitFlag::PhysicsAssetViewer);
@@ -100,12 +104,12 @@ void ControlEditorPanel::Render()
 
         ImGui::EndMenuBar();
     }
-    
+
     if (bOpenModal)
     {
         const ImVec2 Center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(Center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    
+
         ImGui::OpenPopup("##Application Quit", ImGuiPopupFlags_AnyPopup);
         if (ImGui::BeginPopupModal("##Application Quit", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
@@ -139,7 +143,7 @@ void ControlEditorPanel::Render()
 
     ImGui::SameLine();
     CreateFlagButton();
-    
+
     ImGui::SameLine();
     CreateModifyButton(IconSize, IconFont);
 
@@ -354,23 +358,26 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
             int OBJ;
         };
 
-        static const Primitive primitives[] = 
+        static const Primitive primitives[] =
         {
-            { .Label = "Cube",              .OBJ = OBJ_CUBE },
-            { .Label = "Sphere",            .OBJ = OBJ_SPHERE },
-            { .Label = "PointLight",        .OBJ = OBJ_POINTLIGHT },
-            { .Label = "SpotLight",         .OBJ = OBJ_SPOTLIGHT },
-            { .Label = "DirectionalLight",  .OBJ = OBJ_DIRECTIONALLGIHT },
-            { .Label = "AmbientLight",      .OBJ = OBJ_AMBIENTLIGHT },
-            { .Label = "Particle",          .OBJ = OBJ_PARTICLE },
-            { .Label = "ParticleSystem",    .OBJ = OBJ_PARTICLESYSTEM },
-            { .Label = "Text",              .OBJ = OBJ_TEXT },
-            { .Label = "Fog",               .OBJ = OBJ_FOG },
-            { .Label = "BoxCol",            .OBJ = OBJ_BOX_COLLISION },
-            { .Label = "SphereCol",         .OBJ = OBJ_SPHERE_COLLISION },
-            { .Label = "CapsuleCol",        .OBJ = OBJ_CAPSULE_COLLISION },
-            { .Label = "SkeletalMeshActor", .OBJ = OBJ_SKELETALMESH },
-            { .Label = "SequencerPlayer",   .OBJ = OBJ_SEQUENCERPLAYER },
+            {.Label = "Cube",               .OBJ = OBJ_CUBE },
+            {.Label = "Sphere",             .OBJ = OBJ_SPHERE },
+            {.Label = "PointLight",         .OBJ = OBJ_POINTLIGHT },
+            {.Label = "SpotLight",          .OBJ = OBJ_SPOTLIGHT },
+            {.Label = "DirectionalLight",   .OBJ = OBJ_DIRECTIONALLGIHT },
+            {.Label = "AmbientLight",       .OBJ = OBJ_AMBIENTLIGHT },
+            {.Label = "Particle",           .OBJ = OBJ_PARTICLE },
+            {.Label = "ParticleSystem",     .OBJ = OBJ_PARTICLESYSTEM },
+            {.Label = "Text",               .OBJ = OBJ_TEXT },
+            {.Label = "Fog",                .OBJ = OBJ_FOG },
+            {.Label = "BoxCol",             .OBJ = OBJ_BOX_COLLISION },
+            {.Label = "SphereCol",          .OBJ = OBJ_SPHERE_COLLISION },
+            {.Label = "CapsuleCol",         .OBJ = OBJ_CAPSULE_COLLISION },
+            {.Label = "SkeletalMeshActor",  .OBJ = OBJ_SKELETALMESH },
+            {.Label = "SequencerPlayer",    .OBJ = OBJ_SEQUENCERPLAYER },
+            {.Label = "Obstacle Wall",      .OBJ = OBJ_ObstcleWall },
+            {.Label = "Obstacle Fireball",  .OBJ = OBJ_ObstcleFireball },
+            {.Label = "Obstacle Mud",       .OBJ = OBJ_ObstcleMud },
         };
 
         for (const auto& primitive : primitives)
@@ -451,7 +458,7 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                     TextComponent->SetRowColumnCount(106, 106);
                     TextComponent->SetText(L"Default");
                     SpawnedActor->SetRootComponent(TextComponent);
-                    
+
                     break;
                 }
                 case OBJ_FOG:
@@ -482,18 +489,36 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                     break;
                 }
                 case OBJ_SKELETALMESH:
-                    {
-                        SpawnedActor = World->SpawnActor<AActor>();
-                        SpawnedActor->SetActorTickInEditor(true);
-                        auto* MeshComp = SpawnedActor->AddComponent<USkeletalMeshComponent>();
-                        SpawnedActor->SetRootComponent(MeshComp);
-                        SpawnedActor->SetActorLabel(TEXT("OBJ_SKELETALMESH"));
-                    }
-                    break;
+                {
+                    SpawnedActor = World->SpawnActor<AActor>();
+                    SpawnedActor->SetActorTickInEditor(true);
+                    auto* MeshComp = SpawnedActor->AddComponent<USkeletalMeshComponent>();
+                    SpawnedActor->SetRootComponent(MeshComp);
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_SKELETALMESH"));
+                }
+                break;
                 case OBJ_SEQUENCERPLAYER:
                 {
                     SpawnedActor = World->SpawnActor<ASequencerPlayer>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_SEQUENCERPLAYER"));
+                }
+                case OBJ_ObstcleWall:
+                {
+                    SpawnedActor = World->SpawnActor<AObstacleWall>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_ObstcleWall"));
+                    break;
+                }
+                case OBJ_ObstcleFireball:
+                {
+                    SpawnedActor = World->SpawnActor<AObstacleFireball>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_ObstcleFireball"));
+                    break;
+                }
+                case OBJ_ObstcleMud:
+                {
+                    SpawnedActor = World->SpawnActor<AObstacleMud>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_ObstcleMud"));
+                    break;
                 }
                 case OBJ_CAMERA:
                 case OBJ_PLAYER:
@@ -545,17 +570,17 @@ void ControlEditorPanel::CreateFlagButton()
         ImGui::EndPopup();
     }
     ImGui::SameLine();
-    const char* ViewModeNames[] = { 
+    const char* ViewModeNames[] = {
         "Lit_Gouraud", "Lit_Lambert", "Lit_Blinn-Phong", "Lit_PBR",
         "Unlit", "Wireframe",
         "Scene Depth", "World Normal", "World Tangent","Light Heat Map"
     };
     constexpr uint32 ViewModeCount = std::size(ViewModeNames);
-    
+
     const int RawViewMode = static_cast<int>(ActiveViewport->GetViewMode());
     const int SafeIndex = (RawViewMode >= 0) ? (RawViewMode % ViewModeCount) : 0;
     FString ViewModeControl = ViewModeNames[SafeIndex];
-    
+
     const ImVec2 ViewModeTextSize = ImGui::CalcTextSize(GetData(ViewModeControl));
     if (ImGui::Button(GetData(ViewModeControl), ImVec2(30 + ViewModeTextSize.x, 32)))
     {
@@ -589,7 +614,7 @@ void ControlEditorPanel::CreatePIEButton(const ImVec2 ButtonSize, ImFont* IconFo
     {
         return;
     }
-    
+
     UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
     if (!Engine)
     {
@@ -598,12 +623,12 @@ void ControlEditorPanel::CreatePIEButton(const ImVec2 ButtonSize, ImFont* IconFo
 
     const float WindowSizeX = Width * 0.8f;
     const float CenterX = WindowSizeX * 0.5f - ButtonSize.x;
-    
+
     if (Width >= 1200.f)
     {
         ImGui::SetCursorPosX(CenterX - ButtonSize.x * 0.5f);
     }
-    
+
     if (ImGui::Button("\ue9a8", ButtonSize)) // Play
     {
         UE_LOG(ELogLevel::Display, TEXT("PIE Button Clicked"));
@@ -615,7 +640,7 @@ void ControlEditorPanel::CreatePIEButton(const ImVec2 ButtonSize, ImFont* IconFo
     {
         ImGui::SetCursorPosX(CenterX + ButtonSize.x * 0.5f);
     }
-    
+
     if (ImGui::Button("\ue9e4", ButtonSize)) // Stop
     {
         UE_LOG(ELogLevel::Display, TEXT("Stop Button Clicked"));
@@ -714,7 +739,7 @@ void ControlEditorPanel::CreateLightSpawnButton(const ImVec2 InButtonSize, ImFon
             int Mode;
         };
 
-        static constexpr LightGeneratorMode modes[] = 
+        static constexpr LightGeneratorMode modes[] =
         {
             {.Label = "Generate", .Mode = ELightGridGenerator::Generate },
             {.Label = "Delete", .Mode = ELightGridGenerator::Delete },

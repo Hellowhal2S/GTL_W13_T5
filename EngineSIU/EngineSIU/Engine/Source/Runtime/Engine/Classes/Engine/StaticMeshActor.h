@@ -17,3 +17,4 @@ protected:
     UPROPERTY
     (UStaticMeshComponent*, StaticMeshComponent, = nullptr);
 };
+ 
