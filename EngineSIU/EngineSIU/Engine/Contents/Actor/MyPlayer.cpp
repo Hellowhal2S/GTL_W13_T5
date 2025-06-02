@@ -10,6 +10,9 @@
 #include "UnrealEd/EditorViewportClient.h"
 #include "UnrealClient.h"
 #include "GameFramework/GameMode.h"
+#include "Components/SphereTriggerComponent.h"
+#include "Lua/LuaScriptManager.h"
+#include "Lua/LuaUtils/LuaTypeMacros.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -17,11 +20,23 @@ AMyPlayer::AMyPlayer()
     SetRootComponent(DefaultSceneComponent);
     Camera = AddComponent<UCameraComponent>("Camera");
     Camera->SetupAttachment(DefaultSceneComponent);
+    USphereTriggerComponent* SphereTrigger = AddComponent<USphereTriggerComponent>(TEXT("SphereTrigger"));
+    SphereTrigger->bGenerateOverlapEvents = true;
+    SphereTrigger->SetupAttachment(DefaultSceneComponent);
+}
+
+void AMyPlayer::RegisterLuaType(sol::state& Lua)
+{
+    DEFINE_LUA_TYPE_WITH_PARENT(AMyPlayer, sol::base<APlayer>(),
+
+        )
 }
 
 void AMyPlayer::BeginPlay()
 {
     APlayer::BeginPlay();
+
+    RegisterLuaType(FLuaScriptManager::Get().GetLua());
     
     // PIE 모드에서만 마우스 커서 숨기기
     if (GEngine && GEngine->ActiveWorld && GEngine->ActiveWorld->WorldType == EWorldType::PIE)

@@ -15,6 +15,14 @@
 #include "Engine/EditorEngine.h"
 #include "Engine/SkeletalMesh.h"
 #include "Components/SphereTriggerComponent.h"
+#include "Lua/LuaUtils/LuaTypeMacros.h"
+
+void APlayer::RegisterLuaType(sol::state& Lua)
+{
+    DEFINE_LUA_TYPE_WITH_PARENT(APlayer, sol::bases<AActor>(),
+
+    )
+}
 
 void AEditorPlayer::Tick(float DeltaTime)
 {

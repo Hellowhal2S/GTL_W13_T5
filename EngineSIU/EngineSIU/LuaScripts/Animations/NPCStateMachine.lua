@@ -21,6 +21,7 @@ return {
 
     -- Player가 Trigger에 들어오면 상태를 한 단계 올림
     OnOverlap = function(self, other)
+        print("Lua OnOverlap 호출")
         if other:IsA("APlayer") then
             local idx = 1
             for i, v in ipairs(self.stateOrder) do

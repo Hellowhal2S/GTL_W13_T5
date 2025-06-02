@@ -13,6 +13,8 @@ class ANPC : public AActor
 public:
     ANPC();
 
+    virtual UObject* Duplicate(UObject* InOuter) override;
+
     virtual void PostSpawnInitialize() override;
     virtual void BeginPlay() override;
 

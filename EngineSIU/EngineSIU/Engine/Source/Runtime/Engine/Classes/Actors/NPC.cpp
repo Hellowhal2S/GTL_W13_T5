@@ -9,6 +9,13 @@ ANPC::ANPC()
 {
 }
 
+UObject* ANPC::Duplicate(UObject* InOuter)
+{
+    ThisClass* NewComponent = Cast<ThisClass>(Super::Duplicate(InOuter));
+    NewComponent->PostSpawnInitialize();
+    return NewComponent;
+}
+
 void ANPC::PostSpawnInitialize()
 {
     Super::PostSpawnInitialize();
@@ -55,19 +62,27 @@ void ANPC::BeginPlay()
 {
     Super::BeginPlay();
 
-    OnActorBeginOverlap.AddLambda([this](AActor* OverlappedActor, AActor* OtherActor)
+    TriggerComponent->OnComponentBeginOverlap.AddLambda(
+        [this](UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp
+            , int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
         {
-            if (ULuaScriptComponent* LuaComp = GetComponentByClass<ULuaScriptComponent>())
+            if (AnimInstance && AnimInstance->StateMachine && AnimInstance->StateMachine->LuaTable.valid())
             {
-                LuaComp->ActivateFunction("OnOverlap", OtherActor);
+                sol::function OnOverlap = AnimInstance->StateMachine->LuaTable["OnOverlap"];
+                if (OnOverlap.valid())
+                    OnOverlap(AnimInstance->StateMachine->LuaTable, OtherActor);
             }
         });
 
-    OnActorEndOverlap.AddLambda([this](AActor* OverlappedActor, AActor* OtherActor)
+    TriggerComponent->OnComponentBeginOverlap.AddLambda(
+        [this](UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp
+            , int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
         {
-            if (ULuaScriptComponent* LuaComp = GetComponentByClass<ULuaScriptComponent>())
+            if (AnimInstance && AnimInstance->StateMachine && AnimInstance->StateMachine->LuaTable.valid())
             {
-                LuaComp->ActivateFunction("OnEndOverlap", OtherActor);
+                sol::function OnEndOverlap = AnimInstance->StateMachine->LuaTable["OnEndOverlap"];
+                if (OnEndOverlap.valid())
+                    OnEndOverlap(AnimInstance->StateMachine->LuaTable, OtherActor);
             }
         });
 }

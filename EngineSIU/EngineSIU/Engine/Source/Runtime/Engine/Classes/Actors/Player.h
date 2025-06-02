@@ -62,7 +62,7 @@ class APlayer : public AActor
 
 public:
     APlayer() = default;
-
+    virtual void RegisterLuaType(sol::state& Lua) override;
     virtual UObject* Duplicate(UObject* InOuter) override;
     virtual void Tick(float DeltaTime) override;
 };

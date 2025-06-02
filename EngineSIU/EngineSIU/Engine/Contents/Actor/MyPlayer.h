@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Actors/Player.h"
 
 class ASnowBall;
@@ -8,7 +8,7 @@ class AMyPlayer : public APlayer
     DECLARE_CLASS(AMyPlayer, APlayer)
 public:
     AMyPlayer();
-    
+    virtual void RegisterLuaType(sol::state& Lua) override;
     virtual void BeginPlay() override;
 
     virtual void Tick(float DeltaTime) override;
