@@ -8,7 +8,7 @@ local ReturnTable = {} -- Return용 table. cpp에서 Table 단위로 객체 관�
 local FVector = EngineTypes.FVector -- EngineTypes로 등록된 FVector local로 선언.
 
 -- 설정값
-local rollTorque = 10.0        -- 굴리기 토크 강도
+local rollTorque = 100.0        -- 굴리기 토크 강도
 local jumpForce = 200.0         -- 점프 힘
 local airControlForce = 0.0   -- 공중에서의 제어력
 
