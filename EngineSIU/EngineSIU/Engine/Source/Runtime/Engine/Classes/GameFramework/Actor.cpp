@@ -441,11 +441,15 @@ bool AActor::BindSelfLuaProperties()
     // 스크립트 환경에 엔진 글로벌 함수들 접근 가능하도록 설정
     sol::state& LuaState = FLuaScriptManager::Get().GetLua();
     LuaTable["print"] = LuaState["print"];
+
     LuaTable["UE_LOG"] = LuaState["UE_LOG"];
+
     LuaTable["controller"] = LuaState["controller"];
+
     LuaTable["ApplyForce"] = LuaState["ApplyForce"];
     LuaTable["ApplyTorque"] = LuaState["ApplyTorque"];
-    LuaTable["ApplyJumpImpulse"] = LuaState["ApplyJumpImpulse"];
+    LuaTable["ApplyTorqueToSnowBall"] = LuaState["ApplyTorqueToSnowball"];
+    LuaTable["ApplyJumpImpulseToSnowBall"] = LuaState["ApplyJumpImpulseToSnowBall"];
     LuaTable["ApplyForceAtPosition"] = LuaState["ApplyForceAtPosition"];
     
     // EngineTypes 테이블도 접근 가능하도록 설정
@@ -454,6 +458,13 @@ bool AActor::BindSelfLuaProperties()
     // Contact 이벤트 바인딩 함수들 추가
     LuaTable["RegisterContactCallback"] = LuaState["RegisterContactCallback"];
     LuaTable["UnregisterContactCallback"] = LuaState["UnregisterContactCallback"];
+    LuaTable["RegisterSnowBallContactCallback"] = LuaState["RegisterSnowBallContactCallback"];
+    LuaTable["UnregisterSnowBallContactCallback"] = LuaState["UnregisterSnowBallContactCallback"];
+
+    LuaTable["GetActorName"] = LuaState["GetActorName"];
+    LuaTable["GetActorRotation"] = LuaState["GetActorRotation"];
+    LuaTable["GetActorForwardVector"] = LuaState["GetActorForwardVector"];
+    LuaTable["GetActorRightVector"] = LuaState["GetActorRightVector"];
 
     // 이 아래에서 또는 하위 클래스 함수에서 멤버 변수 등록.
 

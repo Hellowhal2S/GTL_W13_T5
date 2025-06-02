@@ -1008,7 +1008,7 @@ void FPhysicsManager::ApplyTorque(GameObject* Obj, const FVector& Torque, int Fo
 {
     if (!Obj || !Obj->DynamicRigidBody) return;
     
-    PxVec3 PhysXTorque(Torque.X, -Torque.Y, Torque.Z); // Y축 반전 (언리얼->PhysX 좌표계)
+    PxVec3 PhysXTorque(Torque.X, Torque.Y, Torque.Z); // Y축 반전 제거 - 엔진과 PhysX가 같은 좌표계 사용
     PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
     
     Obj->DynamicRigidBody->addTorque(PhysXTorque, PhysXForceMode);
@@ -1021,13 +1021,17 @@ void FPhysicsManager::ApplyTorqueToActor(AActor* Actor, const FVector& Torque, i
     {
         ApplyTorque(Obj, Torque, ForceMode);
     }
+    else
+    {
+        UE_LOG(ELogLevel::Error, "Failed to Find Obj in Actor: %s", GetData(Actor->GetActorLabel()));
+    }
 }
 
 void FPhysicsManager::ApplyForce(GameObject* Obj, const FVector& Force, int ForceMode)
 {
     if (!Obj || !Obj->DynamicRigidBody) return;
     
-    PxVec3 PhysXForce(Force.X, -Force.Y, Force.Z); // Y축 반전 (언리얼->PhysX 좌표계)
+    PxVec3 PhysXForce(Force.X, Force.Y, Force.Z); // Y축 반전 제거 - 엔진과 PhysX가 같은 좌표계 사용
     PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
     
     Obj->DynamicRigidBody->addForce(PhysXForce, PhysXForceMode);
@@ -1046,8 +1050,8 @@ void FPhysicsManager::ApplyForceAtPosition(GameObject* Obj, const FVector& Force
 {
     if (!Obj || !Obj->DynamicRigidBody) return;
     
-    PxVec3 PhysXForce(Force.X, -Force.Y, Force.Z);
-    PxVec3 PhysXPosition(Position.X, -Position.Y, Position.Z);
+    PxVec3 PhysXForce(Force.X, Force.Y, Force.Z); // Y축 반전 제거 - 엔진과 PhysX가 같은 좌표계 사용
+    PxVec3 PhysXPosition(Position.X, Position.Y, Position.Z); // Y축 반전 제거
     PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
     
     PxRigidBodyExt::addForceAtPos(*Obj->DynamicRigidBody, PhysXForce, PhysXPosition, PhysXForceMode);
@@ -1141,7 +1145,7 @@ void FPhysXContactCallback::onContact(const PxContactPairHeader& pairHeader, con
                 if (nbContacts > 0)
                 {
                     PxVec3 point = contactPoints[0].position;
-                    ContactPoint = FVector(point.x, -point.y, point.z); // Y축 반전
+                    ContactPoint = FVector(point.x, point.y, point.z); // Y축 반전 제거 - 좌표계 일관성 유지
                 }
             }
             

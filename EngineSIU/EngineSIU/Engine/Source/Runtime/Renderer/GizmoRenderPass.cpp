@@ -1,4 +1,3 @@
-
 #include "GizmoRenderPass.h"
 
 #include <array>
@@ -28,6 +27,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/EditorEngine.h"
 #include "LevelEditor/SLevelEditor.h"
+#include "PropertyEditor/ShowFlags.h"
 
 void FGizmoRenderPass::Initialize(FDXDBufferManager* InBufferManager, FGraphicsDevice* InGraphics, FDXDShaderManager* InShaderManager)
 {
@@ -168,5 +168,22 @@ void FGizmoRenderPass::Render(const std::shared_ptr<FEditorViewportClient>& View
 
 bool FGizmoRenderPass::ShouldRenderGizmo(const UEditorEngine* EditorEngine) const
 {
-    return EditorEngine && (EditorEngine->GetSelectedActor() || EditorEngine->GetSelectedComponent());
+    if (!EditorEngine)
+    {
+        return false;
+    }
+
+    // PIE 모드에서는 SF_ShowDebugLinesInPIE 플래그가 활성화되어야 함
+    if (GEngine->ActiveWorld->WorldType == EWorldType::PIE)
+    {
+        std::shared_ptr<FEditorViewportClient> Viewport = GEngineLoop.GetLevelEditor()->GetActiveViewportClient();
+        const uint64 ShowFlag = Viewport->GetShowFlag();
+        
+        if (!(ShowFlag & EEngineShowFlags::SF_ShowDebugLinesInPIE))
+        {
+            return false;
+        }
+    }
+
+    return EditorEngine->GetSelectedActor() || EditorEngine->GetSelectedComponent();
 }

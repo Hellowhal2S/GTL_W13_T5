@@ -50,7 +50,6 @@ public:
 
     FGameInfo GameInfo;
 
-    FVector SpawnLocation = FVector(100,0,70);
     int32 Life = 3;
     bool bGameOver = false;
 private:

@@ -7,6 +7,7 @@
 #include "Animation/AnimStateMachine.h"
 #include "GameFramework/Actor.h"
 #include "Engine/Engine.h"
+#include "Engine/Contents/Actor/SnowBall.h"
 #include "World/World.h"
 #include "Physics/PhysicsManager.h"
 #include "GameFramework/PlayerController.h"
@@ -108,11 +109,28 @@ void FLuaScriptManager::BindEngineAPIs()
         }
     });
 
-    // 점프 함수 바인딩 추가
-    LuaState.set_function("ApplyJumpImpulse", [](float jumpForce) {
+    // @note SnowBall에 대한 하드코딩
+    LuaState.set_function("ApplyTorqueToSnowBall", [](const FVector& torque, int forceMode) {
         if (GEngine && GEngine->PhysicsManager) {
-            if (AActor* currentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor()) {
-                GEngine->PhysicsManager->ApplyJumpImpulseToActor(currentActor, jumpForce);
+            for(const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->ApplyTorqueToActor(SnowBallActor, torque, forceMode);
+                    break;
+                }
+            }
+        }
+    });
+
+    // 점프 함수 바인딩 추가
+    LuaState.set_function("ApplyJumpImpulseToSnowBall", [](float jumpForce) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->ApplyJumpImpulseToActor(SnowBallActor, jumpForce);
+                    break;
+                }
             }
         }
     });
@@ -138,6 +156,47 @@ void FLuaScriptManager::BindEngineAPIs()
             GEngine->PhysicsManager->UnregisterContactCallback(actor);
         }
     });
+
+    // @note SnowBall에 대한 하드코딩
+    LuaState.set_function("RegisterSnowBallContactCallback", [](sol::function onContactBegin, sol::function onContactEnd) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->RegisterContactCallback(SnowBallActor, onContactBegin, onContactEnd);
+                    break;
+                }
+            }
+        }
+    });
+
+    LuaState.set_function("UnregisterSnowBallContactCallback", []() {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->UnregisterContactCallback(SnowBallActor);
+                    break;
+                }
+            }
+        }
+    });
+
+    LuaState.set_function("GetActorName", [](AActor* actor) {
+        return GetData(actor->GetActorLabel());
+    });
+
+    LuaState.set_function("GetActorRotation", [](AActor* actor) {
+        return actor->GetActorRotation();
+    });
+
+    LuaState.set_function("GetActorForwardVector", [](AActor* actor) {
+        return actor->GetActorForwardVector();
+    });
+
+    LuaState.set_function("GetActorRightVector", [](AActor* actor) {
+        return actor->GetActorRightVector();
+        });
 
     UE_LOG(ELogLevel::Display, TEXT("Engine APIs bound to Lua"));
 }
