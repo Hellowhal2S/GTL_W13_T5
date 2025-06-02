@@ -1021,6 +1021,10 @@ void FPhysicsManager::ApplyTorqueToActor(AActor* Actor, const FVector& Torque, i
     {
         ApplyTorque(Obj, Torque, ForceMode);
     }
+    else
+    {
+        UE_LOG(ELogLevel::Error, "Failed to Find Obj in Actor: %s", GetData(Actor->GetActorLabel()));
+    }
 }
 
 void FPhysicsManager::ApplyForce(GameObject* Obj, const FVector& Force, int ForceMode)

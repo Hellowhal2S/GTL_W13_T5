@@ -7,6 +7,7 @@
 #include "Animation/AnimStateMachine.h"
 #include "GameFramework/Actor.h"
 #include "Engine/Engine.h"
+#include "Engine/Contents/Actor/SnowBall.h"
 #include "World/World.h"
 #include "Physics/PhysicsManager.h"
 #include "GameFramework/PlayerController.h"
@@ -108,11 +109,28 @@ void FLuaScriptManager::BindEngineAPIs()
         }
     });
 
-    // 점프 함수 바인딩 추가
-    LuaState.set_function("ApplyJumpImpulse", [](float jumpForce) {
+    // @note SnowBall에 대한 하드코딩
+    LuaState.set_function("ApplyTorqueToSnowBall", [](const FVector& torque, int forceMode) {
         if (GEngine && GEngine->PhysicsManager) {
-            if (AActor* currentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor()) {
-                GEngine->PhysicsManager->ApplyJumpImpulseToActor(currentActor, jumpForce);
+            for(const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->ApplyTorqueToActor(SnowBallActor, torque, forceMode);
+                    break;
+                }
+            }
+        }
+    });
+
+    // 점프 함수 바인딩 추가
+    LuaState.set_function("ApplyJumpImpulseToSnowBall", [](float jumpForce) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->ApplyJumpImpulseToActor(SnowBallActor, jumpForce);
+                    break;
+                }
             }
         }
     });

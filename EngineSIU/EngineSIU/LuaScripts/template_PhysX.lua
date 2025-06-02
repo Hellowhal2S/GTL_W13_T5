@@ -87,31 +87,31 @@ end
 function ReturnTable:OnPressW(dt)
     -- ms 보정
     local torque = FVector(-rollTorque * dt * 1000, 0, 0)
-    ApplyTorque(torque, FORCE_MODE.FORCE)
+    ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
 -- 뒤로 굴리기 (-X축 토크)
 function ReturnTable:OnPressS(dt)
     local torque = FVector(rollTorque * dt * 1000, 0, 0)
-    ApplyTorque(torque, FORCE_MODE.FORCE)
+    ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
 -- 왼쪽으로 굴리기 (Y축 토크)
 function ReturnTable:OnPressA(dt)
     local torque = FVector(0, rollTorque * dt * 1000, 0)
-    ApplyTorque(torque, FORCE_MODE.FORCE)
+    ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
 -- 오른쪽으로 굴리기 (-Y축 토크)
 function ReturnTable:OnPressD(dt)
     local torque = FVector(0, -rollTorque * dt * 1000, 0)
-    ApplyTorque(torque, FORCE_MODE.FORCE)
+    ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
 -- 점프
 function ReturnTable:OnPressSpace(dt)
     if isGrounded then
-        ApplyJumpImpulse(jumpForce)
+        ApplyJumpImpulseToSnowBall(jumpForce)
         -- 점프 후 즉시 grounded를 false로 설정하여 연속 점프 방지
         isGrounded = false
     end

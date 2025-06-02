@@ -445,7 +445,8 @@ bool AActor::BindSelfLuaProperties()
     LuaTable["controller"] = LuaState["controller"];
     LuaTable["ApplyForce"] = LuaState["ApplyForce"];
     LuaTable["ApplyTorque"] = LuaState["ApplyTorque"];
-    LuaTable["ApplyJumpImpulse"] = LuaState["ApplyJumpImpulse"];
+    LuaTable["ApplyTorqueToSnowBall"] = LuaState["ApplyTorqueToSnowball"];
+    LuaTable["ApplyJumpImpulseToSnowBall"] = LuaState["ApplyJumpImpulseToSnowBall"];
     LuaTable["ApplyForceAtPosition"] = LuaState["ApplyForceAtPosition"];
     
     // EngineTypes 테이블도 접근 가능하도록 설정
