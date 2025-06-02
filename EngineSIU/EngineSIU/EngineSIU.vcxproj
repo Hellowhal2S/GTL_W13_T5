@@ -431,6 +431,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClCompile Include="Engine\Source\ThirdParty\ImGui\include\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Engine\Source\ThirdParty\ImGui\include\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\Source\ThirdParty\tinyfiledialogs\include\tinyfiledialogs.cpp" />
+    <None Include="LuaScripts\Animations\NPCStateMachine.lua" />
     <None Include="Shaders\ParticleSpriteVertexShader.hlsl" />
     <None Include="Shaders\ParticleSpritePixelShader.hlsl" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Particles\Velocity\ParticleModuleVelocity.cpp" />

@@ -14,7 +14,7 @@
 #include "UObject/UObjectIterator.h"
 #include "Engine/EditorEngine.h"
 #include "Engine/SkeletalMesh.h"
-
+#include "Components/SphereTriggerComponent.h"
 
 void AEditorPlayer::Tick(float DeltaTime)
 {
@@ -641,6 +641,9 @@ void ASequencerPlayer::PostSpawnInitialize()
 
     CameraComponent = AddComponent<UCameraComponent>("CameraComponent_0");
     CameraComponent->SetupAttachment(RootComponent);
+
+    USphereTriggerComponent* SphereTrigger = AddComponent<USphereTriggerComponent>("SphereTrigger_0");
+    SphereTrigger->bGenerateOverlapEvents = true;
 }
 
 void ASequencerPlayer::Tick(float DeltaTime)
