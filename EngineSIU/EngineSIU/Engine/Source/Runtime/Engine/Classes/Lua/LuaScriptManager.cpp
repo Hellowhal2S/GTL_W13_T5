@@ -157,6 +157,38 @@ void FLuaScriptManager::BindEngineAPIs()
         }
     });
 
+    // @note SnowBall에 대한 하드코딩
+    LuaState.set_function("RegisterSnowBallContactCallback", [](sol::function onContactBegin, sol::function onContactEnd) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->RegisterContactCallback(SnowBallActor, onContactBegin, onContactEnd);
+                    break;
+                }
+            }
+        }
+    });
+
+    LuaState.set_function("UnregisterSnowBallContactCallback", []() {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->UnregisterContactCallback(SnowBallActor);
+                    break;
+                }
+            }
+        }
+    });
+
+    LuaState.set_function("GetActorName", [](AActor* actor) {
+        return GetData(actor->GetActorLabel());
+    });
+
+    LuaState.set_function("GetActorRotation", [](AActor* actor) {
+        return actor->GetActorRotation();
+    });
 
     LuaState.set_function("GetActorForwardVector", [](AActor* actor) {
         return actor->GetActorForwardVector();

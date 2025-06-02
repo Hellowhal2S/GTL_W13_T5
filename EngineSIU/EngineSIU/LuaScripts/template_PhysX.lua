@@ -63,15 +63,9 @@ function ReturnTable:InitializeLua()
 end
 
 -- Contact 이벤트 바인딩 함수
-function ReturnTable:BindContactEvents()
-    if not self.this then
-        print("Error: Actor reference (this) not found for Contact event binding")
-        return
-    end
-    
+function ReturnTable:BindContactEvents()    
     -- Contact 콜백 등록
-    RegisterContactCallback(
-        self.this,
+    RegisterSnowBallContactCallback(
         function(otherActor, contactPoint) 
             self:OnContactBegin(otherActor, contactPoint) 
         end,
@@ -80,7 +74,7 @@ function ReturnTable:BindContactEvents()
         end
     )
     
-    print("Contact events bound successfully")
+    print("SnowBall contact events bound successfully")
 end
 
 -- 앞으로 굴리기 (액터의 Forward 방향)

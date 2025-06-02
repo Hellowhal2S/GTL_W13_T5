@@ -458,7 +458,11 @@ bool AActor::BindSelfLuaProperties()
     // Contact 이벤트 바인딩 함수들 추가
     LuaTable["RegisterContactCallback"] = LuaState["RegisterContactCallback"];
     LuaTable["UnregisterContactCallback"] = LuaState["UnregisterContactCallback"];
+    LuaTable["RegisterSnowBallContactCallback"] = LuaState["RegisterSnowBallContactCallback"];
+    LuaTable["UnregisterSnowBallContactCallback"] = LuaState["UnregisterSnowBallContactCallback"];
 
+    LuaTable["GetActorName"] = LuaState["GetActorName"];
+    LuaTable["GetActorRotation"] = LuaState["GetActorRotation"];
     LuaTable["GetActorForwardVector"] = LuaState["GetActorForwardVector"];
     LuaTable["GetActorRightVector"] = LuaState["GetActorRightVector"];
 
