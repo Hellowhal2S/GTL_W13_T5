@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "GameFramework/Actor.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -20,4 +20,7 @@ public:
     USphereComponent* SphereCollision = nullptr;
     USpringArmComponent* SpringArmComponent = nullptr;
     UCameraComponent* CameraComponent = nullptr;
+
+    FVector SpawnLocation = FVector(100, 0, 70);
+    bool bIsRespawned = true;
 };

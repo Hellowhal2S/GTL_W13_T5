@@ -18,7 +18,7 @@
                         "ComponentOwner": "ACube_209",
                         "ComponentOwnerClass": "ACube",
                         "GeomAttributesCount": "0",
-                        "RelativeLocation": "X=-0.195 Y=0.000 Z=-3.537",
+                        "RelativeLocation": "X=-0.195 Y=0.000 Z=1.146",
                         "RelativeRotation": "Pitch=0.000 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=100.000 Y=100.000 Z=10.000",
                         "RigidBodyType": "0",
@@ -110,7 +110,7 @@
                         "ComponentOwner": "ADirectionalLight_217",
                         "ComponentOwnerClass": "ADirectionalLight",
                         "Direction": "X=-1.000 Y=-0.000 Z=-0.000",
-                        "Intensity": "10.000000",
+                        "Intensity": "2.200000",
                         "LightColor": "R=1.000 G=1.000 B=1.000 A=1.000",
                         "RelativeLocation": "X=0.000 Y=0.000 Z=0.000",
                         "RelativeRotation": "Pitch=0.000 Yaw=0.000 Roll=-0.000",
@@ -168,6 +168,19 @@
             "ActorTickInEditor": "false",
             "Components": [
                 {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "AMyPlayer_224",
+                        "ComponentOwnerClass": "AMyPlayer",
+                        "ScriptName": "LuaScripts/template_PhysX.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
                     "ComponentClass": "USceneComponent",
                     "ComponentID": "DefaultSceneComponent",
                     "Properties": {
@@ -192,22 +205,9 @@
                         "ComponentName": "Camera",
                         "ComponentOwner": "AMyPlayer_224",
                         "ComponentOwnerClass": "AMyPlayer",
-                        "RelativeLocation": "X=-31.908 Y=0.000 Z=46.684",
-                        "RelativeRotation": "Pitch=-60.000 Yaw=0.000 Roll=-0.000",
+                        "RelativeLocation": "X=-20.000 Y=0.000 Z=20.000",
+                        "RelativeRotation": "Pitch=-45.000 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "LuaComponent",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "LuaComponent",
-                        "ComponentOwner": "AMyPlayer_224",
-                        "ComponentOwnerClass": "AMyPlayer",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
                         "bAutoActive": "true",
                         "bIsActive": "true"
                     }
@@ -222,19 +222,6 @@
             "ActorTickInEditor": "false",
             "Components": [
                 {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "LuaComponent",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "LuaComponent",
-                        "ComponentOwner": "ASnowBall_421",
-                        "ComponentOwnerClass": "ASnowBall",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
-                {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "SnowBall",
                     "Properties": {
@@ -245,8 +232,12 @@
                         "ComponentName": "SnowBall",
                         "ComponentOwner": "ASnowBall_421",
                         "ComponentOwnerClass": "ASnowBall",
-                        "GeomAttributesCount": "0",
-                        "RelativeLocation": "X=128.057 Y=11.335 Z=110.380",
+                        "GeomAttr_0_Extent": "X=2.500 Y=1.000 Z=1.000",
+                        "GeomAttr_0_GeomType": "0",
+                        "GeomAttr_0_Offset": "X=0.000 Y=0.000 Z=0.000",
+                        "GeomAttr_0_Rotation": "Pitch=0.000 Yaw=0.000 Roll=0.000",
+                        "GeomAttributesCount": "1",
+                        "RelativeLocation": "X=100.000 Y=11.335 Z=70.000",
                         "RelativeRotation": "Pitch=0.000 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=5.000 Y=5.000 Z=5.000",
                         "RigidBodyType": "1",
@@ -256,6 +247,19 @@
                         "bIsActive": "true",
                         "bSimulate": "true",
                         "m_Type": ""
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ASnowBall_421",
+                        "ComponentOwnerClass": "ASnowBall",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
                     }
                 }
             ],
@@ -373,19 +377,6 @@
             "ActorTickInEditor": "false",
             "Components": [
                 {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "LuaComponent",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "LuaComponent",
-                        "ComponentOwner": "ATarget_257",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
-                {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
                     "Properties": {
@@ -408,6 +399,19 @@
                         "bSimulate": "true",
                         "m_Type": ""
                     }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_257",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
                 }
             ],
             "RootComponentID": "Target"
@@ -418,19 +422,6 @@
             "ActorLabel": "ATarget261",
             "ActorTickInEditor": "false",
             "Components": [
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_264",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_264",
-                        "ComponentOwner": "ATarget_261",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
                 {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
@@ -454,6 +445,32 @@
                         "bSimulate": "true",
                         "m_Type": ""
                     }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_261",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_264",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_264",
+                        "ComponentOwner": "ATarget_261",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
                 }
             ],
             "RootComponentID": "Target"
@@ -464,19 +481,6 @@
             "ActorLabel": "ATarget267",
             "ActorTickInEditor": "false",
             "Components": [
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_270",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_270",
-                        "ComponentOwner": "ATarget_267",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
                 {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
@@ -500,6 +504,32 @@
                         "bSimulate": "true",
                         "m_Type": ""
                     }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_267",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_270",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_270",
+                        "ComponentOwner": "ATarget_267",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
                 }
             ],
             "RootComponentID": "Target"
@@ -510,6 +540,19 @@
             "ActorLabel": "ATarget273",
             "ActorTickInEditor": "false",
             "Components": [
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_276",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_276",
+                        "ComponentOwner": "ATarget_273",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
                 {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
@@ -536,10 +579,10 @@
                 },
                 {
                     "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_276",
+                    "ComponentID": "LuaComponent",
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_276",
+                        "ComponentName": "LuaComponent",
                         "ComponentOwner": "ATarget_273",
                         "ComponentOwnerClass": "ATarget",
                         "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
@@ -582,6 +625,19 @@
                 },
                 {
                     "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_279",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
                     "ComponentID": "ULuaScriptComponent_284",
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
@@ -602,19 +658,6 @@
             "ActorLabel": "ATarget285",
             "ActorTickInEditor": "false",
             "Components": [
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_290",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_290",
-                        "ComponentOwner": "ATarget_285",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
                 {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
@@ -638,6 +681,32 @@
                         "bSimulate": "true",
                         "m_Type": ""
                     }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_290",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_290",
+                        "ComponentOwner": "ATarget_285",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_285",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
                 }
             ],
             "RootComponentID": "Target"
@@ -648,19 +717,6 @@
             "ActorLabel": "ATarget291",
             "ActorTickInEditor": "false",
             "Components": [
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_294",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_294",
-                        "ComponentOwner": "ATarget_291",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
                 {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
@@ -683,6 +739,32 @@
                         "bIsActive": "true",
                         "bSimulate": "true",
                         "m_Type": ""
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_294",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_294",
+                        "ComponentOwner": "ATarget_291",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_291",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
                     }
                 }
             ],
@@ -716,6 +798,19 @@
                         "bIsActive": "true",
                         "bSimulate": "true",
                         "m_Type": ""
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_297",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
                     }
                 },
                 {
@@ -766,6 +861,19 @@
                 },
                 {
                     "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_303",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
                     "ComponentID": "ULuaScriptComponent_308",
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
@@ -786,6 +894,19 @@
             "ActorLabel": "ATarget309",
             "ActorTickInEditor": "false",
             "Components": [
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_314",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_314",
+                        "ComponentOwner": "ATarget_309",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
                 {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
@@ -812,10 +933,10 @@
                 },
                 {
                     "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_314",
+                    "ComponentID": "LuaComponent",
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_314",
+                        "ComponentName": "LuaComponent",
                         "ComponentOwner": "ATarget_309",
                         "ComponentOwnerClass": "ATarget",
                         "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
