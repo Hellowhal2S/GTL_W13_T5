@@ -20,5 +20,8 @@ void ASnowBall::Tick(float DeltaTime)
 {
     AActor::Tick(DeltaTime);
     SnowBallComponent = GetComponentByClass<UStaticMeshComponent>();
+
+    if (GetActorLocation().Z < 10.0)
+        Destroy();
 }
 

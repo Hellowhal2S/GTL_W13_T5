@@ -49,7 +49,8 @@ public:
     FOnGameEnd OnGameEnd;
 
     FGameInfo GameInfo;
-    
+
+    FVector SpawnLocation = FVector(100,0,70);
 private:
     bool bGameRunning = false; // 내부 
     bool bGameEnded = true;
