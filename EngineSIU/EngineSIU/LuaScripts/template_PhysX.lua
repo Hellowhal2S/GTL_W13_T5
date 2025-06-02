@@ -9,7 +9,7 @@ local FVector = EngineTypes.FVector -- EngineTypes로 등록된 FVector local로
 
 -- 설정값
 local rollTorque = 10.0        -- 굴리기 토크 강도
-local jumpForce = 100.0         -- 점프 힘
+local jumpForce = 200.0         -- 점프 힘
 local airControlForce = 0.0   -- 공중에서의 제어력
 
 -- 바닥 감지 변수
@@ -63,15 +63,9 @@ function ReturnTable:InitializeLua()
 end
 
 -- Contact 이벤트 바인딩 함수
-function ReturnTable:BindContactEvents()
-    if not self.this then
-        print("Error: Actor reference (this) not found for Contact event binding")
-        return
-    end
-    
+function ReturnTable:BindContactEvents()    
     -- Contact 콜백 등록
-    RegisterContactCallback(
-        self.this,
+    RegisterSnowBallContactCallback(
         function(otherActor, contactPoint) 
             self:OnContactBegin(otherActor, contactPoint) 
         end,
@@ -80,38 +74,61 @@ function ReturnTable:BindContactEvents()
         end
     )
     
-    print("Contact events bound successfully")
+    print("SnowBall contact events bound successfully")
 end
 
--- 앞으로 굴리기 (X축 토크)
+-- 앞으로 굴리기 (액터의 Forward 방향)
 function ReturnTable:OnPressW(dt)
-    -- ms 보정
-    local torque = FVector(-rollTorque * dt * 1000, 0, 0)
-    ApplyTorque(torque, FORCE_MODE.FORCE)
+    -- 액터의 Right 벡터를 토크축으로 사용 (Forward 방향으로 굴리기 위해)
+    local rightVector = GetActorRightVector(self.this)
+    local torque = FVector(
+        rightVector.X * rollTorque * dt * 1000,
+        rightVector.Y * rollTorque * dt * 1000,
+        rightVector.Z * rollTorque * dt * 1000
+    )
+    ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
--- 뒤로 굴리기 (-X축 토크)
+-- 뒤로 굴리기 (액터의 Forward 반대 방향)
 function ReturnTable:OnPressS(dt)
-    local torque = FVector(rollTorque * dt * 1000, 0, 0)
-    ApplyTorque(torque, FORCE_MODE.FORCE)
+    -- 액터의 Right 벡터 반대를 토크축으로 사용 (Backward 방향으로 굴리기 위해)
+    local rightVector = GetActorRightVector(self.this)
+    local torque = FVector(
+        -rightVector.X * rollTorque * dt * 1000,
+        -rightVector.Y * rollTorque * dt * 1000,
+        -rightVector.Z * rollTorque * dt * 1000
+    )
+    ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
--- 왼쪽으로 굴리기 (Y축 토크)
+-- 왼쪽으로 굴리기 (액터의 Right 반대 방향)
 function ReturnTable:OnPressA(dt)
-    local torque = FVector(0, rollTorque * dt * 1000, 0)
-    ApplyTorque(torque, FORCE_MODE.FORCE)
+    -- 액터의 Forward 벡터를 토크축으로 사용 (Left 방향으로 굴리기 위해)
+    local forwardVector = GetActorForwardVector(self.this)
+    local torque = FVector(
+        forwardVector.X * rollTorque * dt * 1000,
+        forwardVector.Y * rollTorque * dt * 1000,
+        forwardVector.Z * rollTorque * dt * 1000
+    )
+    ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
--- 오른쪽으로 굴리기 (-Y축 토크)
+-- 오른쪽으로 굴리기 (액터의 Right 방향)
 function ReturnTable:OnPressD(dt)
-    local torque = FVector(0, -rollTorque * dt * 1000, 0)
-    ApplyTorque(torque, FORCE_MODE.FORCE)
+    -- 액터의 Forward 벡터 반대를 토크축으로 사용 (Right 방향으로 굴리기 위해)
+    local forwardVector = GetActorForwardVector(self.this)
+    local torque = FVector(
+        -forwardVector.X * rollTorque * dt * 1000,
+        -forwardVector.Y * rollTorque * dt * 1000,
+        -forwardVector.Z * rollTorque * dt * 1000
+    )
+    ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
 -- 점프
 function ReturnTable:OnPressSpace(dt)
     if isGrounded then
-        ApplyJumpImpulse(jumpForce)
+        ApplyJumpImpulseToSnowBall(jumpForce)
         -- 점프 후 즉시 grounded를 false로 설정하여 연속 점프 방지
         isGrounded = false
     end

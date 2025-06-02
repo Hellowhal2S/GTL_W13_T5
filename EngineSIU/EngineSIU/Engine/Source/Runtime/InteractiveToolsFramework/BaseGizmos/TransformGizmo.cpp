@@ -10,6 +10,8 @@
 #include "World/World.h"
 #include "Engine/FObjLoader.h"
 #include "Engine/SkeletalMesh.h"
+#include "PropertyEditor/ShowFlags.h"
+#include "UnrealEd/EditorViewportClient.h"
 
 ATransformGizmo::ATransformGizmo()
 {
@@ -89,10 +91,29 @@ void ATransformGizmo::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    // Editor 모드에서만 Tick. SkeletalMeshViewer모드에서도 tick
-    if (GEngine->ActiveWorld->WorldType != EWorldType::Editor and GEngine->ActiveWorld->WorldType != EWorldType::SkeletalViewer)
+    // Editor, SkeletalMeshViewer, PIE 모드에서 Tick (PIE 모드에서는 SF_ShowDebugLinesInPIE 플래그 확인)
+    if (GEngine->ActiveWorld->WorldType != EWorldType::Editor && 
+        GEngine->ActiveWorld->WorldType != EWorldType::SkeletalViewer && 
+        GEngine->ActiveWorld->WorldType != EWorldType::PIE)
     {
         return;
+    }
+
+    // PIE 모드에서는 SF_ShowDebugLinesInPIE 플래그가 활성화되어야 함
+    if (GEngine->ActiveWorld->WorldType == EWorldType::PIE)
+    {
+        if (AttachedViewport)
+        {
+            const uint64 ShowFlag = AttachedViewport->GetShowFlag();
+            if (!(ShowFlag & EEngineShowFlags::SF_ShowDebugLinesInPIE))
+            {
+                return;
+            }
+        }
+        else
+        {
+            return;
+        }
     }
 
     UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);

@@ -90,26 +90,10 @@ void AGameMode::Tick(float DeltaTime)
     }
     if (bGameOver)
         return;
-    
-    bool bSnowball = false;
-    for (auto iter : GetWorld()->GetActiveLevel()->Actors)
+
+    if (Life <= 0)
     {
-        if (Cast<ASnowBall>(iter))
-            bSnowball = true;
-    }
-    if (!bSnowball)
-    {
-        ASnowBall* Snowball = GetWorld()->SpawnActor<ASnowBall>();
-        Snowball->SetActorLocation(SpawnLocation);
-        Snowball->SnowBallComponent->bSimulate = true;
-        Snowball->SnowBallComponent->bApplyGravity = true;
-        Snowball->SnowBallComponent->CreatePhysXGameObject();
-        Snowball->SetActorScale(FVector(5,5,5));
-        Life--;
-        if (Life<=1)
-        {
-            bGameOver = true;
-        }
+        bGameOver = true;
     }
 }
 
