@@ -396,7 +396,16 @@ void FRenderer::RenderOpaque(const std::shared_ptr<FEditorViewportClient>& Viewp
 
 void FRenderer::RenderEditorDepthElement(const std::shared_ptr<FEditorViewportClient>& Viewport) const
 {
-    if (GEngine->ActiveWorld->WorldType != EWorldType::PIE)
+    if (GEngine->ActiveWorld->WorldType == EWorldType::PIE)
+    {
+        const uint64 ShowFlag = Viewport->GetShowFlag();
+
+        if (!(ShowFlag & (EEngineShowFlags::SF_ShowDebugLinesInPIE)))
+        {
+            return;
+        }
+    }
+
     {
         {
             QUICK_SCOPE_CYCLE_COUNTER(EditorRenderPass_CPU)
@@ -453,13 +462,20 @@ void FRenderer::RenderTranslucent(const std::shared_ptr<FEditorViewportClient>& 
 
 void FRenderer::RenderEditorOverlay(const std::shared_ptr<FEditorViewportClient>& Viewport) const
 {
-    if (GEngine->ActiveWorld->WorldType != EWorldType::PIE)
+    if (GEngine->ActiveWorld->WorldType == EWorldType::PIE)
     {
+        const uint64 ShowFlag = Viewport->GetShowFlag();
+
+        if (!(ShowFlag & (EEngineShowFlags::SF_ShowDebugLinesInPIE)))
         {
-            QUICK_SCOPE_CYCLE_COUNTER(GizmoPass_CPU)
-            QUICK_GPU_SCOPE_CYCLE_COUNTER(GizmoPass_GPU, *GPUTimingManager)
-            GizmoRenderPass->Render(Viewport); // 기존 뎁스를 SRV로 전달해서 샘플 후 비교하기 위해 기즈모 전용 DSV 사용
+            return;
         }
+    }
+
+    {
+        QUICK_SCOPE_CYCLE_COUNTER(GizmoPass_CPU)
+        QUICK_GPU_SCOPE_CYCLE_COUNTER(GizmoPass_GPU, *GPUTimingManager)
+        GizmoRenderPass->Render(Viewport); // 기존 뎁스를 SRV로 전달해서 샘플 후 비교하기 위해 기즈모 전용 DSV 사용
     }
 }
 

@@ -1,5 +1,7 @@
 #include "ControlEditorPanel.h"
 
+#include <DirectXColors.h>
+
 #include "World/World.h"
 
 #include "Actors/Player.h"
@@ -41,6 +43,9 @@
 
 #include "Animation/SkeletalMeshActor.h"
 #include "Engine/Classes/Engine/AssetManager.h"
+#include "Engine/Contents/Actor/ATarget.h"
+#include "Engine/Contents/Actor/MyPlayer.h"
+#include "Engine/Contents/Actor/SnowBall.h"
 #include "Particles/ParticleSystemComponent.h"
 
 #include "Actors/NPC.h"
@@ -374,7 +379,9 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
             { .Label = "SphereCol",         .OBJ = OBJ_SPHERE_COLLISION },
             { .Label = "CapsuleCol",        .OBJ = OBJ_CAPSULE_COLLISION },
             { .Label = "SkeletalMeshActor", .OBJ = OBJ_SKELETALMESH },
-            { .Label = "SequencerPlayer",   .OBJ = OBJ_SEQUENCERPLAYER },
+            { .Label = "SequencerPlayer",   .OBJ = OBJ_MYPLAYER },
+            { .Label = "SnowBall",          .OBJ = OBJ_SNOWBALL },
+{ .Label = "Target",          .OBJ = OBJ_TARGET },
             { .Label = "NPC",               .OBJ = OBJ_NPC },
         };
 
@@ -492,10 +499,22 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                         SpawnedActor->SetActorTickInEditor(true);
                     }
                     break;
-                case OBJ_SEQUENCERPLAYER:
+                case OBJ_MYPLAYER:
                 {
-                    SpawnedActor = World->SpawnActor<ASequencerPlayer>();
+                    SpawnedActor = World->SpawnActor<AMyPlayer>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_SEQUENCERPLAYER"));
+                    break;
+                }
+                case OBJ_SNOWBALL:
+                {
+                    SpawnedActor = World->SpawnActor<ASnowBall>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_SNOWBALL"));
+                    break;
+                }
+                case OBJ_TARGET:
+                {
+                    SpawnedActor = World->SpawnActor<ATarget>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_TARGET"));
                 }
                 break;
                 case OBJ_NPC:

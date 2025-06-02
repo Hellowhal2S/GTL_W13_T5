@@ -74,7 +74,6 @@ void UWorld::BeginPlay()
         GameMode = this->SpawnActor<AGameMode>();
         GameMode->SetActorLabel(TEXT("OBJ_GAMEMODE"));
         GameMode->InitializeComponent();
-
         GameMode->InitGame();
     }
     for (AActor* Actor : ActiveLevel->Actors)
