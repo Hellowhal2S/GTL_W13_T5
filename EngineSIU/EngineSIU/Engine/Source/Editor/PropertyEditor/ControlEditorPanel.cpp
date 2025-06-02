@@ -43,6 +43,7 @@
 #include "Engine/Classes/Engine/AssetManager.h"
 #include "Particles/ParticleSystemComponent.h"
 
+#include "Actors/NPC.h"
 
 ControlEditorPanel::ControlEditorPanel()
 {
@@ -374,6 +375,7 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
             { .Label = "CapsuleCol",        .OBJ = OBJ_CAPSULE_COLLISION },
             { .Label = "SkeletalMeshActor", .OBJ = OBJ_SKELETALMESH },
             { .Label = "SequencerPlayer",   .OBJ = OBJ_SEQUENCERPLAYER },
+            { .Label = "NPC",               .OBJ = OBJ_NPC },
         };
 
         for (const auto& primitive : primitives)
@@ -494,6 +496,12 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                 {
                     SpawnedActor = World->SpawnActor<ASequencerPlayer>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_SEQUENCERPLAYER"));
+                }
+                break;
+                case OBJ_NPC:
+                {
+                    SpawnedActor = World->SpawnActor<ANPC>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_NPC"));
                 }
                 case OBJ_CAMERA:
                 case OBJ_PLAYER:
