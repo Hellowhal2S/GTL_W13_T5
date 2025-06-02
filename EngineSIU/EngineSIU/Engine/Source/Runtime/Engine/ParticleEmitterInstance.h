@@ -50,6 +50,8 @@ public:
     DistributionFloat* SpawnRateDistribution;
     float SpawnFraction = 0;
 
+    bool bOnceBurstOnBegin = false;
+
 public:
     virtual ~FParticleEmitterInstance();
 

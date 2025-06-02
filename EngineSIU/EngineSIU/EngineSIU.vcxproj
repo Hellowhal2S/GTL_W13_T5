@@ -428,6 +428,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClCompile Include="Engine\Source\ThirdParty\ImGui\include\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Engine\Source\ThirdParty\ImGui\include\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\Source\ThirdParty\tinyfiledialogs\include\tinyfiledialogs.cpp" />
+    <ClCompile Include="Engine\Contents\ExplosionParticleActor.cpp" />
     <ClCompile Include="LuaScripts\LuaScriptComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Particles\Size\UParticleModuleSizeOverLife.cpp" />
     <None Include="Shaders\ParticleSpriteVertexShader.hlsl" />
@@ -447,6 +448,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClCompile Include="Engine\Contents\ObstacleFireball.cpp" />
     <ClCompile Include="Engine\Contents\ObstacleMud.cpp" />
     <ClCompile Include="Engine\Contents\ObstacleWall.cpp" />
+    <ClCompile Include="Engine\Contents\ParticleActor.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <None Include="Shaders\CompositingShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -848,6 +850,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClInclude Include="Engine\Source\ThirdParty\sol2\include\sol\forward.hpp" />
     <ClInclude Include="Engine\Source\ThirdParty\sol2\include\sol\sol.hpp" />
     <ClInclude Include="Engine\Source\ThirdParty\tinyfiledialogs\include\tinyfiledialogs.h" />
+    <ClInclude Include="Engine\Contents\ExplosionParticleActor.h" />
     <ClInclude Include="LuaScripts\LuaBindingHelpers.h" />
     <ClInclude Include="LuaScripts\LuaScriptComponent.h" />
     <ClInclude Include="LuaScripts\LuaScriptFileUtils.h" />
@@ -860,6 +863,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClInclude Include="Engine\Contents\ObstacleFireball.h" />
     <ClInclude Include="Engine\Contents\ObstacleMud.h" />
     <ClInclude Include="Engine\Contents\ObstacleWall.h" />
+    <ClInclude Include="Engine\Contents\ParticleActor.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Particles\Size\UParticleModuleSizeOverLife.h" />
     <None Include="Shaders\EditorShaderConstants.hlsli">

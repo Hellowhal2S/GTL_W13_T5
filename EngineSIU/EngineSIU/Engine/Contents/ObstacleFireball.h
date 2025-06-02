@@ -1,5 +1,9 @@
 #pragma once
 #include "ObstacleBase.h"
+#include "Distribution/DistributionFloat.h"
+
+class UParticleSystemComponent;
+class UParticleSystem;
 
 class AObstacleFireball : public AObstacleBase
 {
@@ -9,6 +13,26 @@ public:
     AObstacleFireball();
     virtual ~AObstacleFireball() override = default;
 
-    
+    virtual void PostSpawnInitialize() override;
+    virtual void BeginPlay() override;
+    virtual void Tick(float DeltaTime) override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+    void InitializeParticle();
+    void Fire(FVector InDirection);
+    void CreateExplosion();
+
+public:
+    UParticleSystemComponent* ParticleSystemComponent;
+    UParticleSystem* FireballParticleSystem;
+
+private:
+    FDistributionFloat SpeedGenerator;
+    float Speed;
+    bool bIsFired = false;
+    bool bIsCreatedExplosion = false;
+    FVector Direction;
+
+    float AccumulatedTime = 0.0f;
 };
 

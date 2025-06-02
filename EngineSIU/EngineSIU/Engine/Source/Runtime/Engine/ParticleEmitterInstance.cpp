@@ -46,6 +46,7 @@ void FParticleEmitterInstance::Initialize()
     SpawnFraction = 0.0f;
 
     bEnabled = true;
+    bOnceBurstOnBegin = Component->bOnceBurstOnBegin;
 }
 
 void FParticleEmitterInstance::Release()
@@ -164,10 +165,16 @@ int32 FParticleEmitterInstance::CalculateSpawnCount(float DeltaTime)
 
     if (SpawnModule->bProcessBurstList)
     {
-        if (CurrentTimeForBurst > SpawnModule->BurstTime)
+        if (Component->bOnceBurstOnBegin && !bOnceBurstOnBegin)
+        {
+            return 0;
+        }
+
+        if (CurrentTimeForBurst > SpawnModule->BurstTime || bOnceBurstOnBegin)
         {
             SpawnCount = SpawnModule->BurstCount;
             CurrentTimeForBurst = 0.f;
+            bOnceBurstOnBegin = false;
         }
     }
     else

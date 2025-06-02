@@ -1640,8 +1640,13 @@
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\PhysicsEngine\ConstraintInstance.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\PhysicsEngine\PhysicsAsset.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\World\PhysicsViewerWorld.cpp" />
-    <ClCompile Include="Engine\Contents\Obstacle.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Particles\Size\UParticleModuleSizeOverLife.cpp" />
+    <ClCompile Include="Engine\Contents\ObstacleBase.cpp" />
+    <ClCompile Include="Engine\Contents\ObstacleFireball.cpp" />
+    <ClCompile Include="Engine\Contents\ObstacleMud.cpp" />
+    <ClCompile Include="Engine\Contents\ObstacleWall.cpp" />
+    <ClCompile Include="Engine\Contents\ParticleActor.cpp" />
+    <ClCompile Include="Engine\Contents\ExplosionParticleActor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="EngineSIU.natvis" />
@@ -1764,8 +1769,13 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\PhysicsEngine\ConstraintInstance.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\PhysicsEngine\PhysicsAsset.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\World\PhysicsViewerWorld.h" />
-    <ClInclude Include="Engine\Contents\Obstacle.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Particles\Size\UParticleModuleSizeOverLife.h" />
+    <ClInclude Include="Engine\Contents\ObstacleBase.h" />
+    <ClInclude Include="Engine\Contents\ObstacleFireball.h" />
+    <ClInclude Include="Engine\Contents\ObstacleMud.h" />
+    <ClInclude Include="Engine\Contents\ObstacleWall.h" />
+    <ClInclude Include="Engine\Contents\ParticleActor.h" />
+    <ClInclude Include="Engine\Contents\ExplosionParticleActor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\CompositingShader.hlsl" />

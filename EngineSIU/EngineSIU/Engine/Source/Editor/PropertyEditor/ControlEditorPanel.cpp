@@ -44,6 +44,7 @@
 #include "Engine/Contents/ObstacleWall.h"
 #include "Engine/Contents/ObstacleFireball.h"
 #include "Engine/Contents/ObstacleMud.h"
+#include "Engine/Contents/ExplosionParticleActor.h"
 
 ControlEditorPanel::ControlEditorPanel()
 {
@@ -516,8 +517,10 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                 }
                 case OBJ_ObstcleMud:
                 {
-                    SpawnedActor = World->SpawnActor<AObstacleMud>();
-                    SpawnedActor->SetActorLabel(TEXT("OBJ_ObstcleMud"));
+                    //SpawnedActor = World->SpawnActor<AObstacleMud>();
+                    //SpawnedActor->SetActorLabel(TEXT("OBJ_ObstcleMud"));
+                    SpawnedActor = World->SpawnActor<AExplosionParticleActor>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_ExplosionParticle"));
                     break;
                 }
                 case OBJ_CAMERA:
