@@ -104,6 +104,7 @@ void AGameMode::Tick(float DeltaTime)
         Snowball->SnowBallComponent->bSimulate = true;
         Snowball->SnowBallComponent->bApplyGravity = true;
         Snowball->SnowBallComponent->CreatePhysXGameObject();
+        Snowball->SetActorScale(FVector(5,5,5));
         Life--;
         if (Life<=1)
         {

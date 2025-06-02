@@ -167,7 +167,9 @@ UPrimitiveComponent::UPrimitiveComponent()
 
 UPrimitiveComponent::~UPrimitiveComponent()
 {
-    // GUObjectArray.MarkRemoveObject()
+    bSimulate = false;
+    if (BodySetup && BodyInstance)
+        GEngine->PhysicsManager->DestroyGameObject(BodyInstance->BIGameObject);
 }
 
 UObject* UPrimitiveComponent::Duplicate(UObject* InOuter)
