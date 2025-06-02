@@ -4,6 +4,7 @@
 #include "InputCore/InputCoreTypes.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/EditorEngine.h"
 #include "Engine/Engine.h"
 #include "Engine/Contents/Actor/SnowBall.h"
 #include "Engine/World/World.h"
@@ -87,7 +88,9 @@ void AGameMode::Tick(float DeltaTime)
         // TODO: 아래 코드에서 DeltaTime을 2로 나누는 이유가?
         GameInfo.ElapsedGameTime += DeltaTime / 2.0f;
     }
-
+    if (bGameOver)
+        return;
+    
     bool bSnowball = false;
     for (auto iter : GetWorld()->GetActiveLevel()->Actors)
     {
@@ -101,6 +104,11 @@ void AGameMode::Tick(float DeltaTime)
         Snowball->SnowBallComponent->bSimulate = true;
         Snowball->SnowBallComponent->bApplyGravity = true;
         Snowball->SnowBallComponent->CreatePhysXGameObject();
+        Life--;
+        if (Life<=1)
+        {
+            bGameOver = true;
+        }
     }
 }
 
