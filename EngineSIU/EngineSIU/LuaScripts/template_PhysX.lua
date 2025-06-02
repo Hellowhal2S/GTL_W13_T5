@@ -83,28 +83,63 @@ function ReturnTable:BindContactEvents()
     print("Contact events bound successfully")
 end
 
--- 앞으로 굴리기 (X축 토크)
+-- 앞으로 굴리기 (Forward 방향 기준)
 function ReturnTable:OnPressW(dt)
-    -- ms 보정
-    local torque = FVector(-rollTorque * dt * 1000, 0, 0)
+    -- 액터의 Forward 벡터와 Right 벡터 가져오기
+    local forwardVector = GetActorForwardVector(self.this)
+    local rightVector = GetActorRightVector(self.this)
+    
+    -- Forward 방향으로 굴리기 위한 토크 계산 (Right 벡터와 수직)
+    local torque = FVector(
+        rightVector.X * rollTorque * dt * 1000,
+        rightVector.Y * rollTorque * dt * 1000,
+        rightVector.Z * rollTorque * dt * 1000
+    )
     ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
--- 뒤로 굴리기 (-X축 토크)
+-- 뒤로 굴리기 (Forward 반대 방향 기준)
 function ReturnTable:OnPressS(dt)
-    local torque = FVector(rollTorque * dt * 1000, 0, 0)
+    -- 액터의 Forward 벡터와 Right 벡터 가져오기
+    local forwardVector = GetActorForwardVector(self.this)
+    local rightVector = GetActorRightVector(self.this)
+    
+    -- Backward 방향으로 굴리기 위한 토크 계산 (Right 벡터와 반대로 수직)
+    local torque = FVector(
+        -rightVector.X * rollTorque * dt * 1000,
+        -rightVector.Y * rollTorque * dt * 1000,
+        -rightVector.Z * rollTorque * dt * 1000
+    )
     ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
--- 왼쪽으로 굴리기 (Y축 토크)
+-- 왼쪽으로 굴리기 (Right 반대 방향 기준)
 function ReturnTable:OnPressA(dt)
-    local torque = FVector(0, rollTorque * dt * 1000, 0)
+    -- 액터의 Forward 벡터와 Right 벡터 가져오기
+    local forwardVector = GetActorForwardVector(self.this)
+    local rightVector = GetActorRightVector(self.this)
+    
+    -- Left 방향으로 굴리기 위한 토크 계산 (Forward 벡터와 반대로 수직)
+    local torque = FVector(
+        -forwardVector.X * rollTorque * dt * 1000,
+        -forwardVector.Y * rollTorque * dt * 1000,
+        -forwardVector.Z * rollTorque * dt * 1000
+    )
     ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 
--- 오른쪽으로 굴리기 (-Y축 토크)
+-- 오른쪽으로 굴리기 (Right 방향 기준)
 function ReturnTable:OnPressD(dt)
-    local torque = FVector(0, -rollTorque * dt * 1000, 0)
+    -- 액터의 Forward 벡터와 Right 벡터 가져오기
+    local forwardVector = GetActorForwardVector(self.this)
+    local rightVector = GetActorRightVector(self.this)
+    
+    -- Right 방향으로 굴리기 위한 토크 계산 (Forward 벡터와 수직)
+    local torque = FVector(
+        forwardVector.X * rollTorque * dt * 1000,
+        forwardVector.Y * rollTorque * dt * 1000,
+        forwardVector.Z * rollTorque * dt * 1000
+    )
     ApplyTorqueToSnowBall(torque, FORCE_MODE.FORCE)
 end
 

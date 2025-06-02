@@ -157,6 +157,15 @@ void FLuaScriptManager::BindEngineAPIs()
         }
     });
 
+
+    LuaState.set_function("GetActorForwardVector", [](AActor* actor) {
+        return actor->GetActorForwardVector();
+    });
+
+    LuaState.set_function("GetActorRightVector", [](AActor* actor) {
+        return actor->GetActorRightVector();
+        });
+
     UE_LOG(ELogLevel::Display, TEXT("Engine APIs bound to Lua"));
 }
 
