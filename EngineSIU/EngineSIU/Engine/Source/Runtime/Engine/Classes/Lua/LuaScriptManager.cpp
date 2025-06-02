@@ -144,6 +144,18 @@ void FLuaScriptManager::BindEngineAPIs()
         }
     });
 
+    LuaState.set_function("GrowSnowBall", [](float deltaRadius) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->GrowBall(SnowBallActor, deltaRadius);
+                    break;
+                }
+            }
+        }
+    });
+
     // Contact 이벤트 바인딩 함수 추가
     LuaState.set_function("RegisterContactCallback", [](AActor* actor, sol::function onContactBegin, sol::function onContactEnd) {
         if (GEngine && GEngine->PhysicsManager && actor) {

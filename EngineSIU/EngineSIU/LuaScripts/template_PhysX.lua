@@ -8,7 +8,7 @@ local ReturnTable = {} -- Return용 table. cpp에서 Table 단위로 객체 관�
 local FVector = EngineTypes.FVector -- EngineTypes로 등록된 FVector local로 선언.
 
 -- 설정값
-local rollTorque = 100.0        -- 굴리기 토크 강도
+local rollTorque = 200.0        -- 굴리기 토크 강도
 local jumpForce = 2000.0         -- 점프 힘
 local airControlForce = 0.0   -- 공중에서의 제어력
 
@@ -79,6 +79,7 @@ end
 
 -- 앞으로 굴리기 (액터의 Forward 방향)
 function ReturnTable:OnPressW(dt)
+    print("Press W: Rolling forward")
     -- 액터의 Right 벡터를 토크축으로 사용 (Forward 방향으로 굴리기 위해)
     local rightVector = GetActorRightVector(self.this)
     local torque = FVector(
@@ -137,6 +138,9 @@ end
 function ReturnTable:Tick(dt)
     -- 매 프레임마다 실행되는 로직
     -- 필요하면 공중에서의 추가 제어나 댐핑 등을 구현
+    if isGrounded then
+        GrowSnowBall(dt) -- 바닥에 닿아있을 때 눈덩이 성장
+    end
     if not isGrounded then
         timeSinceLastContact = timeSinceLastContact + dt
         

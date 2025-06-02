@@ -78,6 +78,8 @@ public:
     void ApplyForceAtPositionToActor(class AActor* Actor, const FVector& Force, const FVector& Position, int ForceMode = 0);
     void ApplyJumpImpulse(GameObject* Obj, float JumpForce);
     void ApplyJumpImpulseToActor(class AActor* Actor, float JumpForce);
+
+    void GrowBall(AActor* Actor, float DeltaRadius);
     
     GameObject* FindGameObjectByActor(class AActor* Actor);
     

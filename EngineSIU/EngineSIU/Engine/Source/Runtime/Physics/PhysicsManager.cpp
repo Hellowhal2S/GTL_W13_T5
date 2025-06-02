@@ -1084,6 +1084,127 @@ void FPhysicsManager::ApplyJumpImpulseToActor(AActor* Actor, float JumpForce)
     }
 }
 
+void FPhysicsManager::GrowBall(AActor* Actor, float DeltaRadius)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (!Obj || !Obj->DynamicRigidBody)
+    {
+        UE_LOG(ELogLevel::Warning, TEXT("GrowBall: Invalid GameObject or DynamicRigidBody for Actor: %s"), Actor ? *Actor->GetName() : TEXT("NULL"));
+        return;
+    }
+    
+    // RigidBody에 attached된 모든 Shape 가져오기
+    PxU32 ShapeCount = Obj->DynamicRigidBody->getNbShapes();
+    if (ShapeCount == 0)
+    {
+        UE_LOG(ELogLevel::Warning, TEXT("GrowBall: No shapes attached to Actor: %s"), *Actor->GetName());
+        return;
+    }
+    
+    TArray<PxShape*> Shapes;
+    Shapes.SetNum(ShapeCount);
+    PxU32 RetrievedShapes = Obj->DynamicRigidBody->getShapes(Shapes.GetData(), ShapeCount);
+    
+    //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Found %d shapes for Actor: %s"), RetrievedShapes, *Actor->GetName());
+    
+    // 첫 번째 Sphere Shape 찾기 및 교체
+    for (PxU32 i = 0; i < RetrievedShapes; ++i)
+    {
+        PxShape* OldShape = Shapes[i];
+        if (!OldShape)
+        {
+            UE_LOG(ELogLevel::Warning, TEXT("GrowBall: Shape %d is null"), i);
+            continue;
+        }
+        
+        //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Checking shape %d, geometry type: %d"), i, (int32)OldShape->getGeometryType());
+        
+        if (OldShape->getGeometryType() == PxGeometryType::eSPHERE)
+        {
+            // 현재 SphereGeometry 가져오기
+            PxSphereGeometry CurrentGeometry;
+            if (OldShape->getSphereGeometry(CurrentGeometry))
+            {
+                float OldRadius = CurrentGeometry.radius;
+                float NewRadius = FMath::Max(0.1f, OldRadius + DeltaRadius);
+                
+                // 기존 Shape의 정보 저장 (detach 전에 미리 백업)
+                PxTransform LocalPose = OldShape->getLocalPose();
+                PxShapeFlags ShapeFlags = OldShape->getFlags();
+                float ContactOffset = OldShape->getContactOffset();
+                float RestOffset = OldShape->getRestOffset();
+                PxFilterData SimFilterData = OldShape->getSimulationFilterData();
+                PxFilterData QueryFilterData = OldShape->getQueryFilterData();
+                
+                // Material 정보 백업
+                PxMaterial* ShapeMaterial = nullptr;
+                PxU32 MaterialCount = OldShape->getNbMaterials();
+                if (MaterialCount > 0)
+                {
+                    OldShape->getMaterials(&ShapeMaterial, 1);
+                }
+                if (!ShapeMaterial) ShapeMaterial = Material; // 기본 Material 사용
+                
+                // 새로운 SphereGeometry로 새 Shape 생성
+                PxSphereGeometry NewGeometry(NewRadius);
+                PxShape* NewShape = Physics->createShape(NewGeometry, *ShapeMaterial);
+                
+                if (NewShape)
+                {
+                    // 백업한 설정들을 새 Shape에 적용
+                    NewShape->setLocalPose(LocalPose);
+                    NewShape->setFlags(ShapeFlags);
+                    NewShape->setContactOffset(ContactOffset);
+                    NewShape->setRestOffset(RestOffset);
+                    NewShape->setSimulationFilterData(SimFilterData);
+                    NewShape->setQueryFilterData(QueryFilterData);
+                    
+                    // 참조 카운트 증가 (안전장치)
+                    OldShape->acquireReference();
+                    
+                    // Actor에서 기존 Shape 제거
+                    Obj->DynamicRigidBody->detachShape(*OldShape);
+                    
+                    // 새 Shape를 Actor에 추가
+                    Obj->DynamicRigidBody->attachShape(*NewShape);
+                    
+                    // 참조 카운트 감소 및 안전한 해제
+                    // detachShape 후에도 우리가 참조를 가지고 있으므로 안전하게 해제 가능
+                    OldShape->release();
+                    
+                    // 질량과 관성 다시 계산
+                    float CurrentMass = Obj->DynamicRigidBody->getMass();
+                    PxRigidBodyExt::updateMassAndInertia(*Obj->DynamicRigidBody, 1000.0f);
+                    float NewMass = Obj->DynamicRigidBody->getMass();
+                    
+                    // Actor를 깨우기 (변경사항 반영을 위해)
+                    if (Obj->DynamicRigidBody->isSleeping())
+                    {
+                        Obj->DynamicRigidBody->wakeUp();
+                    }
+                    
+                    //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Shape replaced successfully"));
+                    //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Ball radius changed from %.2f to %.2f for Actor: %s"), OldRadius, NewRadius, *Actor->GetName());
+                    //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Mass updated from %.2f to %.2f"), CurrentMass, NewMass);
+                    
+                    // 첫 번째 구만 처리하고 종료
+                    return;
+                }
+                else
+                {
+                    UE_LOG(ELogLevel::Error, TEXT("GrowBall: Failed to create new shape with radius %.2f"), NewRadius);
+                }
+            }
+            else
+            {
+                UE_LOG(ELogLevel::Error, TEXT("GrowBall: Failed to get sphere geometry from shape %d"), i);
+            }
+        }
+    }
+    
+    UE_LOG(ELogLevel::Warning, TEXT("GrowBall: No sphere geometry found for Actor: %s"), *Actor->GetName());
+}
+
 GameObject* FPhysicsManager::FindGameObjectByActor(AActor* Actor)
 {
     if (!Actor) return nullptr;
