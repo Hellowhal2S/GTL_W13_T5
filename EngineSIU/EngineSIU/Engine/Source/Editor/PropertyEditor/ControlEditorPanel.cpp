@@ -43,6 +43,7 @@
 
 #include "Animation/SkeletalMeshActor.h"
 #include "Engine/Classes/Engine/AssetManager.h"
+#include "Engine/Contents/Actor/ATarget.h"
 #include "Engine/Contents/Actor/MyPlayer.h"
 #include "Engine/Contents/Actor/SnowBall.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -377,8 +378,10 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
             { .Label = "SphereCol",         .OBJ = OBJ_SPHERE_COLLISION },
             { .Label = "CapsuleCol",        .OBJ = OBJ_CAPSULE_COLLISION },
             { .Label = "SkeletalMeshActor", .OBJ = OBJ_SKELETALMESH },
-            { .Label = "SequencerPlayer",   .OBJ = OBJ_SEQUENCERPLAYER },
+            { .Label = "SequencerPlayer",   .OBJ = OBJ_MYPLAYER },
             { .Label = "SnowBall",          .OBJ = OBJ_SNOWBALL },
+{ .Label = "Target",          .OBJ = OBJ_TARGET },
+                
         };
 
         for (const auto& primitive : primitives)
@@ -495,7 +498,7 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                         SpawnedActor->SetActorTickInEditor(true);
                     }
                     break;
-                case OBJ_SEQUENCERPLAYER:
+                case OBJ_MYPLAYER:
                 {
                     SpawnedActor = World->SpawnActor<AMyPlayer>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_SEQUENCERPLAYER"));
@@ -506,6 +509,11 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                     SpawnedActor = World->SpawnActor<ASnowBall>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_SNOWBALL"));
                     break;
+                }
+                case OBJ_TARGET:
+                {
+                    SpawnedActor = World->SpawnActor<ATarget>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_TARGET"));
                 }
                 case OBJ_CAMERA:
                 case OBJ_PLAYER:

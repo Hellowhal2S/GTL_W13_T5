@@ -11,7 +11,7 @@ ASnowBall::ASnowBall()
     // SetRootComponent(DefaultSceneComponent);
     
     SnowBallComponent = AddComponent<UStaticMeshComponent>("SnowBall");
-    SnowBallComponent->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/Reference/Reference.obj"));
+    SnowBallComponent->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/Apple/apple_mid.obj"));
     SetRootComponent(SnowBallComponent);
     
 }
