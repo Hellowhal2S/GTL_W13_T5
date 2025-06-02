@@ -20,7 +20,8 @@ class UPrimitiveComponent : public USceneComponent
 
 public:
     UPrimitiveComponent();
-
+    ~UPrimitiveComponent();
+    
     virtual UObject* Duplicate(UObject* InOuter) override;
 
     virtual void InitializeComponent() override;

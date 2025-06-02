@@ -1,0 +1,24 @@
+﻿#include "SnowBall.h"
+
+#include "Components/SphereComponent.h"
+#include "Engine/Engine.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/FObjLoader.h"
+
+ASnowBall::ASnowBall()
+{
+    // DefaultSceneComponent = AddComponent<USceneComponent>("DefaultSceneComponent");
+    // SetRootComponent(DefaultSceneComponent);
+    
+    SnowBallComponent = AddComponent<UStaticMeshComponent>("SnowBall");
+    SnowBallComponent->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/Reference/Reference.obj"));
+    SetRootComponent(SnowBallComponent);
+    
+}
+
+void ASnowBall::Tick(float DeltaTime)
+{
+    AActor::Tick(DeltaTime);
+    SnowBallComponent = GetComponentByClass<UStaticMeshComponent>();
+}
+

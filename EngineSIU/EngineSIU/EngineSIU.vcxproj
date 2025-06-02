@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -204,6 +204,8 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Contents\Actor\MyPlayer.cpp" />
+    <ClCompile Include="Engine\Contents\Actor\SnowBall.cpp" />
     <ClCompile Include="Engine\Contents\AnimInstance\LuaScriptAnimInstance.cpp" />
     <ClCompile Include="Engine\Contents\Objects\DamageCameraShake.cpp" />
     <ClCompile Include="Engine\Source\Developer\AnimDataController\AnimDataController.cpp" />
@@ -514,6 +516,8 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Contents\Actor\MyPlayer.h" />
+    <ClInclude Include="Engine\Contents\Actor\SnowBall.h" />
     <ClInclude Include="Engine\Contents\AnimInstance\LuaScriptAnimInstance.h" />
     <ClInclude Include="Engine\Contents\Objects\DamageCameraShake.h" />
     <ClInclude Include="Engine\Source\Editor\PropertyEditor\PhysicsAssetViewerPanel.h" />
@@ -956,10 +960,6 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <Compile Include="Engine\Source\ThirdParty\fmod\inc\fmod.cs" />
     <Compile Include="Engine\Source\ThirdParty\fmod\inc\fmod_dsp.cs" />
     <Compile Include="Engine\Source\ThirdParty\fmod\inc\fmod_errors.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Engine\Contents\Actors\" />
-    <Folder Include="Engine\Contents\Components\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

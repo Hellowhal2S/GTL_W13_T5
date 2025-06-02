@@ -309,7 +309,7 @@ void UEditorEngine::StartPIE()
     PIEWorld->WorldType = EWorldType::PIE;
 
     PIEWorldContext.SetCurrentWorld(PIEWorld);
-    ActiveWorld = PIEWorld;
+    ActiveWorld = PIEWorld; 
 
     // PVD 시뮬레이션 리셋 (프레임 카운터를 0으로 초기화)
     PhysicsManager->ResetPVDSimulation();
@@ -625,10 +625,13 @@ void UEditorEngine::SetPhysXScene(UWorld* World)
 
     for (const auto& Actor : TargetWorld->GetActiveLevel()->Actors)
     {
-        UPrimitiveComponent* Prim = Actor->GetComponentByClass<UPrimitiveComponent>();
-        if (Prim && Prim->bSimulate)
+        TArray<UPrimitiveComponent*> Prims = Actor->GetComponentsByClass<UPrimitiveComponent>();
+        for (auto Prim :Prims )
         {
-            Prim->CreatePhysXGameObject();
+            if (Prim && Prim->bSimulate)
+            {
+                Prim->CreatePhysXGameObject();
+            }         
         }
     }
 }
