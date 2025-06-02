@@ -9,6 +9,7 @@
 #include "LevelEditor/SLevelEditor.h"
 #include "UnrealEd/EditorViewportClient.h"
 #include "UnrealClient.h"
+#include "GameFramework/GameMode.h"
 
 AMyPlayer::AMyPlayer()
 {
@@ -32,6 +33,7 @@ void AMyPlayer::BeginPlay()
 void AMyPlayer::Tick(float DeltaTime)
 {
     APlayer::Tick(DeltaTime);
+    UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
     bool bExist = false;
     for (auto iter : GetWorld()->GetActiveLevel()->Actors)
     {
@@ -51,14 +53,14 @@ void AMyPlayer::Tick(float DeltaTime)
         bool bCurrentAltState = GetAsyncKeyState(VK_LCONTROL) & 0x8000;
         
         // Alt 키가 눌렸을 때 (이전에 안 눌려있었고 현재 눌려있음)
-        if (!bPrevAltState && bCurrentAltState)
+        if (!bPrevAltState && bCurrentAltState || Engine->PIEWorld->GetGameMode()->bGameOver)
         {
             bCameraMode = false;
             ShowCursor(TRUE);  // 마우스 커서 보이기
         }
         
         // 마우스 왼쪽 버튼 클릭 시 카메라 모드로 복귀
-        if (!bCameraMode && (GetAsyncKeyState(VK_LBUTTON) & 0x8000))
+        if (!bCameraMode && (GetAsyncKeyState(VK_LBUTTON) & 0x8000) && !Engine->PIEWorld->GetGameMode()->bGameOver)
         {
             // 마우스 커서가 활성 뷰포트 영역 안에 있는지 확인
             POINT cursorPos;
