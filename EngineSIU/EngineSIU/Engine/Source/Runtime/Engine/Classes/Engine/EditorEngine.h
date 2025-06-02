@@ -98,6 +98,8 @@ private:
     AEditorPlayer* EditorPlayer = nullptr;
     FVector CameraLocation;
     FVector CameraRotation;
+
+
 };
 
 

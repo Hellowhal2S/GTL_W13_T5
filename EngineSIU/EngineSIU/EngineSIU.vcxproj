@@ -208,6 +208,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClCompile Include="Engine\Contents\Actor\MyPlayer.cpp" />
     <ClCompile Include="Engine\Contents\Actor\SnowBall.cpp" />
     <ClCompile Include="Engine\Contents\AnimInstance\LuaScriptAnimInstance.cpp" />
+    <ClCompile Include="Engine\Contents\GameUI\StartUI.cpp" />
     <ClCompile Include="Engine\Contents\Objects\DamageCameraShake.cpp" />
     <ClCompile Include="Engine\Source\Developer\AnimDataController\AnimDataController.cpp" />
     <ClCompile Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.cpp" />
@@ -521,6 +522,7 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClInclude Include="Engine\Contents\Actor\MyPlayer.h" />
     <ClInclude Include="Engine\Contents\Actor\SnowBall.h" />
     <ClInclude Include="Engine\Contents\AnimInstance\LuaScriptAnimInstance.h" />
+    <ClInclude Include="Engine\Contents\GameUI\StartUI.h" />
     <ClInclude Include="Engine\Contents\Objects\DamageCameraShake.h" />
     <ClInclude Include="Engine\Source\Editor\PropertyEditor\PhysicsAssetViewerPanel.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\UObject\PropertyEvent.h" />

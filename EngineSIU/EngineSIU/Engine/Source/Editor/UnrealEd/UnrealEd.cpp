@@ -1,5 +1,6 @@
 #include "UnrealEd.h"
 #include "EditorPanel.h"
+#include "Engine/Contents/GameUI/StartUI.h"
 
 #include "PropertyEditor/ControlEditorPanel.h"
 #include "PropertyEditor/OutlinerEditorPanel.h"
@@ -28,6 +29,9 @@ void UnrealEd::Initialize()
 
     auto PhysicsAssetPanel = std::make_shared<PhysicsAssetViewerPanel>();
     Panels["PhysicsAssetViewerPanel"] = PhysicsAssetPanel;
+
+    auto StartUIPanel = std::make_shared<StartUI>();
+    Panels["StartUI"] = StartUIPanel;
 }
 
 void UnrealEd::Render() const

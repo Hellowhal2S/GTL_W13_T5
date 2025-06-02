@@ -38,8 +38,9 @@ public:
 
     FWorldContext& CreateNewWorldContext(EWorldType InWorldType);
 
+    FString CurSceneName = "AutoSave.Scene";
     
-    void LoadLevel(const FString& FileName) const;
+    void LoadLevel(const FString& FileName);
     void SaveLevel(const FString& FileName) const;
 };
 
