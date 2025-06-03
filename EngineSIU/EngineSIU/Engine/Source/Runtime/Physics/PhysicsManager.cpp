@@ -687,8 +687,9 @@ void FPhysicsManager::CreateJoint(const GameObject* Obj1, const GameObject* Obj2
 }
 
 void FPhysicsManager::DestroyGameObject(GameObject* GameObject) const
-{
-    if (!GameObject) 
+{ 
+    // TODO: StaticRigidBody 분기 처리 필요
+    if (GameObject && GameObject->DynamicRigidBody)
     {
         UE_LOG(ELogLevel::Warning, TEXT("DestroyGameObject: Null GameObject pointer"));
         return;

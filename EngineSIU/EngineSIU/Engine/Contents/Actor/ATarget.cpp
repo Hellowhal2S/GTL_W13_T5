@@ -1,7 +1,8 @@
-﻿#include "ATarget.h"
+#include "ATarget.h"
 
 #include "PhysicsManager.h"
 #include "SnowBall.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/FObjLoader.h"
 #include "SphereTargetComponent.h"
@@ -9,6 +10,7 @@
 #include "Engine/Engine.h"
 #include "GameFramework/GameMode.h"
 #include "World/World.h"
+#include "Engine/AssetManager.h"
 
 ATarget::ATarget()
 {
@@ -16,6 +18,11 @@ ATarget::ATarget()
     Target->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/Penguin/Penguin.obj"));
     Target->bSimulate = true;
     SetRootComponent(Target);
+
+    /*Target = AddComponent<USkeletalMeshComponent>(TEXT("Target"));
+    Target->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/SkeletalPenguin/SkeletalPenguin"));
+    Target->bSimulate = true;
+    SetRootComponent(Target);*/
 
     SphereComponent = AddComponent<USphereTargetComponent>(TEXT("Collision"));
     SphereComponent->SetupAttachment(Target);
