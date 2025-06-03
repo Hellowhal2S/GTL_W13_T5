@@ -163,6 +163,18 @@ void AMyPlayer::UpdateCameraRotation()
         PrevCursorPos.x = centerX;
         PrevCursorPos.y = centerY;
         CursorInit = true;
+        bSkipFirstFrame = true; // 다음 프레임을 스킵하도록 설정
+        return;
+    }
+
+    // 2) 마우스 위치 초기화 후 첫 프레임은 스킵
+    if (bSkipFirstFrame)
+    {
+        POINT curPos;
+        GetCursorPos(&curPos);
+        PrevCursorPos.x = curPos.x;
+        PrevCursorPos.y = curPos.y;
+        bSkipFirstFrame = false;
         return;
     }
 
@@ -170,15 +182,20 @@ void AMyPlayer::UpdateCameraRotation()
     GetCursorPos(&curPos);
 
     int deltaX = curPos.x - PrevCursorPos.x;
+    int deltaY = curPos.y - PrevCursorPos.y;
 
     Yaw += deltaX * Sensitivity;
+    Pitch -= deltaY * Sensitivity; // Y축은 반대로 (마우스 위로 움직이면 카메라가 위를 봄)
+    
+    // Pitch 각도 제한 (너무 위아래로 돌아가지 않도록)
+    Pitch = FMath::Clamp(Pitch, -40.0f, 20.0f);
 
-    // 5) 마우스 커서를 화면 중앙으로 다시 이동 (무한 회전을 위해)
+    // 마우스 커서를 화면 중앙으로 다시 이동 (무한 회전을 위해)
     SetCursorPos(centerX, centerY);
     PrevCursorPos.x = centerX;
     PrevCursorPos.y = centerY;
 
-    SetActorRotation(FRotator(GetActorRotation().Pitch, Yaw, GetActorRotation().Roll));
+    SetActorRotation(FRotator(Pitch, Yaw, GetActorRotation().Roll));
 }
 
 void AMyPlayer::CameraInitialize()
@@ -193,7 +210,7 @@ void AMyPlayer::CameraInitialize()
         if (APlayerCameraManager* PCM = PC->PlayerCameraManager)
         {
             // F_Stop: 4.0, SensorWidth: 5000mm, FocalDistance: 65cm (0.65m)
-            PCM->SetDoFSettings(4.f, 5000.f, 65.0f);
+            PCM->SetDoFSettings(5.6f, 5000.f, 65.0f);
         }
     }
     
