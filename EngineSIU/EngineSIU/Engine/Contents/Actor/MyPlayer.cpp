@@ -122,7 +122,7 @@ void AMyPlayer::Tick(float DeltaTime)
                 bExist = true;
                 Target = Cast<ASnowBall>(iter);
             }
-            if (Cast<UTextComponent>(iter))
+            if (iter->GetComponentByClass<UTextComponent>())
             {
                 iter->Destroy();
             }
