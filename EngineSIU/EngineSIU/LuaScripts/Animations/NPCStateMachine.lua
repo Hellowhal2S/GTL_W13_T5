@@ -1,68 +1,69 @@
-return {
+AnimFSM = {
     state = "Idle",
     blend = 0.4, -- 기본 블렌드 타임
-    stateOrder = { "Idle", "SlowRun", "FastRun", "NarutoRun" },
-
+    --stateOrder = { "Idle", "SlowRun", "FastRun", "NarutoRun", "Runaway"},
+    stateOrder = { "Idle", "Bray", "Walk"},
     -- 상태별 애니메이션 이름 매핑
     animMap = {
-        Idle = "Contents/Human/Idle",
-        SlowRun = "Contents/Human/SlowRun",
-        FastRun = "Contents/Human/FastRun",
-        NarutoRun = "Contents/Human/NarutoRun"
+        --Idle = "Contents/Human/Idle",
+        --SlowRun = "Contents/Human/SlowRun",
+        --FastRun = "Contents/Human/FastRun",
+        --NarutoRun = "Contents/Human/NarutoRun",
+        --Runaway = "Contents/Xbot|Runaway.001"
+        Idle = "Contents/SkeletalPenguin/Armature|Armature|Idle",
+        Bray = "Contents/SkeletalPenguin/Armature|Armature|Bray",
+        Walk = "Contents/SkeletalPenguin/Armature|Armature|Walk"
     },
 
     -- 상태별 블렌드 타임 매핑
+    --blendMap = {
+    --    Idle = 1.0,
+    --    SlowRun = 1.0,
+    --    FastRun = 1.0,
+    --    NarutoRun = 1.0, -- NarutoRun에서 다른 상태로 갈 때 기본값
+    --    Runaway = 1.0
+    --},
     blendMap = {
         Idle = 0.4,
-        SlowRun = 0.4,
-        FastRun = 2.0,
-        NarutoRun = 0.4 -- NarutoRun에서 다른 상태로 갈 때 기본값
+        Bray = 0.4,
+        Walk = 0.4
     },
 
-    -- Player가 Trigger에 들어오면 상태를 한 단계 올림
+   -- 상태 전이 관련 변수
+    isTriggerOn = false,
+    stateTimer = 0,
+    stateInterval = 2.0, -- 상태 전이 간격(초)
+    targetStateIdx = 1,  -- 목표 상태 인덱스
+
     OnOverlap = function(self, other)
-        print("Lua OnOverlap 호출")
+        print("OnOverlap 호출")
         if other:IsA("APlayer") then
-            local idx = 1
-            for i, v in ipairs(self.stateOrder) do
-                if v == self.state then
-                    idx = i
-                    break
-                end
-            end
-            -- 다음 상태로 전환 (최대 NarutoRun)
-            if idx < #self.stateOrder then
-                self.state = self.stateOrder[idx + 1]
-            end
-            -- 상태 변경 시 블렌드 타임 갱신
+            print("플레이어와 겹침")
+            self.isTriggerOn = true
+            -- Runaway 상태로 전환
+            self.state = "Walk"
             self.blend = self.blendMap[self.state] or 0.4
-            print("NPC 상태 전환: " .. self.state .. ", 블렌드: " .. tostring(self.blend))
+            --self.targetStateIdx = #self.stateOrder -- NarutoRun까지 진행
+            self.stateTimer = 0
         end
     end,
 
-      -- Player가 Trigger에서 나가면 상태를 한 단계 내림 (역순)
     OnEndOverlap = function(self, other)
+        print("OnEndOverlap 호출")
         if other:IsA("APlayer") then
-            local idx = #self.stateOrder
-            for i, v in ipairs(self.stateOrder) do
-                if v == self.state then
-                    idx = i
-                    break
-                end
-            end
-            -- 이전 상태로 전환 (최소 Idle)
-            if idx > 1 then
-                self.state = self.stateOrder[idx - 1]
-            end
+            self.isTriggerOn = false
+            --self.targetStateIdx = 1 -- Idle까지 역순 진행
+            self.state = "Bray"
             self.blend = self.blendMap[self.state] or 0.4
-            print("NPC 상태 복귀: " .. self.state .. ", 블렌드: " .. tostring(self.blend))
+            self.stateTimer = 0
         end
     end,
 
-    -- 상태별 애니메이션 반환
     Update = function(self, DeltaTime)
         local animName = self.animMap[self.state] or "Idle"
         local blendTime = self.blend or 0.4
         return { anim = animName, blend = blendTime }
     end
 }
+
+return AnimFSM

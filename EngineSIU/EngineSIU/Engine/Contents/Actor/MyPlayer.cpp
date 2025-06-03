@@ -27,7 +27,7 @@ AMyPlayer::AMyPlayer()
 
 void AMyPlayer::RegisterLuaType(sol::state& Lua)
 {
-    DEFINE_LUA_TYPE_WITH_PARENT(AMyPlayer, sol::base<APlayer>(),
+    DEFINE_LUA_TYPE_WITH_PARENT(AMyPlayer, sol::bases<APlayer>(),
 
         )
 }

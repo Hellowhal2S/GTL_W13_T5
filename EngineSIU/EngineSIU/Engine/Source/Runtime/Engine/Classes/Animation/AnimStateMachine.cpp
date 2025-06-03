@@ -20,7 +20,7 @@ void UAnimStateMachine::Initialize(USkeletalMeshComponent* InOwner, ULuaScriptAn
 
 }
 
-void UAnimStateMachine::ProcessState()
+void UAnimStateMachine::ProcessState(float DeltaTime)
 {
     if (!LuaTable.valid())
         return;
@@ -32,7 +32,7 @@ void UAnimStateMachine::ProcessState()
         return;
     }
 
-    sol::object result = UpdateFunc(LuaTable, 0.0f);
+    sol::object result = UpdateFunc(LuaTable, DeltaTime);
 
     sol::table StateInfo = result.as<sol::table>();
     FString StateName = StateInfo["anim"].get_or(std::string("")).c_str();

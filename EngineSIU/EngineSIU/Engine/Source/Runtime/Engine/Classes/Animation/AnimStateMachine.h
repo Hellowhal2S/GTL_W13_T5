@@ -18,7 +18,7 @@ public:
 
     virtual void Initialize(USkeletalMeshComponent* InOwner, ULuaScriptAnimInstance* InAnimInstance);
 
-    void ProcessState();
+    void ProcessState(float DeltaTime);
     
     void InitLuaStateMachine();
     

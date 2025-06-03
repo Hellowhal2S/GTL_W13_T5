@@ -28,15 +28,16 @@ void ANPC::PostSpawnInitialize()
     // SkeletalMeshComponent 생성 및 설정aa
     SkeletalMeshComponent = AddComponent<USkeletalMeshComponent>(TEXT("SkeletalMeshComponent"));
     SetRootComponent(SkeletalMeshComponent);
-    SkeletalMeshComponent->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/Human/Human"));
+    SkeletalMeshComponent->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/SkeletalPenguin/SkeletalPenguin"));
     SkeletalMeshComponent->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-    SkeletalMeshComponent->SetAnimation(UAssetManager::Get().GetAnimation("Contents/Human/Idle"));
+    SkeletalMeshComponent->SetAnimation(UAssetManager::Get().GetAnimation("Contents/Armature|Runaway"));
 
     // 애니메이션 인스턴스 생성 및 연결
     SkeletalMeshComponent->SetAnimClass(ULuaScriptAnimInstance::StaticClass());
     AnimInstance = Cast<ULuaScriptAnimInstance>(SkeletalMeshComponent->GetAnimInstance());
 
-    SetActorScale(FVector(0.03f, 0.03f, 0.03f));
+    SetActorScale(FVector(0.01f, 0.01f, 0.01f));
+    SetActorLocation(FVector(0.0f, 0.0f, 5.0f));
 
     // SkeletalMeshComponent의 StateMachine 설정
     //SkeletalMeshComponent->StateMachineFileName = TEXT("LuaScripts/Animations/NPCStateMachine.lua");
@@ -74,9 +75,9 @@ void ANPC::BeginPlay()
             }
         });
 
-    TriggerComponent->OnComponentBeginOverlap.AddLambda(
+    TriggerComponent->OnComponentEndOverlap.AddLambda(
         [this](UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp
-            , int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
+            , int32 OtherBodyIndex)
         {
             if (AnimInstance && AnimInstance->StateMachine && AnimInstance->StateMachine->LuaTable.valid())
             {

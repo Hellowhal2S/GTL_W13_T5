@@ -65,8 +65,35 @@ void FLuaScriptManager::SetLuaDefaultTypes()
 void FLuaScriptManager::BindEngineAPIs()
 {
     // print 함수 바인딩
-    LuaState.set_function("print", [](const std::string& msg) {
-        UE_LOG(ELogLevel::Display, TEXT("%s"), *FString(msg.c_str()));
+    LuaState.set_function("print", [](sol::variadic_args va, sol::this_state ts) {
+        std::string out;
+        bool first = true;
+        lua_State* L = ts;
+        for (auto&& arg : va) {
+            if (!first) out += " ";
+            first = false;
+            switch (arg.get_type()) {
+            case sol::type::string:
+                out += arg.as<std::string>();
+                break;
+            case sol::type::number:
+                out += std::to_string(arg.as<double>());
+                break;
+            case sol::type::boolean:
+                out += arg.as<bool>() ? "true" : "false";
+                break;
+            case sol::type::nil:
+                out += "nil";
+                break;
+            default:
+                // stack_proxy는 lua_topointer로 포인터 주소를 얻을 수 있음
+                out += "<";
+                out += sol::type_name(L, arg.get_type());
+                out += ">";
+                break;
+            }
+        }
+        UE_LOG(ELogLevel::Display, TEXT("%s"), *FString(out.c_str()));
     });
 
     // UE_LOG 함수 바인딩  
