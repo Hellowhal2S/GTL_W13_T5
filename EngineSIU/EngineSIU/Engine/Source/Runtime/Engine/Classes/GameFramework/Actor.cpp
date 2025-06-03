@@ -450,7 +450,16 @@ bool AActor::BindSelfLuaProperties()
     LuaTable["ApplyTorque"] = LuaState["ApplyTorque"];
     LuaTable["ApplyTorqueToSnowBall"] = LuaState["ApplyTorqueToSnowball"];
     LuaTable["ApplyJumpImpulseToSnowBall"] = LuaState["ApplyJumpImpulseToSnowBall"];
+
+    LuaTable["SetAngularVelocityToSnowBall"] = LuaState["SetAngularVelocityToSnowBall"];
+    LuaTable["AddAngularVelocityToSnowBall"] = LuaState["AddAngularVelocityToSnowBall"];
+    LuaTable["SetLinearVelocityToSnowBall"] = LuaState["SetLinearVelocityToSnowBall"];
+    LuaTable["AddLinearVelocityToSnowBall"] = LuaState["AddLinearVelocityToSnowBall"];
+    LuaTable["GetLinearVelocityFromSnowBall"] = LuaState["GetLinearVelocityFromSnowBall"];
+    LuaTable["GetAngularVelocityFromSnowBall"] = LuaState["GetAngularVelocityFromSnowBall"];
+
     LuaTable["ApplyForceAtPosition"] = LuaState["ApplyForceAtPosition"];
+    LuaTable["GrowSnowBall"] = LuaState["GrowSnowBall"];
     
     // EngineTypes 테이블도 접근 가능하도록 설정
     LuaTable["EngineTypes"] = LuaState["EngineTypes"];
