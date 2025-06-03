@@ -165,16 +165,28 @@ UPrimitiveComponent::UPrimitiveComponent()
     BodySetup = FObjectFactory::ConstructObject<UBodySetup>(this);
 }
 
+UPrimitiveComponent::~UPrimitiveComponent()
+{
+    bSimulate = false;
+    if (BodySetup && BodyInstance)
+        GEngine->PhysicsManager->DestroyGameObject(BodyInstance->BIGameObject);
+}
+
 UObject* UPrimitiveComponent::Duplicate(UObject* InOuter)
 {
     ThisClass* NewComponent = Cast<ThisClass>(Super::Duplicate(InOuter));
 
     NewComponent->AABB = AABB;
+    NewComponent->MassInKg = MassInKg;
     NewComponent->bSimulate = bSimulate;
     NewComponent->bApplyGravity = bApplyGravity;
     NewComponent->GeomAttributes = GeomAttributes;
     NewComponent->RigidBodyType = RigidBodyType;
 
+    NewComponent->BodySetup->AggGeom = BodySetup->AggGeom;
+    NewComponent->BodySetup->GeomAttributes = BodySetup->GeomAttributes;
+
+    // NewComponent->BodyInstance = BodyInstance;
     return NewComponent;
 }
 
@@ -226,7 +238,7 @@ void UPrimitiveComponent::EndPhysicsTickComponent(float DeltaTime)
         FRotator Rotator = MyQuat.Rotator();
         
         // ✅ Unreal Engine에 적용 (라디안 → 도 변환)
-        SetWorldLocation(FVector(pos.x, -pos.y, pos.z));
+        SetWorldLocation(FVector(pos.x, pos.y, pos.z));
         SetWorldRotation(Rotator);
     }
 }
@@ -276,6 +288,7 @@ void UPrimitiveComponent::GetProperties(TMap<FString, FString>& OutProperties) c
     OutProperties.Add(TEXT("m_Type"), m_Type);
     OutProperties.Add(TEXT("AABB_min"), AABB.MinLocation.ToString());
     OutProperties.Add(TEXT("AABB_max"), AABB.MaxLocation.ToString());
+    OutProperties.Add(TEXT("MassInKg"), FString::SanitizeFloat(MassInKg));
     OutProperties.Add(TEXT("bSimulate"), bSimulate ? TEXT("true") : TEXT("false"));
     OutProperties.Add(TEXT("bApplyGravity"), bApplyGravity ? TEXT("true") : TEXT("false"));
     OutProperties.Add(TEXT("RigidBodyType"), FString::FromInt(static_cast<uint8>(RigidBodyType)));
@@ -320,6 +333,15 @@ void UPrimitiveComponent::SetProperties(const TMap<FString, FString>& InProperti
     if (AABBmaxStr)
     {
         AABB.MaxLocation.InitFromString(*AABBmaxStr);
+    }
+
+    if (InProperties.Contains(TEXT("MassInKg")))
+    {
+        const FString* MassStr = InProperties.Find(TEXT("MassInKg"));
+        if (MassStr)
+        {
+            MassInKg = FString::ToFloat(*MassStr);
+        }
     }
 
     if (InProperties.Contains(TEXT("bSimulate")))
@@ -577,6 +599,7 @@ void UPrimitiveComponent::CreatePhysXGameObject()
     BodyInstance = new FBodyInstance(this);
 
     ////////////// 테스트 코드
+    BodyInstance->MassInKg = MassInKg;
     BodyInstance->bSimulatePhysics = bSimulate;
     BodyInstance->bEnableGravity = bApplyGravity;
     ////////////////////////

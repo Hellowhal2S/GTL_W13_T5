@@ -307,7 +307,6 @@ void APlayerCameraManager::SetViewTarget(class AActor* NewTarget, struct FViewTa
 
 		AssignViewTarget(PCOwner->GetPossessedActor(), ViewTarget);
 		AssignViewTarget(NewTarget, PendingViewTarget, TransitionParams);
-
 	}
 
 	BlendParams = TransitionParams;
@@ -323,9 +322,10 @@ void APlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime
 
 	// Store previous POV, in case we need it later
 	FMinimalViewInfo OrigPOV = OutVT.POV;
-
+    
 	// Reset the view target POV fully
-	static const FMinimalViewInfo DefaultViewInfo;
+	static FMinimalViewInfo DefaultViewInfo;
+    DefaultViewInfo.Location = FVector(1000,100,100);
 	OutVT.POV = DefaultViewInfo;
 	OutVT.POV.FOV = DefaultFOV;
 

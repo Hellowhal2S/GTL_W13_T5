@@ -20,7 +20,8 @@ class UPrimitiveComponent : public USceneComponent
 
 public:
     UPrimitiveComponent();
-
+    ~UPrimitiveComponent();
+    
     virtual UObject* Duplicate(UObject* InOuter) override;
 
     virtual void InitializeComponent() override;
@@ -42,7 +43,7 @@ public:
     bool bGenerateOverlapEvents = true;
     bool bBlockComponent = true;
 
-    FBodyInstance* BodyInstance;
+    FBodyInstance* BodyInstance = nullptr;
 
     FComponentHitSignature OnComponentHit;
 
@@ -50,6 +51,7 @@ public:
 
     FComponentEndOverlapSignature OnComponentEndOverlap;
 
+    UPROPERTY_WITH_FLAGS(EditAnywhere, float, MassInKg, = 10.0f)
     UPROPERTY_WITH_FLAGS(EditAnywhere, bool, bSimulate, = false)
     UPROPERTY_WITH_FLAGS(EditAnywhere, bool, bApplyGravity, = false)
     UPROPERTY_WITH_FLAGS(EditAnywhere, ERigidBodyType, RigidBodyType, = ERigidBodyType::DYNAMIC)

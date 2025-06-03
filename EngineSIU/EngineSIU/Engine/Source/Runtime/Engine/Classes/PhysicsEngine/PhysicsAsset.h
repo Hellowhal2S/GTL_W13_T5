@@ -65,13 +65,18 @@ class UBodySetup : public UBodySetupCore
     DECLARE_CLASS(UBodySetup, UBodySetupCore)
     
 public:
-    UBodySetup() = default;
+    UBodySetup()
+    {
+        UE_LOG(ELogLevel::Display, "DDD");
+    } 
 
     // DisplayName = Primitives
     FKAggregateGeom AggGeom;
     
     TArray<AggregateGeomAttributes> GeomAttributes;
 
+    virtual UObject* Duplicate(UObject* InOuter) override;
+    
     virtual void SerializeAsset(FArchive& Ar) override;
 };
 

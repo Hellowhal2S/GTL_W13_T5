@@ -19,10 +19,12 @@ enum OBJECTS : uint8
     OBJ_SPHERE_COLLISION,
     OBJ_CAPSULE_COLLISION,
     OBJ_SKELETALMESH,
-    OBJ_SEQUENCERPLAYER,
+    OBJ_MYPLAYER,
     OBJ_ObstcleWall,
     OBJ_ObstcleFireball,
     OBJ_ObstcleMud,
+    OBJ_SNOWBALL,
+    OBJ_TARGET,
     OBJ_END
 };
 

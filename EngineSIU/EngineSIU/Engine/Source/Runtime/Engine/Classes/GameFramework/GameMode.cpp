@@ -1,10 +1,12 @@
 #include "GameMode.h"
-#include "LuaScripts/LuaScriptComponent.h"
 #include "EngineLoop.h"
 #include "SoundManager.h"
 #include "InputCore/InputCoreTypes.h"
 #include "Camera/CameraComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/EditorEngine.h"
 #include "Engine/Engine.h"
+#include "Engine/Contents/Actor/SnowBall.h"
 #include "Engine/World/World.h"
 
 void AGameMode::PostSpawnInitialize()
@@ -45,8 +47,7 @@ void AGameMode::PostSpawnInitialize()
 
 void AGameMode::InitializeComponent()
 {
-    //ULuaScriptComponent* LuaScriptComp = this->AddComponent<ULuaScriptComponent>();
-    //RootComponent = this->AddComponent<USceneComponent>("USceneComponent_0");
+
 }
 
 UObject* AGameMode::Duplicate(UObject* InOuter)
@@ -86,6 +87,13 @@ void AGameMode::Tick(float DeltaTime)
     {
         // TODO: 아래 코드에서 DeltaTime을 2로 나누는 이유가?
         GameInfo.ElapsedGameTime += DeltaTime / 2.0f;
+    }
+    if (bGameOver)
+        return;
+
+    if (Life <= 0)
+    {
+        bGameOver = true;
     }
 }
 

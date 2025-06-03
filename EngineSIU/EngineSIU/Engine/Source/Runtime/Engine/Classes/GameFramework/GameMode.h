@@ -49,7 +49,9 @@ public:
     FOnGameEnd OnGameEnd;
 
     FGameInfo GameInfo;
-    
+
+    int32 Life = 3;
+    bool bGameOver = false;
 private:
     bool bGameRunning = false; // 내부 
     bool bGameEnded = true;

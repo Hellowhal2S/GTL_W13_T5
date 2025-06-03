@@ -1,5 +1,7 @@
 #include "ControlEditorPanel.h"
 
+#include <DirectXColors.h>
+
 #include "World/World.h"
 
 #include "Actors/Player.h"
@@ -38,7 +40,12 @@
 #include "GameFramework/PlayerController.h"
 #include "Renderer/CompositingPass.h"
 #include <Engine/FbxLoader.h>
+
+#include "Animation/SkeletalMeshActor.h"
 #include "Engine/Classes/Engine/AssetManager.h"
+#include "Engine/Contents/Actor/ATarget.h"
+#include "Engine/Contents/Actor/MyPlayer.h"
+#include "Engine/Contents/Actor/SnowBall.h"
 #include "Particles/ParticleSystemComponent.h"
 
 #include "Engine/Contents/ObstacleWall.h"
@@ -361,24 +368,27 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
 
         static const Primitive primitives[] =
         {
-            {.Label = "Cube",               .OBJ = OBJ_CUBE },
-            {.Label = "Sphere",             .OBJ = OBJ_SPHERE },
-            {.Label = "PointLight",         .OBJ = OBJ_POINTLIGHT },
-            {.Label = "SpotLight",          .OBJ = OBJ_SPOTLIGHT },
-            {.Label = "DirectionalLight",   .OBJ = OBJ_DIRECTIONALLGIHT },
-            {.Label = "AmbientLight",       .OBJ = OBJ_AMBIENTLIGHT },
-            {.Label = "Particle",           .OBJ = OBJ_PARTICLE },
-            {.Label = "ParticleSystem",     .OBJ = OBJ_PARTICLESYSTEM },
-            {.Label = "Text",               .OBJ = OBJ_TEXT },
-            {.Label = "Fog",                .OBJ = OBJ_FOG },
-            {.Label = "BoxCol",             .OBJ = OBJ_BOX_COLLISION },
-            {.Label = "SphereCol",          .OBJ = OBJ_SPHERE_COLLISION },
-            {.Label = "CapsuleCol",         .OBJ = OBJ_CAPSULE_COLLISION },
-            {.Label = "SkeletalMeshActor",  .OBJ = OBJ_SKELETALMESH },
-            {.Label = "SequencerPlayer",    .OBJ = OBJ_SEQUENCERPLAYER },
-            {.Label = "Obstacle Wall",      .OBJ = OBJ_ObstcleWall },
-            {.Label = "Obstacle Fireball",  .OBJ = OBJ_ObstcleFireball },
-            {.Label = "Obstacle Mud",       .OBJ = OBJ_ObstcleMud },
+            { .Label = "Cube",              .OBJ = OBJ_CUBE },
+            { .Label = "Sphere",            .OBJ = OBJ_SPHERE },
+            { .Label = "PointLight",        .OBJ = OBJ_POINTLIGHT },
+            { .Label = "SpotLight",         .OBJ = OBJ_SPOTLIGHT },
+            { .Label = "DirectionalLight",  .OBJ = OBJ_DIRECTIONALLGIHT },
+            { .Label = "AmbientLight",      .OBJ = OBJ_AMBIENTLIGHT },
+            { .Label = "Particle",          .OBJ = OBJ_PARTICLE },
+            { .Label = "ParticleSystem",    .OBJ = OBJ_PARTICLESYSTEM },
+            { .Label = "Text",              .OBJ = OBJ_TEXT },
+            { .Label = "Fog",               .OBJ = OBJ_FOG },
+            { .Label = "BoxCol",            .OBJ = OBJ_BOX_COLLISION },
+            { .Label = "SphereCol",         .OBJ = OBJ_SPHERE_COLLISION },
+            { .Label = "CapsuleCol",        .OBJ = OBJ_CAPSULE_COLLISION },
+            { .Label = "SkeletalMeshActor", .OBJ = OBJ_SKELETALMESH },
+            { .Label = "SequencerPlayer",   .OBJ = OBJ_MYPLAYER },
+            { .Label = "Obstacle Wall",     .OBJ = OBJ_ObstcleWall },
+            { .Label = "Obstacle Fireball", .OBJ = OBJ_ObstcleFireball },
+            { .Label = "Obstacle Mud",      .OBJ = OBJ_ObstcleMud },
+            { .Label = "SnowBall",          .OBJ = OBJ_SNOWBALL },
+            { .Label = "Target",            .OBJ = OBJ_TARGET },
+                
         };
 
         for (const auto& primitive : primitives)
@@ -490,18 +500,27 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                     break;
                 }
                 case OBJ_SKELETALMESH:
+                    {
+                        SpawnedActor = World->SpawnActor<ASkeletalMeshActor>();
+                        SpawnedActor->SetActorTickInEditor(true);
+                    }
+                    break;
+                case OBJ_MYPLAYER:
                 {
-                    SpawnedActor = World->SpawnActor<AActor>();
-                    SpawnedActor->SetActorTickInEditor(true);
-                    auto* MeshComp = SpawnedActor->AddComponent<USkeletalMeshComponent>();
-                    SpawnedActor->SetRootComponent(MeshComp);
-                    SpawnedActor->SetActorLabel(TEXT("OBJ_SKELETALMESH"));
-                }
-                break;
-                case OBJ_SEQUENCERPLAYER:
-                {
-                    SpawnedActor = World->SpawnActor<ASequencerPlayer>();
+                    SpawnedActor = World->SpawnActor<AMyPlayer>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_SEQUENCERPLAYER"));
+                    break;
+                }
+                case OBJ_SNOWBALL:
+                {
+                    SpawnedActor = World->SpawnActor<ASnowBall>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_SNOWBALL"));
+                    break;
+                }
+                case OBJ_TARGET:
+                {
+                    SpawnedActor = World->SpawnActor<ATarget>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_TARGET"));
                 }
                 case OBJ_ObstcleWall:
                 {

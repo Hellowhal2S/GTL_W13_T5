@@ -4,11 +4,13 @@
 #include "PhysicsEngine/ConstraintInstance.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 
+#include "Engine/Engine.h"
 #include "World/World.h"
 #include <thread>
 
-// sol 헤더 추가 (Lua 콜백을 위해)
-#include "LuaScripts/LuaBindingHelpers.h"
+// sol 헤더는 Contact 콜백을 위해 필요
+#include "Engine/Contents/Actor/SnowBall.h"
+#include "sol/sol.hpp"
 
 
 void GameObject::SetRigidBodyType(ERigidBodyType RigidBodyType) const
@@ -831,7 +833,7 @@ void FPhysicsManager::CleanupAllScenes()
 
 void FPhysicsManager::ConfigureSceneDesc(PxSceneDesc& SceneDesc)
 {
-    SceneDesc.gravity = PxVec3(0, 0, -9.81f);
+    SceneDesc.gravity = PxVec3(0, 0, -9.81 * 1.5f);
     
     unsigned int hc = std::thread::hardware_concurrency();
     Dispatcher = PxDefaultCpuDispatcherCreate(hc-2);
@@ -1007,7 +1009,7 @@ void FPhysicsManager::ApplyTorque(GameObject* Obj, const FVector& Torque, int Fo
 {
     if (!Obj || !Obj->DynamicRigidBody) return;
     
-    PxVec3 PhysXTorque(Torque.X, -Torque.Y, Torque.Z); // Y축 반전 (언리얼->PhysX 좌표계)
+    PxVec3 PhysXTorque(Torque.X, Torque.Y, Torque.Z); // Y축 반전 제거 - 엔진과 PhysX가 같은 좌표계 사용
     PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
     
     Obj->DynamicRigidBody->addTorque(PhysXTorque, PhysXForceMode);
@@ -1020,13 +1022,17 @@ void FPhysicsManager::ApplyTorqueToActor(AActor* Actor, const FVector& Torque, i
     {
         ApplyTorque(Obj, Torque, ForceMode);
     }
+    else
+    {
+        UE_LOG(ELogLevel::Error, "Failed to Find Obj in Actor: %s", GetData(Actor->GetActorLabel()));
+    }
 }
 
 void FPhysicsManager::ApplyForce(GameObject* Obj, const FVector& Force, int ForceMode)
 {
     if (!Obj || !Obj->DynamicRigidBody) return;
     
-    PxVec3 PhysXForce(Force.X, -Force.Y, Force.Z); // Y축 반전 (언리얼->PhysX 좌표계)
+    PxVec3 PhysXForce(Force.X, Force.Y, Force.Z); // Y축 반전 제거 - 엔진과 PhysX가 같은 좌표계 사용
     PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
     
     Obj->DynamicRigidBody->addForce(PhysXForce, PhysXForceMode);
@@ -1045,8 +1051,8 @@ void FPhysicsManager::ApplyForceAtPosition(GameObject* Obj, const FVector& Force
 {
     if (!Obj || !Obj->DynamicRigidBody) return;
     
-    PxVec3 PhysXForce(Force.X, -Force.Y, Force.Z);
-    PxVec3 PhysXPosition(Position.X, -Position.Y, Position.Z);
+    PxVec3 PhysXForce(Force.X, Force.Y, Force.Z); // Y축 반전 제거 - 엔진과 PhysX가 같은 좌표계 사용
+    PxVec3 PhysXPosition(Position.X, Position.Y, Position.Z); // Y축 반전 제거
     PxForceMode::Enum PhysXForceMode = ConvertForceMode(ForceMode);
     
     PxRigidBodyExt::addForceAtPos(*Obj->DynamicRigidBody, PhysXForce, PhysXPosition, PhysXForceMode);
@@ -1077,6 +1083,134 @@ void FPhysicsManager::ApplyJumpImpulseToActor(AActor* Actor, float JumpForce)
     {
         ApplyJumpImpulse(Obj, JumpForce);
     }
+}
+
+void FPhysicsManager::GrowBall(AActor* Actor, float DeltaRadius)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (!Obj || !Obj->DynamicRigidBody)
+    {
+        UE_LOG(ELogLevel::Warning, TEXT("GrowBall: Invalid GameObject or DynamicRigidBody for Actor: %s"), Actor ? *Actor->GetName() : TEXT("NULL"));
+        return;
+    }
+    
+    // RigidBody에 attached된 모든 Shape 가져오기
+    PxU32 ShapeCount = Obj->DynamicRigidBody->getNbShapes();
+    if (ShapeCount == 0)
+    {
+        UE_LOG(ELogLevel::Warning, TEXT("GrowBall: No shapes attached to Actor: %s"), *Actor->GetName());
+        return;
+    }
+    
+    TArray<PxShape*> Shapes;
+    Shapes.SetNum(ShapeCount);
+    PxU32 RetrievedShapes = Obj->DynamicRigidBody->getShapes(Shapes.GetData(), ShapeCount);
+    
+    //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Found %d shapes for Actor: %s"), RetrievedShapes, *Actor->GetName());
+    
+    // 첫 번째 Sphere Shape 찾기 및 교체
+    for (PxU32 i = 0; i < RetrievedShapes; ++i)
+    {
+        PxShape* OldShape = Shapes[i];
+        if (!OldShape)
+        {
+            UE_LOG(ELogLevel::Warning, TEXT("GrowBall: Shape %d is null"), i);
+            continue;
+        }
+        
+        //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Checking shape %d, geometry type: %d"), i, (int32)OldShape->getGeometryType());
+        
+        if (OldShape->getGeometryType() == PxGeometryType::eSPHERE)
+        {
+            // 현재 SphereGeometry 가져오기
+            PxSphereGeometry CurrentGeometry;
+            if (OldShape->getSphereGeometry(CurrentGeometry))
+            {
+                float OldRadius = CurrentGeometry.radius;
+                float NewRadius = FMath::Max(0.1f, OldRadius + DeltaRadius);
+                
+                // 기존 Shape의 정보 저장 (detach 전에 미리 백업)
+                PxTransform LocalPose = OldShape->getLocalPose();
+                PxShapeFlags ShapeFlags = OldShape->getFlags();
+                float ContactOffset = OldShape->getContactOffset();
+                float RestOffset = OldShape->getRestOffset();
+                PxFilterData SimFilterData = OldShape->getSimulationFilterData();
+                PxFilterData QueryFilterData = OldShape->getQueryFilterData();
+                
+                // Material 정보 백업
+                PxMaterial* ShapeMaterial = nullptr;
+                PxU32 MaterialCount = OldShape->getNbMaterials();
+                if (MaterialCount > 0)
+                {
+                    OldShape->getMaterials(&ShapeMaterial, 1);
+                }
+                if (!ShapeMaterial) ShapeMaterial = Material; // 기본 Material 사용
+                
+                // 새로운 SphereGeometry로 새 Shape 생성
+                PxSphereGeometry NewGeometry(NewRadius);
+                PxShape* NewShape = Physics->createShape(NewGeometry, *ShapeMaterial);
+                
+                if (NewShape)
+                {
+                    // 백업한 설정들을 새 Shape에 적용
+                    NewShape->setLocalPose(LocalPose);
+                    NewShape->setFlags(ShapeFlags);
+                    NewShape->setContactOffset(ContactOffset);
+                    NewShape->setRestOffset(RestOffset);
+                    NewShape->setSimulationFilterData(SimFilterData);
+                    NewShape->setQueryFilterData(QueryFilterData);
+                    
+                    // 참조 카운트 증가 (안전장치)
+                    OldShape->acquireReference();
+                    
+                    // Actor에서 기존 Shape 제거
+                    Obj->DynamicRigidBody->detachShape(*OldShape);
+                    
+                    // 새 Shape를 Actor에 추가
+                    Obj->DynamicRigidBody->attachShape(*NewShape);
+                    
+                    // 참조 카운트 감소 및 안전한 해제
+                    // detachShape 후에도 우리가 참조를 가지고 있으므로 안전하게 해제 가능
+                    OldShape->release();
+                    
+                    // 질량과 관성 다시 계산
+                    float CurrentMass = Obj->DynamicRigidBody->getMass();
+                    float NewMass = CurrentMass;
+                    if (ASnowBall* SnowBall = Cast<ASnowBall>(Actor))
+                    {
+                        NewMass = SnowBall->InitialMass * pow((NewRadius / SnowBall->InitialRadius), 3);
+                        //UE_LOG(ELogLevel::Error, "%.2f, %.2f, %.2f", OldRadius, SnowBall->InitialRadius, NewMass);
+                    }
+                    PxRigidBodyExt::setMassAndUpdateInertia(*Obj->DynamicRigidBody, NewMass);
+                    NewMass = Obj->DynamicRigidBody->getMass();
+                    //UE_LOG(ELogLevel::Warning, "%.2f -> %.2f", CurrentMass, NewMass);
+                    
+                    // Actor를 깨우기 (변경사항 반영을 위해)
+                    if (Obj->DynamicRigidBody->isSleeping())
+                    {
+                        Obj->DynamicRigidBody->wakeUp();
+                    }
+                    
+                    //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Shape replaced successfully"));
+                    //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Ball radius changed from %.2f to %.2f for Actor: %s"), OldRadius, NewRadius, *Actor->GetName());
+                    //UE_LOG(ELogLevel::Display, TEXT("GrowBall: Mass updated from %.2f to %.2f"), CurrentMass, NewMass);
+                    
+                    // 첫 번째 구만 처리하고 종료
+                    return;
+                }
+                else
+                {
+                    UE_LOG(ELogLevel::Error, TEXT("GrowBall: Failed to create new shape with radius %.2f"), NewRadius);
+                }
+            }
+            else
+            {
+                UE_LOG(ELogLevel::Error, TEXT("GrowBall: Failed to get sphere geometry from shape %d"), i);
+            }
+        }
+    }
+    
+    UE_LOG(ELogLevel::Warning, TEXT("GrowBall: No sphere geometry found for Actor: %s"), *Actor->GetName());
 }
 
 GameObject* FPhysicsManager::FindGameObjectByActor(AActor* Actor)
@@ -1140,7 +1274,7 @@ void FPhysXContactCallback::onContact(const PxContactPairHeader& pairHeader, con
                 if (nbContacts > 0)
                 {
                     PxVec3 point = contactPoints[0].position;
-                    ContactPoint = FVector(point.x, -point.y, point.z); // Y축 반전
+                    ContactPoint = FVector(point.x, point.y, point.z); // Y축 반전 제거 - 좌표계 일관성 유지
                 }
             }
             
@@ -1225,4 +1359,120 @@ void FPhysicsManager::TriggerContactEnd(AActor* Actor, AActor* OtherActor, const
             }
         }
     }
+}
+
+// === 직접 속도 제어 함수들 구현 (질량 무시) ===
+
+void FPhysicsManager::SetLinearVelocity(GameObject* Obj, const FVector& Velocity)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXVelocity(Velocity.X, Velocity.Y, Velocity.Z);
+    Obj->DynamicRigidBody->setLinearVelocity(PhysXVelocity);
+}
+
+void FPhysicsManager::SetLinearVelocityToActor(AActor* Actor, const FVector& Velocity)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        SetLinearVelocity(Obj, Velocity);
+    }
+}
+
+void FPhysicsManager::AddLinearVelocity(GameObject* Obj, const FVector& Velocity)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    // 현재 속도를 가져와서 새로운 속도를 더함
+    PxVec3 CurrentVelocity = Obj->DynamicRigidBody->getLinearVelocity();
+    PxVec3 AdditionalVelocity(Velocity.X, Velocity.Y, Velocity.Z);
+    PxVec3 NewVelocity = CurrentVelocity + AdditionalVelocity;
+    
+    Obj->DynamicRigidBody->setLinearVelocity(NewVelocity);
+}
+
+void FPhysicsManager::AddLinearVelocityToActor(AActor* Actor, const FVector& Velocity)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        AddLinearVelocity(Obj, Velocity);
+    }
+}
+
+void FPhysicsManager::SetAngularVelocity(GameObject* Obj, const FVector& AngularVelocity)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXAngularVelocity(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z);
+    Obj->DynamicRigidBody->setAngularVelocity(PhysXAngularVelocity);
+}
+
+void FPhysicsManager::SetAngularVelocityToActor(AActor* Actor, const FVector& AngularVelocity)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        SetAngularVelocity(Obj, AngularVelocity);
+    }
+}
+
+void FPhysicsManager::AddAngularVelocity(GameObject* Obj, const FVector& AngularVelocity)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    // 현재 각속도를 가져와서 새로운 각속도를 더함
+    PxVec3 CurrentAngularVelocity = Obj->DynamicRigidBody->getAngularVelocity();
+    PxVec3 AdditionalAngularVelocity(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z);
+    PxVec3 NewAngularVelocity = CurrentAngularVelocity + AdditionalAngularVelocity;
+    
+    Obj->DynamicRigidBody->setAngularVelocity(NewAngularVelocity);
+}
+
+void FPhysicsManager::AddAngularVelocityToActor(AActor* Actor, const FVector& AngularVelocity)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        AddAngularVelocity(Obj, AngularVelocity);
+    }
+}
+
+// === 속도 얻기 함수들 구현 ===
+
+FVector FPhysicsManager::GetLinearVelocity(GameObject* Obj)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return FVector::ZeroVector;
+    
+    PxVec3 PhysXVelocity = Obj->DynamicRigidBody->getLinearVelocity();
+    return FVector(PhysXVelocity.x, PhysXVelocity.y, PhysXVelocity.z);
+}
+
+FVector FPhysicsManager::GetLinearVelocityFromActor(AActor* Actor)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        return GetLinearVelocity(Obj);
+    }
+    return FVector::ZeroVector;
+}
+
+FVector FPhysicsManager::GetAngularVelocity(GameObject* Obj)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return FVector::ZeroVector;
+    
+    PxVec3 PhysXAngularVelocity = Obj->DynamicRigidBody->getAngularVelocity();
+    return FVector(PhysXAngularVelocity.x, PhysXAngularVelocity.y, PhysXAngularVelocity.z);
+}
+
+FVector FPhysicsManager::GetAngularVelocityFromActor(AActor* Actor)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        return GetAngularVelocity(Obj);
+    }
+    return FVector::ZeroVector;
 }
