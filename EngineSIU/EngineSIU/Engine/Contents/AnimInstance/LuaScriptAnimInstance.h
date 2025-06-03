@@ -73,6 +73,7 @@ private:
     
     bool bIsBlending;
     
+public:
     UPROPERTY(EditAnywhere, UAnimStateMachine*, StateMachine, = nullptr)
     
 };

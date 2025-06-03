@@ -58,6 +58,7 @@ UObject* USkeletalMeshComponent::Duplicate(UObject* InOuter)
     }
     NewComponent->SetLooping(this->IsLooping());
     NewComponent->SetPlaying(this->IsPlaying());
+
     return NewComponent;
 }
 
@@ -293,10 +294,15 @@ void USkeletalMeshComponent::TickAnimInstances(float DeltaTime)
 
 bool USkeletalMeshComponent::ShouldTickAnimation() const
 {
-    if (GEngine->GetWorldContextFromWorld(GetWorld())->WorldType == EWorldType::Editor)
+    // Only disable animation ticking in pure Editor mode
+    // PIE (Play In Editor) should allow animation ticking for gameplay testing
+    EWorldType CurrentWorldType = GEngine->GetWorldContextFromWorld(GetWorld())->WorldType;
+    if (CurrentWorldType == EWorldType::Editor)
     {
         return false;
     }
+    
+    // Allow animation ticking in PIE, Game, and other gameplay-relevant world types
     return GetAnimInstance() && SkeletalMeshAsset && SkeletalMeshAsset->GetSkeleton();
 }
 

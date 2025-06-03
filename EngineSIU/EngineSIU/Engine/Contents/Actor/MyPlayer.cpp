@@ -11,9 +11,14 @@
 #include "UnrealClient.h"
 #include "GameFramework/GameMode.h"
 #include "Math/JungleMath.h"
+
+#include "Lua/LuaScriptManager.h"
+#include "Lua/LuaUtils/LuaTypeMacros.h"
+
 #include "Particles/ParticleSystemComponent.h"
 #include "Engine/FObjLoader.h"
 #include "Particles/ParticleSystem.h"
+
 
 FVector AMyPlayer::InitialVector = FVector::ZeroVector;
 FRotator AMyPlayer::InitialRotator = FRotator::ZeroRotator; 
@@ -34,9 +39,18 @@ AMyPlayer::AMyPlayer()
     ParticleSystemComp->SetParticleSystem(FireballParticleSystem);
 }
 
+void AMyPlayer::RegisterLuaType(sol::state& Lua)
+{
+    DEFINE_LUA_TYPE_WITH_PARENT(AMyPlayer, sol::bases<APlayer>(),
+
+        )
+}
+
 void AMyPlayer::BeginPlay()
 {
     APlayer::BeginPlay();
+
+    RegisterLuaType(FLuaScriptManager::Get().GetLua());
     
     // PIE 모드에서만 마우스 커서 숨기기
     // if (GEngine && GEngine->ActiveWorld && GEngine->ActiveWorld->WorldType == EWorldType::PIE)

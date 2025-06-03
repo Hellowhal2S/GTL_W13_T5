@@ -156,7 +156,8 @@ private:
     void CPUSkinning(bool bForceUpdate = false);
 
 public:
-    UPROPERTY(EditAnywhere, FString, StateMachineFileName, = "LuaScripts/Animations/DefaultStateMachine.lua");
+    /*UPROPERTY(EditAnywhere, FString, StateMachineFileName, = "LuaScripts/Animations/DefaultStateMachine.lua");*/
+    UPROPERTY(EditAnywhere, FString, StateMachineFileName, = "LuaScripts/Animations/NPCStateMachine.lua");
 
 public:
     TSubclassOf<UAnimInstance> AnimClass;

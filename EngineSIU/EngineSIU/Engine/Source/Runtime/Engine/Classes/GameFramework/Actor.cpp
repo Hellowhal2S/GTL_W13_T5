@@ -409,9 +409,12 @@ void AActor::RegisterLuaType(sol::state& Lua)
     "ActorLocation", sol::property(&ThisClass::GetActorLocation, &ThisClass::SetActorLocation),
     "ActorRotation", sol::property(&ThisClass::GetActorRotation, &ThisClass::SetActorRotation),
     "ActorScale", sol::property(&ThisClass::GetActorScale, &ThisClass::SetActorScale),
-    "Destroy", &ThisClass::Destroy
+    "Destroy", &ThisClass::Destroy,
+        "IsA", [](AActor* self, const std::string& className) {
+            UClass* TargetClass = UClass::FindClass(FName(className.c_str()));
+            return self && TargetClass && self->IsA(TargetClass);
+        }
     )
-
 }
 
 bool AActor::BindSelfLuaProperties()

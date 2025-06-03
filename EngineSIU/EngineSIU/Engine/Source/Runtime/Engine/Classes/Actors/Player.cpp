@@ -14,7 +14,15 @@
 #include "UObject/UObjectIterator.h"
 #include "Engine/EditorEngine.h"
 #include "Engine/SkeletalMesh.h"
+#include "Components/SphereTriggerComponent.h"
+#include "Lua/LuaUtils/LuaTypeMacros.h"
 
+void APlayer::RegisterLuaType(sol::state& Lua)
+{
+    DEFINE_LUA_TYPE_WITH_PARENT(APlayer, sol::bases<AActor>(),
+
+    )
+}
 
 void AEditorPlayer::Tick(float DeltaTime)
 {
@@ -641,6 +649,9 @@ void ASequencerPlayer::PostSpawnInitialize()
 
     CameraComponent = AddComponent<UCameraComponent>("CameraComponent_0");
     CameraComponent->SetupAttachment(RootComponent);
+
+    USphereTriggerComponent* SphereTrigger = AddComponent<USphereTriggerComponent>("SphereTrigger_0");
+    SphereTrigger->bGenerateOverlapEvents = true;
 }
 
 void ASequencerPlayer::Tick(float DeltaTime)

@@ -18,7 +18,7 @@ public:
 
     virtual void Initialize(USkeletalMeshComponent* InOwner, ULuaScriptAnimInstance* InAnimInstance);
 
-    void ProcessState();
+    void ProcessState(float DeltaTime);
     
     void InitLuaStateMachine();
     
@@ -27,7 +27,6 @@ public:
     USkeletalMeshComponent* OwningComponent;
     ULuaScriptAnimInstance* OwningAnimInstance;
     
-private:
     UPROPERTY(EditAnywhere, FString, LuaScriptName, = TEXT(""));
     sol::table LuaTable = {};
 
