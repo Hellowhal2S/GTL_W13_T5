@@ -79,6 +79,22 @@ public:
     void ApplyJumpImpulse(GameObject* Obj, float JumpForce);
     void ApplyJumpImpulseToActor(class AActor* Actor, float JumpForce);
 
+    // 직접 속도 제어 함수들 (질량 무시)
+    void SetLinearVelocity(GameObject* Obj, const FVector& Velocity);
+    void SetLinearVelocityToActor(class AActor* Actor, const FVector& Velocity);
+    void AddLinearVelocity(GameObject* Obj, const FVector& Velocity);
+    void AddLinearVelocityToActor(class AActor* Actor, const FVector& Velocity);
+    void SetAngularVelocity(GameObject* Obj, const FVector& AngularVelocity);
+    void SetAngularVelocityToActor(class AActor* Actor, const FVector& AngularVelocity);
+    void AddAngularVelocity(GameObject* Obj, const FVector& AngularVelocity);
+    void AddAngularVelocityToActor(class AActor* Actor, const FVector& AngularVelocity);
+    
+    // 속도 얻기 함수들
+    FVector GetLinearVelocity(GameObject* Obj);
+    FVector GetLinearVelocityFromActor(class AActor* Actor);
+    FVector GetAngularVelocity(GameObject* Obj);
+    FVector GetAngularVelocityFromActor(class AActor* Actor);
+
     void GrowBall(AActor* Actor, float DeltaRadius);
     
     GameObject* FindGameObjectByActor(class AActor* Actor);

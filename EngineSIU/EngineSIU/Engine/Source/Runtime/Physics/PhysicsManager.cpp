@@ -1360,3 +1360,119 @@ void FPhysicsManager::TriggerContactEnd(AActor* Actor, AActor* OtherActor, const
         }
     }
 }
+
+// === 직접 속도 제어 함수들 구현 (질량 무시) ===
+
+void FPhysicsManager::SetLinearVelocity(GameObject* Obj, const FVector& Velocity)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXVelocity(Velocity.X, Velocity.Y, Velocity.Z);
+    Obj->DynamicRigidBody->setLinearVelocity(PhysXVelocity);
+}
+
+void FPhysicsManager::SetLinearVelocityToActor(AActor* Actor, const FVector& Velocity)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        SetLinearVelocity(Obj, Velocity);
+    }
+}
+
+void FPhysicsManager::AddLinearVelocity(GameObject* Obj, const FVector& Velocity)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    // 현재 속도를 가져와서 새로운 속도를 더함
+    PxVec3 CurrentVelocity = Obj->DynamicRigidBody->getLinearVelocity();
+    PxVec3 AdditionalVelocity(Velocity.X, Velocity.Y, Velocity.Z);
+    PxVec3 NewVelocity = CurrentVelocity + AdditionalVelocity;
+    
+    Obj->DynamicRigidBody->setLinearVelocity(NewVelocity);
+}
+
+void FPhysicsManager::AddLinearVelocityToActor(AActor* Actor, const FVector& Velocity)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        AddLinearVelocity(Obj, Velocity);
+    }
+}
+
+void FPhysicsManager::SetAngularVelocity(GameObject* Obj, const FVector& AngularVelocity)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    PxVec3 PhysXAngularVelocity(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z);
+    Obj->DynamicRigidBody->setAngularVelocity(PhysXAngularVelocity);
+}
+
+void FPhysicsManager::SetAngularVelocityToActor(AActor* Actor, const FVector& AngularVelocity)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        SetAngularVelocity(Obj, AngularVelocity);
+    }
+}
+
+void FPhysicsManager::AddAngularVelocity(GameObject* Obj, const FVector& AngularVelocity)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return;
+    
+    // 현재 각속도를 가져와서 새로운 각속도를 더함
+    PxVec3 CurrentAngularVelocity = Obj->DynamicRigidBody->getAngularVelocity();
+    PxVec3 AdditionalAngularVelocity(AngularVelocity.X, AngularVelocity.Y, AngularVelocity.Z);
+    PxVec3 NewAngularVelocity = CurrentAngularVelocity + AdditionalAngularVelocity;
+    
+    Obj->DynamicRigidBody->setAngularVelocity(NewAngularVelocity);
+}
+
+void FPhysicsManager::AddAngularVelocityToActor(AActor* Actor, const FVector& AngularVelocity)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        AddAngularVelocity(Obj, AngularVelocity);
+    }
+}
+
+// === 속도 얻기 함수들 구현 ===
+
+FVector FPhysicsManager::GetLinearVelocity(GameObject* Obj)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return FVector::ZeroVector;
+    
+    PxVec3 PhysXVelocity = Obj->DynamicRigidBody->getLinearVelocity();
+    return FVector(PhysXVelocity.x, PhysXVelocity.y, PhysXVelocity.z);
+}
+
+FVector FPhysicsManager::GetLinearVelocityFromActor(AActor* Actor)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        return GetLinearVelocity(Obj);
+    }
+    return FVector::ZeroVector;
+}
+
+FVector FPhysicsManager::GetAngularVelocity(GameObject* Obj)
+{
+    if (!Obj || !Obj->DynamicRigidBody) return FVector::ZeroVector;
+    
+    PxVec3 PhysXAngularVelocity = Obj->DynamicRigidBody->getAngularVelocity();
+    return FVector(PhysXAngularVelocity.x, PhysXAngularVelocity.y, PhysXAngularVelocity.z);
+}
+
+FVector FPhysicsManager::GetAngularVelocityFromActor(AActor* Actor)
+{
+    GameObject* Obj = FindGameObjectByActor(Actor);
+    if (Obj)
+    {
+        return GetAngularVelocity(Obj);
+    }
+    return FVector::ZeroVector;
+}
