@@ -14,6 +14,7 @@ local airControlForce = 0.0   -- 공중에서의 제어력
 
 -- 바닥 감지 변수
 local isGrounded = false       -- 바닥에 닿아있는지 여부
+local wantInAir = false -- 공중에 있는지 여부
 local groundCheckDelay = 0.1   -- 바닥 감지 딜레이 (초)
 local timeSinceLastContact = 0.0
 
@@ -42,12 +43,14 @@ end
 function ReturnTable:OnContactBegin(OtherActor, ContactPoint)
     -- 바닥과의 접촉 시작
     isGrounded = true
+    wantInAir = false
     timeSinceLastContact = 0.0
 end
 
 function ReturnTable:OnContactEnd(OtherActor, ContactPoint)
     -- 바닥과의 접촉 종료
     -- 즉시 false로 설정하지 않고 약간의 딜레이를 둠
+    wantInAir = true
 end
 
 -- 키 바인딩
@@ -132,6 +135,7 @@ function ReturnTable:OnPressSpace(dt)
         ApplyJumpImpulseToSnowBall(jumpForce)
         -- 점프 후 즉시 grounded를 false로 설정하여 연속 점프 방지
         isGrounded = false
+        wantInAir = true
     end
 end
 
@@ -141,7 +145,7 @@ function ReturnTable:Tick(dt)
     if isGrounded then
         GrowSnowBall(dt) -- 바닥에 닿아있을 때 눈덩이 성장
     end
-    if not isGrounded then
+    if wantInAir then
         timeSinceLastContact = timeSinceLastContact + dt
         
         -- 일정 시간 후에도 접촉이 없으면 완전히 공중 상태로 간주

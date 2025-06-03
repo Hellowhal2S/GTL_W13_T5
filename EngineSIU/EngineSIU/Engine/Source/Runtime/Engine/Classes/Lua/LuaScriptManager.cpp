@@ -11,6 +11,7 @@
 #include "World/World.h"
 #include "Physics/PhysicsManager.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/StaticMeshComponent.h"
 
 TMap<FString, FLuaTableScriptInfo> FLuaScriptManager::ScriptCacheMap;
 TSet<ULuaScriptComponent*> FLuaScriptManager::ActiveLuaComponents;
@@ -150,6 +151,7 @@ void FLuaScriptManager::BindEngineAPIs()
                 ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
                 if (SnowBallActor) {
                     GEngine->PhysicsManager->GrowBall(SnowBallActor, deltaRadius);
+                    SnowBallActor->SnowBallComponent->AddScale(FVector(deltaRadius));
                     break;
                 }
             }

@@ -12,6 +12,8 @@ class ASnowBall : public AActor
 
 public:
     ASnowBall();
+
+    virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
 
     
@@ -22,5 +24,6 @@ public:
     UCameraComponent* CameraComponent = nullptr;
 
     FVector SpawnLocation = FVector(100, 0, 70);
+    FVector InitialScale = FVector(5.f);
     bool bIsRespawned = true;
 };
