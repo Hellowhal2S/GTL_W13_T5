@@ -129,6 +129,8 @@ protected:
 
     void ClearComponentOverlaps(bool bDoNotifies, bool bSkipNotifySelf);
 
+    void OnComponentDestroyed() override;
+
     
 private:
     FString m_Type;

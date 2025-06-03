@@ -12,9 +12,13 @@
 #include "Engine/Contents/Actor/SnowBall.h"
 #include "sol/sol.hpp"
 
+// GameObject static 변수 초기화
+uint32 GameObject::NextID = 0;
 
 void GameObject::SetRigidBodyType(ERigidBodyType RigidBodyType) const
 {
+    if (bIsDestroyed || bIsBeingDestroyed) return;
+    
     switch (RigidBodyType)
     {
     case ERigidBodyType::STATIC:
@@ -24,14 +28,18 @@ void GameObject::SetRigidBodyType(ERigidBodyType RigidBodyType) const
     }
         case ERigidBodyType::DYNAMIC:
     {
-        DynamicRigidBody->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
+        if (DynamicRigidBody) {
+            DynamicRigidBody->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
+        }
         break;
     }
         case ERigidBodyType::KINEMATIC:
     {
-        DynamicRigidBody->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
-        DynamicRigidBody->setLinearVelocity(PxVec3(0));
-        DynamicRigidBody->setAngularVelocity(PxVec3(0));
+        if (DynamicRigidBody) {
+            DynamicRigidBody->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+            DynamicRigidBody->setLinearVelocity(PxVec3(0));
+            DynamicRigidBody->setAngularVelocity(PxVec3(0));
+        }
         break;
     }
     }
@@ -680,14 +688,106 @@ void FPhysicsManager::CreateJoint(const GameObject* Obj1, const GameObject* Obj2
 
 void FPhysicsManager::DestroyGameObject(GameObject* GameObject) const
 {
-    // TODO: StaticRigidBody 분기 처리 필요
-    if (GameObject && GameObject->DynamicRigidBody)
+    if (!GameObject) 
     {
-        CurrentScene->removeActor(*GameObject->DynamicRigidBody);
-        GameObject->DynamicRigidBody->release();
+        UE_LOG(ELogLevel::Warning, TEXT("DestroyGameObject: Null GameObject pointer"));
+        return;
+    }
+    
+    // 이미 삭제 중이거나 삭제된 GameObject인지 확인
+    if (GameObject->bIsBeingDestroyed || GameObject->bIsDestroyed)
+    {
+        UE_LOG(ELogLevel::Warning, TEXT("DestroyGameObject: GameObject (ID: %d) is already being destroyed or destroyed"), GameObject->ID);
+        return;
+    }
+    
+    // 삭제 시작 마킹
+    GameObject->MarkForDestruction();
+    
+    UE_LOG(ELogLevel::Display, TEXT("DestroyGameObject: Starting destruction of GameObject (ID: %d)"), GameObject->ID);
+    
+    // DynamicRigidBody 처리
+    if (GameObject->DynamicRigidBody)
+    {
+        // 포인터 유효성 검사 (디버그 패턴 체크)
+        uintptr_t ptrValue = reinterpret_cast<uintptr_t>(GameObject->DynamicRigidBody);
+        if (ptrValue == 0xDDDDDDDDDDDDDDDD || ptrValue == 0xFFFFFFFFFFFFFFFF || ptrValue == 0xCCCCCCCCCCCCCCCC)
+        {
+            UE_LOG(ELogLevel::Warning, TEXT("DestroyGameObject: DynamicRigidBody has invalid memory pattern: 0x%p"), GameObject->DynamicRigidBody);
+        }
+        else
+        {
+            try 
+            {
+                // Scene이 유효한지 확인
+                if (CurrentScene)
+                {
+                    // Scene에서 Actor 제거
+                    CurrentScene->removeActor(*GameObject->DynamicRigidBody);
+                    UE_LOG(ELogLevel::Display, TEXT("DestroyGameObject: DynamicRigidBody removed from scene"));
+                }
+                
+                // RigidBody 해제
+                GameObject->DynamicRigidBody->release();
+                UE_LOG(ELogLevel::Display, TEXT("DestroyGameObject: DynamicRigidBody released"));
+            }
+            catch (...)
+            {
+                UE_LOG(ELogLevel::Error, TEXT("DestroyGameObject: Exception occurred while releasing DynamicRigidBody"));
+            }
+        }
+        
         GameObject->DynamicRigidBody = nullptr;
     }
-    delete GameObject;
+    
+    // StaticRigidBody 처리
+    if (GameObject->StaticRigidBody)
+    {
+        // 포인터 유효성 검사
+        uintptr_t ptrValue = reinterpret_cast<uintptr_t>(GameObject->StaticRigidBody);
+        if (ptrValue == 0xDDDDDDDDDDDDDDDD || ptrValue == 0xFFFFFFFFFFFFFFFF || ptrValue == 0xCCCCCCCCCCCCCCCC)
+        {
+            UE_LOG(ELogLevel::Warning, TEXT("DestroyGameObject: StaticRigidBody has invalid memory pattern: 0x%p"), GameObject->StaticRigidBody);
+        }
+        else
+        {
+            try 
+            {
+                // Scene이 유효한지 확인
+                if (CurrentScene)
+                {
+                    // Scene에서 Actor 제거
+                    CurrentScene->removeActor(*GameObject->StaticRigidBody);
+                    UE_LOG(ELogLevel::Display, TEXT("DestroyGameObject: StaticRigidBody removed from scene"));
+                }
+                
+                // RigidBody 해제
+                GameObject->StaticRigidBody->release();
+                UE_LOG(ELogLevel::Display, TEXT("DestroyGameObject: StaticRigidBody released"));
+            }
+            catch (...)
+            {
+                UE_LOG(ELogLevel::Error, TEXT("DestroyGameObject: Exception occurred while releasing StaticRigidBody"));
+            }
+        }
+        
+        GameObject->StaticRigidBody = nullptr;
+    }
+    
+    // GameObject를 완전히 무효화
+    GameObject->MarkDestroyed();
+    
+    // 안전한 삭제 (메모리 해제)
+    try 
+    {
+        UE_LOG(ELogLevel::Display, TEXT("DestroyGameObject: Deleting GameObject (ID: %d)"), GameObject->ID);
+        delete GameObject;
+        UE_LOG(ELogLevel::Display, TEXT("DestroyGameObject: GameObject deletion completed"));
+    }
+    catch (...)
+    {
+        UE_LOG(ELogLevel::Error, TEXT("DestroyGameObject: Exception occurred during GameObject deletion"));
+    }
 }
 
 PxShape* FPhysicsManager::CreateBoxShape(const PxVec3& Pos, const PxQuat& Quat, const PxVec3& HalfExtents) const
