@@ -287,7 +287,11 @@ void FLuaScriptManager::BindEngineAPIs()
 
     LuaState.set_function("GetActorRightVector", [](AActor* actor) {
         return actor->GetActorRightVector();
-        });
+    });
+
+    LuaState.set_function("GetActorLocation", [](AActor* actor) {
+        return actor->GetActorLocation();
+    });
 
     UE_LOG(ELogLevel::Display, TEXT("Engine APIs bound to Lua"));
 }

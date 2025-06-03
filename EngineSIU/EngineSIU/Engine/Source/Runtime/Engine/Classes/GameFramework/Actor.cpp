@@ -474,6 +474,7 @@ bool AActor::BindSelfLuaProperties()
     LuaTable["GetActorRotation"] = LuaState["GetActorRotation"];
     LuaTable["GetActorForwardVector"] = LuaState["GetActorForwardVector"];
     LuaTable["GetActorRightVector"] = LuaState["GetActorRightVector"];
+    LuaTable["GetActorLocation"] = LuaState["GetActorLocation"];
 
     // 이 아래에서 또는 하위 클래스 함수에서 멤버 변수 등록.
 

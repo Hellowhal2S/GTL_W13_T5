@@ -18,6 +18,12 @@ local wantInAir = false -- 공중에 있는지 여부
 local groundCheckDelay = 0.1   -- 바닥 감지 딜레이 (초)
 local timeSinceLastContact = 0.0
 
+-- GrowSnowBall 호출 제어 변수 (이동 기반으로 변경)
+local minRollDistanceForGrow = 1.0  -- 성장을 위한 최소 굴림 거리
+local accumulatedRollDistance = 0.0 -- 누적 굴림 거리
+local lastPosition = FVector(0, 0, 0) -- 이전 프레임의 위치
+local hasInitialPosition = false    -- 초기 위치 설정 여부
+
 -- ForceMode 상수 정의 (각속도 설정에는 사용하지 않지만 호환성을 위해 유지)
 local FORCE_MODE = {
     FORCE = 0,           -- 연속적인 힘 (질량 고려)
@@ -190,16 +196,47 @@ end
 
 function ReturnTable:Tick(dt)
     -- 매 프레임마다 실행되는 로직
-    -- 필요하면 공중에서의 추가 제어나 댐핑 등을 구현
-    if isGrounded then
-        GrowSnowBall(dt / 2) -- 바닥에 닿아있을 때 눈덩이 성장
+    
+    -- 현재 위치 가져오기
+    local currentPosition = GetActorLocation(self.this)
+    
+    -- 초기 위치 설정
+    if not hasInitialPosition then
+        lastPosition = currentPosition
+        hasInitialPosition = true
+        return
     end
+    
+    -- 바닥에 닿아있을 때만 이동 거리 계산
+    if isGrounded then
+        -- 이전 위치와 현재 위치 간의 거리 계산
+        local deltaX = currentPosition.X - lastPosition.X
+        local deltaY = currentPosition.Y - lastPosition.Y
+        -- Z축 변화는 제외 (점프나 높이 변화는 굴림에 포함하지 않음)
+        local moveDistance = math.sqrt(deltaX * deltaX + deltaY * deltaY)
+        
+        -- 누적 굴림 거리에 추가
+        accumulatedRollDistance = accumulatedRollDistance + moveDistance
+        
+        -- 최소 굴림 거리에 도달했을 때 눈덩이 성장
+        if accumulatedRollDistance >= minRollDistanceForGrow then
+            -- 굴린 거리에 비례하여 성장 (더 많이 굴수록 더 많이 성장)
+            local growthAmount = accumulatedRollDistance * dt * 0.5
+            GrowSnowBall(growthAmount)
+            accumulatedRollDistance = 0.0 -- 누적 거리 리셋
+        end
+    end
+    
+    -- 현재 위치를 다음 프레임을 위해 저장
+    lastPosition = currentPosition
+    
     if wantInAir then
         timeSinceLastContact = timeSinceLastContact + dt
         
         -- 일정 시간 후에도 접촉이 없으면 완전히 공중 상태로 간주
         if timeSinceLastContact > groundCheckDelay then
             isGrounded = false
+            wantInAir = false  -- 공중 상태 확정 후 플래그 리셋
         end
     end
 end
