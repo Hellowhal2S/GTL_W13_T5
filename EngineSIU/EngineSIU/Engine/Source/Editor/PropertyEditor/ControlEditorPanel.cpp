@@ -383,7 +383,9 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
             { .Label = "SphereCol",         .OBJ = OBJ_SPHERE_COLLISION },
             { .Label = "CapsuleCol",        .OBJ = OBJ_CAPSULE_COLLISION },
             { .Label = "SkeletalMeshActor", .OBJ = OBJ_SKELETALMESH },
-            { .Label = "SequencerPlayer",   .OBJ = OBJ_MYPLAYER },
+            { .Label = "SequencerPlayer",   .OBJ = OBJ_SEQUENCEPLAYER },
+{ .Label = "MyPlayer",   .OBJ = OBJ_MYPLAYER },
+
             { .Label = "Obstacle Wall",     .OBJ = OBJ_ObstcleWall },
             { .Label = "Obstacle Fireball", .OBJ = OBJ_ObstcleFireball },
             { .Label = "Obstacle Mud",      .OBJ = OBJ_ObstcleMud },
@@ -507,10 +509,16 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                         SpawnedActor->SetActorTickInEditor(true);
                     }
                     break;
+                    case OBJ_SEQUENCEPLAYER:
+                    {
+                        SpawnedActor = World->SpawnActor<ASequencerPlayer>();
+                        SpawnedActor->SetActorLabel(TEXT("OBJ_SEQUENCEPALYER"));
+                        break;
+                    }
                 case OBJ_MYPLAYER:
                 {
                     SpawnedActor = World->SpawnActor<AMyPlayer>();
-                    SpawnedActor->SetActorLabel(TEXT("OBJ_SEQUENCERPLAYER"));
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_MYPLAYER"));
                     break;
                 }
                 case OBJ_SNOWBALL:
