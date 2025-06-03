@@ -13,7 +13,7 @@
 #include "Math/JungleMath.h"
 
 FVector AMyPlayer::InitialVector = FVector::ZeroVector;
-FRotator AMyPlayer::InitialRotator = FRotator::ZeroRotator;
+FRotator AMyPlayer::InitialRotator = FRotator::ZeroRotator; 
 
 AMyPlayer::AMyPlayer()
 {
