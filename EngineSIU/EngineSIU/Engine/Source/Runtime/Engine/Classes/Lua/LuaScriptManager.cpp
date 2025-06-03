@@ -12,7 +12,7 @@
 #include "Physics/PhysicsManager.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/StaticMeshComponent.h"
-
+#include "Engine/Contents/Actor/SphereTargetComponent.h"
 TMap<FString, FLuaTableScriptInfo> FLuaScriptManager::ScriptCacheMap;
 TSet<ULuaScriptComponent*> FLuaScriptManager::ActiveLuaComponents;
 TSet<UAnimStateMachine*> FLuaScriptManager::ActiveAnimLua;
@@ -229,6 +229,7 @@ void FLuaScriptManager::BindEngineAPIs()
                 if (SnowBallActor) {
                     GEngine->PhysicsManager->GrowBall(SnowBallActor, deltaRadius);
                     SnowBallActor->SnowBallComponent->AddScale(FVector(deltaRadius));
+                    SnowBallActor->GetComponentByClass<USphereTargetComponent>()->SetRadius(SnowBallActor->GetComponentByClass<USphereTargetComponent>()->GetRadius() + deltaRadius*1.2);
                     break;
                 }
             }

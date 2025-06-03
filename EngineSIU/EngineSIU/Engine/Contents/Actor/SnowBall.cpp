@@ -58,7 +58,7 @@ void ASnowBall::Tick(float DeltaTime)
         Shapes.SetNum(1);
         PxU32 RetrievedShapes = SnowBallComponent->BodyInstance->BIGameObject->DynamicRigidBody->getShapes(Shapes.GetData(), 1);
         InitialRadius = Shapes[0]->getGeometry().sphere().radius;
-        // GetComponentByClass<USphereTargetComponent>()->SetRadius(InitialRadius*2);
+        GetComponentByClass<USphereTargetComponent>()->SetRadius(InitialRadius*1.5);
         InitialMass = SnowBallComponent->BodyInstance->MassInKg; // 초기 질량 저장
         //UE_LOG(ELogLevel::Error, "Initial Scale: %.2f", InitialScale.X);
         bIsRespawned = false;
@@ -75,7 +75,7 @@ void ASnowBall::Tick(float DeltaTime)
                 SetActorLocation(SpawnLocation);
                 SnowBallComponent->SetWorldScale3D(InitialScale); // 월드 스케일로 설정
                 SnowBallComponent->CreatePhysXGameObject();
-                // GetComponentByClass<USphereTargetComponent>()->SetRadius(InitialRadius*2);
+                GetComponentByClass<USphereTargetComponent>()->SetRadius(InitialRadius*1.5);
                 bIsRespawned = true; // 리스폰 시 스케일 재초기화
             }
         }
