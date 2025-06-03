@@ -223,5 +223,13 @@ public:
     float FocalDistance = 0.f; // cm
 
     float GetFocalLength() const;
+
+    /** 
+     * DoF(Depth of Field) 설정을 동적으로 변경합니다.
+     * @param InFStop 조리개 값 (낮을수록 더 강한 DoF 효과)
+     * @param InSensorWidth 센서 너비 (mm 단위)
+     * @param InFocalDistance 초점 거리 (cm 단위, 0이면 DoF 비활성화)
+     */
+    void SetDoFSettings(float InFStop, float InSensorWidth, float InFocalDistance);
 };
 

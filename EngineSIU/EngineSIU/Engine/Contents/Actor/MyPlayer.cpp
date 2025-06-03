@@ -183,4 +183,17 @@ void AMyPlayer::CameraInitialize()
 {
     GetComponentByClass<UCameraComponent>()->SetRelativeLocation(FVector(-50,0,50));
     GetComponentByClass<UCameraComponent>()->SetRelativeRotation(FRotator(-40,0,0));
+    
+    // 인트로가 끝나고 카메라 초기화 시 DoF 설정 적용
+    // FocalDistance를 원하는 값으로 설정하여 DoF 활성화
+    if (APlayerController* PC = GEngine->ActiveWorld->GetPlayerController())
+    {
+        if (APlayerCameraManager* PCM = PC->PlayerCameraManager)
+        {
+            // F_Stop: 4.0, SensorWidth: 5000mm, FocalDistance: 65cm (0.65m)
+            PCM->SetDoFSettings(4.f, 5000.f, 65.0f);
+        }
+    }
+    
+    bInitiatlize = true;
 }
