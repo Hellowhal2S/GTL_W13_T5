@@ -12,7 +12,7 @@ public:
     ATarget();
     ~ATarget();
     virtual void BeginPlay() override;
-    //virtual UObject* Duplicate(UObject* InOuter) override;
+    virtual UObject* Duplicate(UObject* InOuter) override;
 
     //UStaticMeshComponent* Target = nullptr;
     USkeletalMeshComponent* Target = nullptr;

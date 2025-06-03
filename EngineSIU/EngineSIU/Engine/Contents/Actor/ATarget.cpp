@@ -19,7 +19,8 @@ ATarget::ATarget()
     /*Target = AddComponent<UStaticMeshComponent>(TEXT("Target"));
     Target->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/Penguin/Penguin.obj"));
     Target->bSimulate = true;
-    SetRootComponent(Target);*/    Target = AddComponent<USkeletalMeshComponent>(TEXT("Target"));
+    SetRootComponent(Target);*/
+    Target = AddComponent<USkeletalMeshComponent>(TEXT("Target"));
     Target->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/SkeletalPenguin/SkeletalPenguin"));
     Target->bSimulate = false;
     Target->SetAnimClass(ULuaScriptAnimInstance::StaticClass());
@@ -34,21 +35,21 @@ ATarget::~ATarget()
 {
 }
 
-//UObject* ATarget::Duplicate(UObject* InOuter)
-//{
-//    ThisClass* NewActor = Cast<ThisClass>(Super::Duplicate(InOuter));
-//
-//    NewActor->Target = AddComponent<USkeletalMeshComponent>(TEXT("Target"));
-//    NewActor->Target->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/SkeletalPenguin/SkeletalPenguin"));
-//    NewActor->Target->bSimulate = false;
-//    NewActor->Target->SetAnimClass(ULuaScriptAnimInstance::StaticClass());
-//    NewActor->SetRootComponent(Target);
-//
-//    NewActor->SphereComponent = AddComponent<USphereTargetComponent>(TEXT("Collision"));
-//    NewActor->SphereComponent->SetupAttachment(Target);
-//    
-//    return NewActor;
-//}
+UObject* ATarget::Duplicate(UObject* InOuter)
+{
+    ThisClass* NewActor = Cast<ThisClass>(Super::Duplicate(InOuter));
+
+    NewActor->Target = AddComponent<USkeletalMeshComponent>(TEXT("Target"));
+    NewActor->Target->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/SkeletalPenguin/SkeletalPenguin"));
+    NewActor->Target->bSimulate = false;
+    NewActor->Target->SetAnimClass(ULuaScriptAnimInstance::StaticClass());
+    NewActor->SetRootComponent(Target);
+
+    NewActor->SphereComponent = AddComponent<USphereTargetComponent>(TEXT("Collision"));
+    NewActor->SphereComponent->SetupAttachment(Target);
+    
+    return NewActor;
+}
 
 void ATarget::BeginPlay()
 {
