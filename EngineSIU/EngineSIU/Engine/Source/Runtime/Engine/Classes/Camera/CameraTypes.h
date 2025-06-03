@@ -1,4 +1,6 @@
 #pragma once
+#include "EngineLoop.h"
+#include "Engine/Contents/Actor/MyPlayer.h"
 #include "Math/Rotator.h"
 #include "Math/Vector.h"
 
@@ -30,8 +32,8 @@ struct FMinimalViewInfo
     float OrthoFarClipPlane;
     float AspectRatio;*/
     FMinimalViewInfo()
-        : Location(0.0f, 0.0f, 0.0f)
-        , Rotation(0.0f, 0.0f, 0.0f)
+        : Location(AMyPlayer::InitialVector)
+        , Rotation(AMyPlayer::InitialRotator)
         , FOV(90.0f)
         , PerspectiveNearClip(0.1f)
         , PerspectiveFarClip(1000.f)
