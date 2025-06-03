@@ -8,8 +8,8 @@ local ReturnTable = {} -- Return용 table. cpp에서 Table 단위로 객체 관�
 local FVector = EngineTypes.FVector -- EngineTypes로 등록된 FVector local로 선언.
 
 -- 설정값
-local rollAngularSpeed = 20.0        -- 굴리기 각속도 (rad/s)
-local jumpVelocity = 10.0          -- 점프 속도 (직접 설정)
+local rollAngularSpeed = 50.0        -- 굴리기 각속도 (rad/s)
+local jumpVelocity = 50.0          -- 점프 속도 (직접 설정)
 local airControlSpeed = 5.0        -- 공중에서의 제어 각속도
 
 -- 바닥 감지 변수

@@ -52,16 +52,7 @@ void FPhysicsManager::InitPhysX()
 
     InitializePVD();
     
-    // 센티미터 단위에 맞는 TolerancesScale 설정
-    PxTolerancesScale ToleranceScale;
-    ToleranceScale.length = 100.0f;  // 기본 1m를 100cm로 설정
-    
-    // Speed 값 실험: 98.1f가 최적인 이유 분석
-    // 이 값은 "1초간 중력으로 떨어지는 물체의 속도"를 나타냄
-    // 이론값: 981 cm/s, 현재값: 98.1 cm/s (1/10 스케일)
-    ToleranceScale.speed = 98.1f;   
-    
-    Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, ToleranceScale, true, Pvd);
+    Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *Foundation, PxTolerancesScale(), true, Pvd);
     
     Material = Physics->createMaterial(0.5f, 0.7f, 0.1f);
 
@@ -162,8 +153,7 @@ GameObject FPhysicsManager::CreateBox(const PxVec3& Pos, const PxVec3& HalfExten
     PxShape* Shape = Physics->createShape(PxBoxGeometry(HalfExtents), *Material);
     Obj.DynamicRigidBody->attachShape(*Shape);
     
-    // 밀도 값을 센티미터 단위에 맞게 조정
-    PxRigidBodyExt::updateMassAndInertia(*Obj.DynamicRigidBody, 0.01f); // 0.01 kg/cm³ (기존 10.0f에서 조정)
+    PxRigidBodyExt::updateMassAndInertia(*Obj.DynamicRigidBody, 10.0f);
     CurrentScene->addActor(*Obj.DynamicRigidBody);
     
     Obj.UpdateFromPhysics(CurrentScene);
@@ -270,9 +260,8 @@ void FPhysicsManager::ApplyMassAndInertiaSettings(PxRigidDynamic* DynamicBody, c
     }
     else
     {
-        // 기본 밀도로 질량 계산 (센티미터 단위에 맞게 조정)
-        // 1000 kg/m³ = 1000 / (100)³ kg/cm³ = 0.001 kg/cm³
-        PxRigidBodyExt::updateMassAndInertia(*DynamicBody, 0.001f); // 기본 밀도 (물의 밀도, 센티미터 단위)
+        // 기본 밀도로 질량 계산
+        PxRigidBodyExt::updateMassAndInertia(*DynamicBody, 1000.0f); // 기본 밀도
     }
     
     // // 질량 중심 오프셋 적용
@@ -439,8 +428,8 @@ void FPhysicsManager::ApplyShapeCollisionSettings(PxShape* Shape, const FBodyIns
         // Contact 이벤트를 위한 커스텀 필터 데이터 설정 가능
         Shape->setSimulationFilterData(filterData);
         
-        // Contact offset 설정 (센티미터 단위에 맞게 조정)
-        Shape->setContactOffset(2.0f); // 2cm (기존 0.02f는 미터 단위였음)
+        // Contact offset 설정 (옵션)
+        Shape->setContactOffset(0.02f); // 2cm
         Shape->setRestOffset(0.0f);
     }
 }
@@ -682,8 +671,8 @@ void FPhysicsManager::CreateJoint(const GameObject* Obj1, const GameObject* Obj2
         Joint->setBreakForce(PX_MAX_F32, PX_MAX_F32);  // 무한대로 설정하여 파괴되지 않음
 
         Joint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
-        Joint->setProjectionLinearTolerance(1.0f);   // 1cm (기존 0.01f는 미터 단위였음)
-        Joint->setProjectionAngularTolerance(0.017f); // 1도 (라디안 단위는 유지)
+        Joint->setProjectionLinearTolerance(0.01f);
+        Joint->setProjectionAngularTolerance(0.017f);
     }
 
     ConstraintInstance->ConstraintData = Joint;
@@ -844,8 +833,7 @@ void FPhysicsManager::CleanupAllScenes()
 
 void FPhysicsManager::ConfigureSceneDesc(PxSceneDesc& SceneDesc)
 {
-    // 중력 가속도를 cm/s² 단위로 설정 (9.81 m/s² = 98.1 cm/s²)
-    SceneDesc.gravity = PxVec3(0, 0, -98.1f);
+    SceneDesc.gravity = PxVec3(0, 0, -98.1);
     
     unsigned int hc = std::thread::hardware_concurrency();
     Dispatcher = PxDefaultCpuDispatcherCreate(hc-2);
