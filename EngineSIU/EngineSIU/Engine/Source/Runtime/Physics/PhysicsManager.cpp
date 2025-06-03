@@ -9,6 +9,7 @@
 #include <thread>
 
 // sol 헤더는 Contact 콜백을 위해 필요
+#include "Engine/Contents/Actor/SnowBall.h"
 #include "sol/sol.hpp"
 
 
@@ -1174,8 +1175,15 @@ void FPhysicsManager::GrowBall(AActor* Actor, float DeltaRadius)
                     
                     // 질량과 관성 다시 계산
                     float CurrentMass = Obj->DynamicRigidBody->getMass();
-                    PxRigidBodyExt::updateMassAndInertia(*Obj->DynamicRigidBody, 1000.0f);
-                    float NewMass = Obj->DynamicRigidBody->getMass();
+                    float NewMass = CurrentMass;
+                    if (ASnowBall* SnowBall = Cast<ASnowBall>(Actor))
+                    {
+                        NewMass = SnowBall->InitialMass * pow((NewRadius / SnowBall->InitialRadius), 3);
+                        //UE_LOG(ELogLevel::Error, "%.2f, %.2f, %.2f", OldRadius, SnowBall->InitialRadius, NewMass);
+                    }
+                    PxRigidBodyExt::setMassAndUpdateInertia(*Obj->DynamicRigidBody, NewMass);
+                    NewMass = Obj->DynamicRigidBody->getMass();
+                    //UE_LOG(ELogLevel::Warning, "%.2f -> %.2f", CurrentMass, NewMass);
                     
                     // Actor를 깨우기 (변경사항 반영을 위해)
                     if (Obj->DynamicRigidBody->isSleeping())

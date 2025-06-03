@@ -18,6 +18,7 @@
                         "ComponentOwner": "ACube_209",
                         "ComponentOwnerClass": "ACube",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=-0.195 Y=0.000 Z=1.146",
                         "RelativeRotation": "Pitch=0.000 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=100.000 Y=100.000 Z=10.000",
@@ -53,6 +54,19 @@
             "ActorTickInEditor": "false",
             "Components": [
                 {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ACube_212",
+                        "ComponentOwnerClass": "ACube",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "StaticMeshComponent_0",
                     "Properties": {
@@ -64,6 +78,7 @@
                         "ComponentOwner": "ACube_212",
                         "ComponentOwnerClass": "ACube",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=92.459 Y=0.000 Z=35.319",
                         "RelativeRotation": "Pitch=27.502 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=100.000 Y=100.000 Z=10.000",
@@ -74,19 +89,6 @@
                         "bIsActive": "true",
                         "bSimulate": "true",
                         "m_Type": ""
-                    }
-                },
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "LuaComponent",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "LuaComponent",
-                        "ComponentOwner": "ACube_212",
-                        "ComponentOwnerClass": "ACube",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
                     }
                 }
             ],
@@ -134,6 +136,7 @@
                         "FinalIndexU": "0.000000",
                         "FinalIndexV": "0.000000",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=0.000 Y=0.000 Z=0.000",
                         "RelativeRotation": "Pitch=60.160 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -168,19 +171,6 @@
             "ActorTickInEditor": "false",
             "Components": [
                 {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "LuaComponent",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "LuaComponent",
-                        "ComponentOwner": "AMyPlayer_224",
-                        "ComponentOwnerClass": "AMyPlayer",
-                        "ScriptName": "LuaScripts/template_PhysX.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
-                {
                     "ComponentClass": "USceneComponent",
                     "ComponentID": "DefaultSceneComponent",
                     "Properties": {
@@ -190,7 +180,7 @@
                         "ComponentOwner": "AMyPlayer_224",
                         "ComponentOwnerClass": "AMyPlayer",
                         "RelativeLocation": "X=0.000 Y=0.000 Z=0.000",
-                        "RelativeRotation": "Pitch=0.000 Yaw=180.000 Roll=-0.000",
+                        "RelativeRotation": "Pitch=0.000 Yaw=-180.000 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
                         "bAutoActive": "true",
                         "bIsActive": "true"
@@ -208,6 +198,19 @@
                         "RelativeLocation": "X=-20.000 Y=0.000 Z=20.000",
                         "RelativeRotation": "Pitch=-45.000 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "AMyPlayer_224",
+                        "ComponentOwnerClass": "AMyPlayer",
+                        "ScriptName": "LuaScripts/template_PhysX.lua",
                         "bAutoActive": "true",
                         "bIsActive": "true"
                     }
@@ -232,11 +235,12 @@
                         "ComponentName": "SnowBall",
                         "ComponentOwner": "ASnowBall_421",
                         "ComponentOwnerClass": "ASnowBall",
-                        "GeomAttr_0_Extent": "X=2.500 Y=1.000 Z=1.000",
+                        "GeomAttr_0_Extent": "X=2.000 Y=1.000 Z=1.000",
                         "GeomAttr_0_GeomType": "0",
                         "GeomAttr_0_Offset": "X=0.000 Y=0.000 Z=0.000",
                         "GeomAttr_0_Rotation": "Pitch=0.000 Yaw=0.000 Roll=0.000",
                         "GeomAttributesCount": "1",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=100.000 Y=11.335 Z=70.000",
                         "RelativeRotation": "Pitch=0.000 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=5.000 Y=5.000 Z=5.000",
@@ -283,6 +287,7 @@
                         "ComponentOwner": "ACube_538",
                         "ComponentOwnerClass": "ACube",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=184.706 Y=0.000 Z=57.596",
                         "RelativeRotation": "Pitch=0.000 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=100.000 Y=100.000 Z=10.000",
@@ -342,6 +347,7 @@
                         "ComponentOwner": "ACube_303",
                         "ComponentOwnerClass": "ACube",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=161.783 Y=0.000 Z=62.997",
                         "RelativeRotation": "Pitch=0.000 Yaw=0.000 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -388,6 +394,7 @@
                         "ComponentOwner": "ATarget_257",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=12.718 Y=0.000 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -434,6 +441,7 @@
                         "ComponentOwner": "ATarget_261",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=12.718 Y=2.669 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -482,6 +490,19 @@
             "ActorTickInEditor": "false",
             "Components": [
                 {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_270",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_270",
+                        "ComponentOwner": "ATarget_267",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
                     "Properties": {
@@ -493,6 +514,7 @@
                         "ComponentOwner": "ATarget_267",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=16.142 Y=0.348 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -517,19 +539,6 @@
                         "bAutoActive": "true",
                         "bIsActive": "true"
                     }
-                },
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_270",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_270",
-                        "ComponentOwner": "ATarget_267",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
                 }
             ],
             "RootComponentID": "Target"
@@ -540,19 +549,6 @@
             "ActorLabel": "ATarget273",
             "ActorTickInEditor": "false",
             "Components": [
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_276",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_276",
-                        "ComponentOwner": "ATarget_273",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
                 {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
@@ -565,6 +561,7 @@
                         "ComponentOwner": "ATarget_273",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=9.331 Y=0.348 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -583,6 +580,19 @@
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
                         "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_273",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_276",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_276",
                         "ComponentOwner": "ATarget_273",
                         "ComponentOwnerClass": "ATarget",
                         "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
@@ -611,6 +621,7 @@
                         "ComponentOwner": "ATarget_279",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=9.331 Y=3.418 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -670,6 +681,7 @@
                         "ComponentOwner": "ATarget_285",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=9.331 Y=-3.102 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -684,10 +696,10 @@
                 },
                 {
                     "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_290",
+                    "ComponentID": "LuaComponent",
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_290",
+                        "ComponentName": "LuaComponent",
                         "ComponentOwner": "ATarget_285",
                         "ComponentOwnerClass": "ATarget",
                         "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
@@ -697,10 +709,10 @@
                 },
                 {
                     "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "LuaComponent",
+                    "ComponentID": "ULuaScriptComponent_290",
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "LuaComponent",
+                        "ComponentName": "ULuaScriptComponent_290",
                         "ComponentOwner": "ATarget_285",
                         "ComponentOwnerClass": "ATarget",
                         "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
@@ -729,6 +741,7 @@
                         "ComponentOwner": "ATarget_291",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=6.091 Y=-4.208 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -743,10 +756,10 @@
                 },
                 {
                     "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_294",
+                    "ComponentID": "LuaComponent",
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_294",
+                        "ComponentName": "LuaComponent",
                         "ComponentOwner": "ATarget_291",
                         "ComponentOwnerClass": "ATarget",
                         "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
@@ -756,10 +769,10 @@
                 },
                 {
                     "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "LuaComponent",
+                    "ComponentID": "ULuaScriptComponent_294",
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "LuaComponent",
+                        "ComponentName": "ULuaScriptComponent_294",
                         "ComponentOwner": "ATarget_291",
                         "ComponentOwnerClass": "ATarget",
                         "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
@@ -788,6 +801,7 @@
                         "ComponentOwner": "ATarget_297",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=5.370 Y=-2.615 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -836,6 +850,19 @@
             "ActorTickInEditor": "false",
             "Components": [
                 {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "LuaComponent",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_303",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
                     "Properties": {
@@ -847,6 +874,7 @@
                         "ComponentOwner": "ATarget_303",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=5.370 Y=0.445 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -857,19 +885,6 @@
                         "bIsActive": "true",
                         "bSimulate": "true",
                         "m_Type": ""
-                    }
-                },
-                {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "LuaComponent",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "LuaComponent",
-                        "ComponentOwner": "ATarget_303",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
                     }
                 },
                 {
@@ -895,19 +910,6 @@
             "ActorTickInEditor": "false",
             "Components": [
                 {
-                    "ComponentClass": "ULuaScriptComponent",
-                    "ComponentID": "ULuaScriptComponent_314",
-                    "Properties": {
-                        "ComponentClass": "ULuaScriptComponent",
-                        "ComponentName": "ULuaScriptComponent_314",
-                        "ComponentOwner": "ATarget_309",
-                        "ComponentOwnerClass": "ATarget",
-                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
-                        "bAutoActive": "true",
-                        "bIsActive": "true"
-                    }
-                },
-                {
                     "ComponentClass": "UStaticMeshComponent",
                     "ComponentID": "Target",
                     "Properties": {
@@ -919,6 +921,7 @@
                         "ComponentOwner": "ATarget_309",
                         "ComponentOwnerClass": "ATarget",
                         "GeomAttributesCount": "0",
+                        "MassInKg": "10.000000",
                         "RelativeLocation": "X=5.370 Y=4.440 Z=6.688",
                         "RelativeRotation": "Pitch=0.000 Yaw=76.959 Roll=-0.000",
                         "RelativeScale3D": "X=1.000 Y=1.000 Z=1.000",
@@ -937,6 +940,19 @@
                     "Properties": {
                         "ComponentClass": "ULuaScriptComponent",
                         "ComponentName": "LuaComponent",
+                        "ComponentOwner": "ATarget_309",
+                        "ComponentOwnerClass": "ATarget",
+                        "ScriptName": "LuaScripts/Actors/DefaultActor.lua",
+                        "bAutoActive": "true",
+                        "bIsActive": "true"
+                    }
+                },
+                {
+                    "ComponentClass": "ULuaScriptComponent",
+                    "ComponentID": "ULuaScriptComponent_314",
+                    "Properties": {
+                        "ComponentClass": "ULuaScriptComponent",
+                        "ComponentName": "ULuaScriptComponent_314",
                         "ComponentOwner": "ATarget_309",
                         "ComponentOwnerClass": "ATarget",
                         "ScriptName": "LuaScripts/Actors/DefaultActor.lua",

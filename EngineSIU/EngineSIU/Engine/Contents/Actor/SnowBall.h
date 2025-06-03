@@ -25,5 +25,7 @@ public:
 
     FVector SpawnLocation = FVector(100, 0, 70);
     FVector InitialScale = FVector(5.f);
+    float InitialRadius = 2.f;
+    float InitialMass = 10.f;
     bool bIsRespawned = true;
 };

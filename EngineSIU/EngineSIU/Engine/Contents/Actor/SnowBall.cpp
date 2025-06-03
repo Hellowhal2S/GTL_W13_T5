@@ -33,7 +33,12 @@ void ASnowBall::Tick(float DeltaTime)
     if (bIsRespawned && SnowBallComponent)
     {
         InitialScale = SnowBallComponent->GetComponentScale3D(); // 월드 스케일 사용
-        UE_LOG(ELogLevel::Error, "Initial Scale: %.2f", InitialScale.X);
+        TArray<PxShape*> Shapes;
+        Shapes.SetNum(1);
+        PxU32 RetrievedShapes = SnowBallComponent->BodyInstance->BIGameObject->DynamicRigidBody->getShapes(Shapes.GetData(), 1);
+        InitialRadius = Shapes[0]->getGeometry().sphere().radius;
+        InitialMass = SnowBallComponent->BodyInstance->MassInKg; // 초기 질량 저장
+        //UE_LOG(ELogLevel::Error, "Initial Scale: %.2f", InitialScale.X);
         bIsRespawned = false;
     }
 

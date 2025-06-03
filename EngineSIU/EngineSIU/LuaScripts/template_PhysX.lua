@@ -82,7 +82,6 @@ end
 
 -- 앞으로 굴리기 (액터의 Forward 방향)
 function ReturnTable:OnPressW(dt)
-    print("Press W: Rolling forward")
     -- 액터의 Right 벡터를 토크축으로 사용 (Forward 방향으로 굴리기 위해)
     local rightVector = GetActorRightVector(self.this)
     local torque = FVector(
