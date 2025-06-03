@@ -6,8 +6,6 @@ UParticleModuleLocation::UParticleModuleLocation()
 {
     bSpawnModule = true;
     bUpdateModule = false;
-    bInWorldSpace = false;
-    bApplyEmitterLocation = true;
 
     StartLocation.MinValue = FVector::OneVector * -3;
     StartLocation.MaxValue = FVector::OneVector * 3;
@@ -36,15 +34,7 @@ void UParticleModuleLocation::Spawn(FParticleEmitterInstance* Owner, int32 Offse
 
     Location += OffsetLocation;
 
-    if (bInWorldSpace)
-    {
-        Location = Owner->Component->GetComponentToWorld().TransformPosition(Location);
-    }
-
-    if (bApplyEmitterLocation)
-    {
-        Location += Owner->Component->GetComponentToWorld().GetTranslation();
-    }
+    Location = Owner->Component->GetComponentTransform().TransformPosition(Location);
 
     ParticleBase->Location = Location;
 }

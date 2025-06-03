@@ -51,6 +51,8 @@ public:
     
 public:
     float AccumTickTime;
+
+    bool bOnceBurstOnBegin = false;
     
 private:
     TArray<FParticleEmitterInstance*> EmitterInstances;

@@ -7,9 +7,6 @@ UParticleModuleVelocity::UParticleModuleVelocity()
 {
     bSpawnModule = true;
     bUpdateModule = false;
-
-    bInWorldSpace = false;
-    bApplyOwnerScale = false;
     
     ModuleName = "Velocity";
 }
@@ -33,19 +30,9 @@ void UParticleModuleVelocity::Spawn(FParticleEmitterInstance* Owner, int32 Offse
 
     if (!FMath::IsNearlyZero(RadialStrength))
     {
-        FVector EmitterLocation = Owner->Component->GetComponentToWorld().GetTranslation();
+        FVector EmitterLocation = Owner->Component->GetComponentTransform().GetTranslation();
         FVector Direction = (ParticleBase->Location - EmitterLocation).GetSafeNormal();
         Velocity += Direction * RadialStrength;
-    }
-
-    if (bInWorldSpace)
-    {
-        Velocity = Owner->Component->GetComponentToWorld().TransformVector(Velocity);
-    }
-
-    if (bApplyOwnerScale)
-    {
-        Velocity *= Owner->Component->GetComponentToWorld().GetScale3D();
     }
 
     ParticleBase->BaseVelocity = Velocity;

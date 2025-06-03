@@ -1,4 +1,4 @@
-﻿#include "ParticleModuleSpawnBase.h"
+#include "ParticleModuleSpawnBase.h"
 
 void UParticleModuleSpawnBase::DisplayProperty()
 {
