@@ -521,6 +521,7 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                 {
                     SpawnedActor = World->SpawnActor<ATarget>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_TARGET"));
+                    break;
                 }
                 case OBJ_ObstcleWall:
                 {

@@ -140,6 +140,8 @@ void AMyPlayer::Tick(float DeltaTime)
             // 카메라 모드일 때만 카메라 회전 업데이트
             if (bCameraMode)
             {
+                Camera =GetComponentByClass<UCameraComponent>();
+                Camera->SetRelativeLocation(FVector(-50-Target->SnowBallComponent->GetRelativeScale3D().X * 2,0.0,50+Target->SnowBallComponent->GetRelativeScale3D().X*2));
                 UpdateCameraRotation();
             }
         }

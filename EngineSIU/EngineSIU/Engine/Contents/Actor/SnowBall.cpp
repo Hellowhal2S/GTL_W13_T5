@@ -64,7 +64,7 @@ void ASnowBall::Tick(float DeltaTime)
         bIsRespawned = false;
     }
 
-    if (!Engine->PIEWorld->GetGameMode()->bGameOver && GetActorLocation().Z < 0.f)
+    if (!Engine->PIEWorld->GetGameMode()->bGameOver && GetActorLocation().Z < -200.f)
     {
         if (Engine)
         {
