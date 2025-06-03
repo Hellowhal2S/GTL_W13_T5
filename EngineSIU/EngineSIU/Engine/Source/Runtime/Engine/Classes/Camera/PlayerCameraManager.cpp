@@ -236,7 +236,6 @@ void APlayerCameraManager::DoUpdateCamera(float DeltaTime)
             //@TODO: CAMERA: Make sure the sense is correct!  BlendViewTargets(ViewTarget, PendingViewTarget, BlendPct);
             NewPOV.BlendViewInfo(PendingViewTarget.POV, BlendPct);
             
-            UE_LOG(ELogLevel::Error, TEXT("%.2f %.2f %.2f"), NewPOV.Location.X, NewPOV.Location.Y, NewPOV.Location.Z);
         }
         else
         {

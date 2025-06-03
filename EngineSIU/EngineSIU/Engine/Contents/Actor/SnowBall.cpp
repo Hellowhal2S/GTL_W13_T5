@@ -1,5 +1,6 @@
 #include "SnowBall.h"
 
+#include "ATarget.h"
 #include "PhysicsManager.h"
 #include "Components/SphereComponent.h"
 #include "Engine/Engine.h"
@@ -7,13 +8,21 @@
 #include "GameFramework/GameMode.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/FObjLoader.h"
+#include "SphereTargetComponent.h"
 
 ASnowBall::ASnowBall()
 {
     SnowBallComponent = AddComponent<UStaticMeshComponent>("SnowBall");
     SnowBallComponent->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/FreshSnow/SnowBall.obj"));
     SetRootComponent(SnowBallComponent);
+    
+    SphereCollision = AddComponent<USphereTargetComponent>("Collision");
+    SphereCollision->SetupAttachment(SnowBallComponent);
+    // SphereCollision->SetRadius(5.0f);
+
+
 }
+
 
 void ASnowBall::BeginPlay()
 {
@@ -21,6 +30,19 @@ void ASnowBall::BeginPlay()
     SpawnLocation = GetActorLocation();
     // InitialScale 초기화를 첫 번째 Tick으로 지연
     bIsRespawned = true; // 스케일 초기화 플래그로 활용
+
+    GetComponentByClass<USphereTargetComponent>()->OnComponentBeginOverlap.AddLambda(
+[](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
+{
+    if (Cast<ATarget>(OtherActor) != nullptr)
+    {
+        Cast<ATarget>(OtherActor)->bDead = true;
+        UE_LOG(ELogLevel::Display,"Kill  Target");
+    }
+     UE_LOG(ELogLevel::Display,"Kill  Target");
+}
+);
+    
 }
 
 void ASnowBall::Tick(float DeltaTime)
@@ -37,6 +59,7 @@ void ASnowBall::Tick(float DeltaTime)
         Shapes.SetNum(1);
         PxU32 RetrievedShapes = SnowBallComponent->BodyInstance->BIGameObject->DynamicRigidBody->getShapes(Shapes.GetData(), 1);
         InitialRadius = Shapes[0]->getGeometry().sphere().radius;
+        // GetComponentByClass<USphereTargetComponent>()->SetRadius(InitialRadius*2);
         InitialMass = SnowBallComponent->BodyInstance->MassInKg; // 초기 질량 저장
         //UE_LOG(ELogLevel::Error, "Initial Scale: %.2f", InitialScale.X);
         bIsRespawned = false;
@@ -53,6 +76,7 @@ void ASnowBall::Tick(float DeltaTime)
                 SetActorLocation(SpawnLocation);
                 SnowBallComponent->SetWorldScale3D(InitialScale); // 월드 스케일로 설정
                 SnowBallComponent->CreatePhysXGameObject();
+                // GetComponentByClass<USphereTargetComponent>()->SetRadius(InitialRadius*2);
                 bIsRespawned = true; // 리스폰 시 스케일 재초기화
             }
         }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "GameFramework/Actor.h"
 
+class USphereTargetComponent;
 class UStaticMeshComponent;
 
 class ATarget : public AActor
@@ -9,7 +10,12 @@ class ATarget : public AActor
 public:
     ATarget();
 
-    UStaticMeshComponent* Target = nullptr;
+    virtual void BeginPlay() override;
+
     
+    UStaticMeshComponent* Target = nullptr;
+    USphereTargetComponent* SphereComponent = nullptr;
     virtual void Tick(float DeltaTime) override;
+    bool bDead = false;
+    float AccTime = 0.0f;
 };

@@ -52,6 +52,7 @@ public:
 
     int32 Life = 3;
     bool bGameOver = false;
+    int32 Score = 0;
 private:
     bool bGameRunning = false; // 내부 
     bool bGameEnded = true;
