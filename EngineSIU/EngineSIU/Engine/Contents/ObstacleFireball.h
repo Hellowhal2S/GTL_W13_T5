@@ -2,6 +2,7 @@
 #include "ObstacleBase.h"
 #include "Distribution/DistributionFloat.h"
 
+class USphereTargetComponent;
 class UParticleSystemComponent;
 class UParticleSystem;
 
@@ -11,13 +12,12 @@ class AObstacleFireball : public AObstacleBase
 
 public:
     AObstacleFireball();
-    virtual ~AObstacleFireball() override = default;
+    virtual ~AObstacleFireball() override;
 
     virtual void PostSpawnInitialize() override;
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
     void InitializeParticle();
     void Fire(FVector InDirection);
     void CreateExplosion();
@@ -25,7 +25,11 @@ public:
 public:
     UParticleSystemComponent* ParticleSystemComponent;
     UParticleSystem* FireballParticleSystem;
+    USphereTargetComponent* Collision = nullptr;
 
+    FDelegateHandle OvelapHandler;
+    FDelegateHandle OvelapEndHandler;
+    
 private:
     FDistributionFloat SpeedGenerator;
     float Speed;

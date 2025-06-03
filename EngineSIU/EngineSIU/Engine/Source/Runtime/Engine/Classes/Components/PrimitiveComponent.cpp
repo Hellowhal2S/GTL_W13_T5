@@ -168,8 +168,28 @@ UPrimitiveComponent::UPrimitiveComponent()
 UPrimitiveComponent::~UPrimitiveComponent()
 {
     bSimulate = false;
-    if (BodySetup && BodyInstance)
-        GEngine->PhysicsManager->DestroyGameObject(BodyInstance->BIGameObject);
+    
+    // 안전한 물리 리소스 해제 - OnComponentDestroyed에서 이미 처리되었을 수 있음
+    if (BodySetup && BodyInstance && BodyInstance->BIGameObject)
+    {
+        // GameObject가 이미 삭제 중이거나 삭제되었는지 확인
+        if (!BodyInstance->BIGameObject->bIsBeingDestroyed && !BodyInstance->BIGameObject->bIsDestroyed)
+        {
+            // PhysicsManager가 유효한지 확인
+            if (GEngine && GEngine->PhysicsManager)
+            {
+                UE_LOG(ELogLevel::Display, TEXT("~UPrimitiveComponent: Destroying GameObject from destructor (Component: %s)"), *GetName());
+                GEngine->PhysicsManager->DestroyGameObject(BodyInstance->BIGameObject);
+            }
+        }
+        else
+        {
+            UE_LOG(ELogLevel::Display, TEXT("~UPrimitiveComponent: GameObject already being destroyed, skipping (Component: %s)"), *GetName());
+        }
+        
+        // BodyInstance의 GameObject 포인터를 nullptr로 설정하여 중복 해제 방지
+        BodyInstance->BIGameObject = nullptr;
+    }
 }
 
 UObject* UPrimitiveComponent::Duplicate(UObject* InOuter)
@@ -825,4 +845,36 @@ void UPrimitiveComponent::ClearComponentOverlaps(bool bDoNotifies, bool bSkipNot
             EndComponentOverlap(OtherOverlap, bDoNotifies, bSkipNotifySelf);
         }
     }
+}
+
+void UPrimitiveComponent::OnComponentDestroyed()
+{
+    // 물리 리소스가 있다면 안전하게 해제
+    if (BodyInstance && BodyInstance->BIGameObject)
+    {
+        // GameObject가 이미 삭제 중이거나 삭제되었는지 확인
+        if (!BodyInstance->BIGameObject->bIsBeingDestroyed && !BodyInstance->BIGameObject->bIsDestroyed)
+        {
+            // PhysicsManager가 유효한지 확인
+            if (GEngine && GEngine->PhysicsManager)
+            {
+                UE_LOG(ELogLevel::Display, TEXT("OnComponentDestroyed: Destroying GameObject from OnComponentDestroyed (Component: %s)"), *GetName());
+                GEngine->PhysicsManager->DestroyGameObject(BodyInstance->BIGameObject);
+            }
+        }
+        else
+        {
+            UE_LOG(ELogLevel::Display, TEXT("OnComponentDestroyed: GameObject already being destroyed, skipping (Component: %s)"), *GetName());
+        }
+        
+        // BodyInstance의 GameObject 포인터를 nullptr로 설정하여 중복 해제 방지
+        BodyInstance->BIGameObject = nullptr;
+        
+        // BodyInstance 자체도 안전하게 해제
+        delete BodyInstance;
+        BodyInstance = nullptr;
+    }
+    
+    // 부모 클래스의 OnComponentDestroyed 호출
+    Super::OnComponentDestroyed();
 }

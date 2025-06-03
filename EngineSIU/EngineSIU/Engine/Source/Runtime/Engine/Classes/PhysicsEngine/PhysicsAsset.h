@@ -67,9 +67,7 @@ class UBodySetup : public UBodySetupCore
 public:
     UBodySetup()
     {
-        UE_LOG(ELogLevel::Display, "DDD");
     } 
-
     // DisplayName = Primitives
     FKAggregateGeom AggGeom;
     

@@ -28,8 +28,20 @@ struct GameObject {
     PxRigidDynamic* DynamicRigidBody = nullptr;
     PxRigidStatic* StaticRigidBody = nullptr;
     XMMATRIX WorldMatrix = XMMatrixIdentity();
+    
+    // 삭제 상태 추적을 위한 플래그
+    mutable bool bIsBeingDestroyed = false;
+    mutable bool bIsDestroyed = false;
+    
+    // 고유 ID (디버깅용)
+    static uint32 NextID;
+    uint32 ID;
+    
+    GameObject() : ID(++NextID) {}
 
     void UpdateFromPhysics(PxScene* Scene) {
+        if (bIsDestroyed || !DynamicRigidBody) return;
+        
         PxSceneReadLock scopedReadLock(*Scene);
         PxTransform t = DynamicRigidBody->getGlobalPose();
         PxMat44 mat(t);
@@ -37,6 +49,21 @@ struct GameObject {
     }
 
     void SetRigidBodyType(ERigidBodyType RigidBody) const;
+    
+    // 안전한 삭제를 위한 헬퍼 함수
+    bool IsValid() const {
+        return !bIsDestroyed && !bIsBeingDestroyed && (DynamicRigidBody || StaticRigidBody);
+    }
+    
+    void MarkForDestruction() const {
+        bIsBeingDestroyed = true;
+    }
+    
+    void MarkDestroyed() {
+        bIsDestroyed = true;
+         DynamicRigidBody = nullptr;
+        StaticRigidBody = nullptr;
+    }
 };
 
 // PhysX Contact 이벤트 콜백 클래스

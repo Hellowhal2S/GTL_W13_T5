@@ -5,25 +5,31 @@
 #include "Engine/FObjLoader.h"
 #include "Particles/ParticleSystem.h"
 #include "Engine/AssetManager.h"
-#include "UserInterface/Console.h"
+#include "Engine/Contents/Actor/SphereTargetComponent.h"
 
 #include "ExplosionParticleActor.h"
+#include "PhysicsManager.h"
 
 #include "Engine/EditorEngine.h"
-
-AObstacleFireball::AObstacleFireball()
+#include "Engine/Contents/Actor/SnowBall.h"
+AObstacleFireball::AObstacleFireball() : OvelapHandler()
 {
     StaticMeshComponent->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/Obstacle/FireBall.obj"));
     ParticleSystemComponent = AddComponent<UParticleSystemComponent>("ParticleSystemComponent_0");
     ParticleSystemComponent->AttachToComponent(RootComponent);
     InitializeParticle();
 
-    auto* CollisionComp = AddComponent<USphereComponent>("SphereCollision");
-    CollisionComp->AttachToComponent(RootComponent);
-    CollisionComp->SetRadius(2.0f);
-
+    Collision = AddComponent<USphereTargetComponent>("SphereCollision");
+    Collision->SetupAttachment(StaticMeshComponent);
+    Collision->SetRadius(5.0f);
+    
     SpeedGenerator.MaxValue = 100;
     SpeedGenerator.MinValue = 30;
+
+}
+
+AObstacleFireball::~AObstacleFireball()
+{
 }
 
 void AObstacleFireball::PostSpawnInitialize()
@@ -36,6 +42,26 @@ void AObstacleFireball::BeginPlay()
     Super::BeginPlay();
     Speed = SpeedGenerator.GetValue();
     Fire(GetActorForwardVector());
+    OvelapHandler =  GetComponentByClass<USphereTargetComponent>()->OnComponentBeginOverlap.AddLambda(
+    [this](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
+    {
+        if (Cast<ASnowBall>(OtherActor) != nullptr)
+        {
+            UE_LOG(ELogLevel::Display,"SnowBall!!!!!");
+            GEngine->PhysicsManager->ApplyForceToActor(OtherActor, this->GetActorForwardVector() * 1000000, 0);
+            float Delta = -5;
+            GEngine->PhysicsManager->GrowBall(OtherActor, Delta);
+            Cast<ASnowBall>(OtherActor)->SnowBallComponent->AddScale(FVector(Delta));
+            Cast<ASnowBall>(OtherActor)->GetComponentByClass<USphereTargetComponent>()->SetRadius(Cast<ASnowBall>(OtherActor)->GetComponentByClass<USphereTargetComponent>()->GetRadius() + (Delta)*1.2);
+            this->CreateExplosion();
+        }
+        }
+    );
+    OvelapEndHandler = GetComponentByClass<USphereTargetComponent>()->OnComponentEndOverlap.AddLambda(
+        [](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex)
+        {
+        }
+    );
 }
 
 void AObstacleFireball::Tick(float DeltaTime)
@@ -56,10 +82,8 @@ void AObstacleFireball::Tick(float DeltaTime)
         if (!bIsCreatedExplosion)
         {
             CreateExplosion();
-            bIsCreatedExplosion = true;
         }
 
-        SetActorLocation(FVector::DownVector * 1000.0f);
 
         if (AccumulatedTime >= 4.0f)
         {
@@ -72,6 +96,8 @@ void AObstacleFireball::Tick(float DeltaTime)
 void AObstacleFireball::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     Super::EndPlay(EndPlayReason);
+    GetComponentByClass<USphereTargetComponent>()->OnComponentBeginOverlap.Remove(OvelapHandler);
+    GetComponentByClass<USphereTargetComponent>()->OnComponentBeginOverlap.Remove(OvelapEndHandler);
 
     if (EndPlayReason == EEndPlayReason::Destroyed)
     {
@@ -109,4 +135,7 @@ void AObstacleFireball::CreateExplosion()
         ExplosionActor->SetActorLabel(TEXT("Explosion Particle"));
         ExplosionActor->SetActorLocation(GetActorLocation());
     }
+    SetActorLocation(FVector::DownVector * 1000.0f);
+    bIsCreatedExplosion = true;
+
 }

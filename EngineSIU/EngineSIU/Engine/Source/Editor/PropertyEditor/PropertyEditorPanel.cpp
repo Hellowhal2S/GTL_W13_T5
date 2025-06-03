@@ -291,17 +291,19 @@ void PropertyEditorPanel::RenderForSceneComponent(USceneComponent* SceneComponen
         FVector Location = Transform.GetTranslation();
         FRotator Rotation = Transform.GetRotation().Rotator();
         FVector Scale = Transform.GetScale3D();
-
-        FImGuiWidget::DrawVec3Control("Location", Location, 0, 85);
+        
+        bool bChanged = false;
+        bChanged = FImGuiWidget::DrawVec3Control("Location", Location, 0, 85);
         ImGui::Spacing();
 
-        FImGuiWidget::DrawRot3Control("Rotation", Rotation, 0, 85);
+        bChanged = bChanged || FImGuiWidget::DrawRot3Control("Rotation", Rotation, 0, 85);
         ImGui::Spacing();
 
-        FImGuiWidget::DrawVec3Control("Scale", Scale, 1, 85);
+        bChanged = bChanged || FImGuiWidget::DrawVec3Control("Scale", Scale, 1, 85);
         ImGui::Spacing();
 
-        SceneComponent->SetRelativeTransform(FTransform(Rotation, Location, Scale));
+        if (bChanged)
+            SceneComponent->SetRelativeTransform(FTransform(Rotation, Location, Scale));
 
         std::string CoordiButtonLabel;
         if (Player->GetCoordMode() == ECoordMode::CDM_WORLD)

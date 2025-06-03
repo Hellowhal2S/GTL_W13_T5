@@ -52,6 +52,7 @@
 #include "Engine/Contents/ObstacleFireball.h"
 #include "Engine/Contents/ObstacleMud.h"
 #include "Engine/Contents/ExplosionParticleActor.h"
+#include "Engine/Contents/Actor/DeerCanon.h"
 
 ControlEditorPanel::ControlEditorPanel()
 {
@@ -388,6 +389,7 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
             { .Label = "Obstacle Mud",      .OBJ = OBJ_ObstcleMud },
             { .Label = "SnowBall",          .OBJ = OBJ_SNOWBALL },
             { .Label = "Target",            .OBJ = OBJ_TARGET },
+{ .Label = "DeerCanon",            .OBJ = OBJ_DEERCANON },
                 
         };
 
@@ -541,6 +543,12 @@ void ControlEditorPanel::CreateModifyButton(const ImVec2 ButtonSize, ImFont* Ico
                     //SpawnedActor->SetActorLabel(TEXT("OBJ_ObstcleMud"));
                     SpawnedActor = World->SpawnActor<AExplosionParticleActor>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_ExplosionParticle"));
+                    break;
+                }
+                case OBJ_DEERCANON:
+                {
+                    SpawnedActor = World->SpawnActor<ADeerCanon>();
+                    SpawnedActor->SetActorLabel(TEXT("OBJ_DeerCanon"));
                     break;
                 }
                 case OBJ_CAMERA:
