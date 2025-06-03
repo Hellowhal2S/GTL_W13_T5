@@ -67,6 +67,7 @@ UObject* AGameMode::Duplicate(UObject* InOuter)
 void AGameMode::InitGame()
 {
     OnGameInit.Broadcast();
+    FSoundManager::GetInstance().PlaySound("Ice1");
 }
 
 void AGameMode::StartMatch()
