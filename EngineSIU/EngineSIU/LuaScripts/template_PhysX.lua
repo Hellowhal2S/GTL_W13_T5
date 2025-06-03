@@ -9,7 +9,7 @@ local FVector = EngineTypes.FVector -- EngineTypes로 등록된 FVector local로
 
 -- 설정값
 local rollAngularSpeed = 50.0        -- 굴리기 각속도 (rad/s)
-local jumpVelocity = 50.0          -- 점프 속도 (직접 설정)
+local jumpVelocity = 100.0          -- 점프 속도 (직접 설정)
 local airControlSpeed = 5.0        -- 공중에서의 제어 각속도
 
 -- 바닥 감지 변수
@@ -17,6 +17,11 @@ local isGrounded = false       -- 바닥에 닿아있는지 여부
 local wantInAir = false -- 공중에 있는지 여부
 local groundCheckDelay = 0.1   -- 바닥 감지 딜레이 (초)
 local timeSinceLastContact = 0.0
+
+-- 점프 제어 변수 추가
+local jumpCooldown = 0.2       -- 점프 쿨다운 시간 (초)
+local timeSinceLastJump = 0.0  -- 마지막 점프 이후 경과 시간
+local isJumpPressed = false    -- 점프 버튼이 눌려있는지 여부
 
 -- GrowSnowBall 호출 제어 변수 (이동 기반으로 변경)
 local minRollDistanceForGrow = 1.0  -- 성장을 위한 최소 굴림 거리
@@ -148,13 +153,15 @@ end
 
 -- 점프 - 선형속도 직접 설정
 function ReturnTable:OnPressSpace(dt)
-    if isGrounded then
+    if isGrounded and timeSinceLastJump >= jumpCooldown then
+        print("Jumping")
         -- Z축(위쪽) 방향으로 직접 속도 설정
         local jumpVector = FVector(0, 0, jumpVelocity)
         AddLinearVelocityToSnowBall(jumpVector)
         -- 점프 후 즉시 grounded를 false로 설정하여 연속 점프 방지
         isGrounded = false
         wantInAir = true
+        timeSinceLastJump = 0.0 -- 점프 후 경과 시간 리셋
     end
 end
 
@@ -202,6 +209,11 @@ function ReturnTable:Tick(dt)
             isGrounded = false
             wantInAir = false  -- 공중 상태 확정 후 플래그 리셋
         end
+    end
+    
+    -- 점프 쿨다운 타이머 갱신
+    if timeSinceLastJump < jumpCooldown then
+        timeSinceLastJump = timeSinceLastJump + dt
     end
 end
 
