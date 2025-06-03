@@ -405,3 +405,13 @@ float APlayerCameraManager::GetLetterBoxRatio()
 {
     return LetterBoxWidth / LetterBoxHeight;
 }
+
+void APlayerCameraManager::SetDoFSettings(float InFStop, float InSensorWidth, float InFocalDistance)
+{
+    F_Stop = InFStop;
+    SensorWidth = InSensorWidth;
+    FocalDistance = InFocalDistance;
+    
+    // 로그로 DoF 설정 변경을 확인할 수 있도록 함
+    UE_LOG(ELogLevel::Warning, TEXT("DoF Settings Updated - F_Stop: %.2f, SensorWidth: %.2f mm, FocalDistance: %.2f cm"), F_Stop, SensorWidth, FocalDistance);
+}
