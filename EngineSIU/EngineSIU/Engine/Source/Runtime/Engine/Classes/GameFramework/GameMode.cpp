@@ -67,7 +67,16 @@ UObject* AGameMode::Duplicate(UObject* InOuter)
 void AGameMode::InitGame()
 {
     OnGameInit.Broadcast();
-    FSoundManager::GetInstance().PlaySound("Ice1");
+    UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
+    int32 tmp = Engine->CurSceneName.Find("Main");
+    if ( tmp != -1 )
+    {
+        FSoundManager::GetInstance().PlaySound("CreepyHollow");
+    }
+    else
+    {
+        FSoundManager::GetInstance().PlaySound("Ice1");
+    }
 }
 
 void AGameMode::StartMatch()

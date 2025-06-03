@@ -23,8 +23,8 @@ AObstacleFireball::AObstacleFireball() : OvelapHandler()
     Collision->SetupAttachment(StaticMeshComponent);
     Collision->SetRadius(5.0f);
     
-    SpeedGenerator.MaxValue = 100;
-    SpeedGenerator.MinValue = 30;
+    SpeedGenerator.MaxValue = 500;
+    SpeedGenerator.MinValue = 300;
 
 }
 
@@ -75,7 +75,7 @@ void AObstacleFireball::Tick(float DeltaTime)
 
     // Test Code //
     AccumulatedTime += DeltaTime;
-    if (AccumulatedTime >= 2.0f) // Fireball lifetime
+    if (AccumulatedTime >= 10.0f) // Fireball lifetime
     {
         bIsFired = false;
 
@@ -85,7 +85,7 @@ void AObstacleFireball::Tick(float DeltaTime)
         }
 
 
-        if (AccumulatedTime >= 4.0f)
+        if (AccumulatedTime >= 14.0f)
         {
             Destroy();
         }
@@ -135,7 +135,6 @@ void AObstacleFireball::CreateExplosion()
         ExplosionActor->SetActorLabel(TEXT("Explosion Particle"));
         ExplosionActor->SetActorLocation(GetActorLocation());
     }
-    SetActorLocation(FVector::DownVector * 1000.0f);
+    SetActorLocation(FVector::DownVector * 10000.0f);
     bIsCreatedExplosion = true;
-
 }
