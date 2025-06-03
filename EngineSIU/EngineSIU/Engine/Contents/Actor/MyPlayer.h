@@ -1,7 +1,8 @@
-﻿#pragma once
+#pragma once
 #include "Actors/Player.h"
 
 class ASnowBall;
+class UParticleSystemComponent;
 
 class AMyPlayer : public APlayer
 {
@@ -29,6 +30,7 @@ public:
     
     UCameraComponent* Camera = nullptr;;
     USceneComponent* DefaultSceneComponent = nullptr;
+    UParticleSystemComponent* ParticleSystemComp = nullptr;
     ASnowBall* Target;
     bool FirstCT =false;
     bool SecondCT =false;

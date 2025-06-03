@@ -11,6 +11,9 @@
 #include "UnrealClient.h"
 #include "GameFramework/GameMode.h"
 #include "Math/JungleMath.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Engine/FObjLoader.h"
+#include "Particles/ParticleSystem.h"
 
 FVector AMyPlayer::InitialVector = FVector::ZeroVector;
 FRotator AMyPlayer::InitialRotator = FRotator::ZeroRotator; 
@@ -21,6 +24,14 @@ AMyPlayer::AMyPlayer()
     SetRootComponent(DefaultSceneComponent);
     Camera = AddComponent<UCameraComponent>("Camera");
     Camera->SetupAttachment(DefaultSceneComponent);
+
+    ParticleSystemComp = AddComponent<UParticleSystemComponent>("SnowParticleSystemComponent");
+    ParticleSystemComp->SetupAttachment(Camera);
+    auto FireballParticleSystem = FObjectFactory::ConstructObject<UParticleSystem>(nullptr);
+    FName FullPath = TEXT("Contents/ParticleSystem/UParticleSystem_1159");
+    FireballParticleSystem = UAssetManager::Get().GetParticleSystem(FullPath);
+
+    ParticleSystemComp->SetParticleSystem(FireballParticleSystem);
 }
 
 void AMyPlayer::BeginPlay()
