@@ -613,6 +613,7 @@ void UPrimitiveComponent::CreatePhysXGameObject()
 {
     if (!bSimulate)
     {
+        UE_LOG(ELogLevel::Warning, TEXT("CreatePhysXGameObject: bSimulate is false for %s"), *GetName());
         return;
     }
     
@@ -622,6 +623,20 @@ void UPrimitiveComponent::CreatePhysXGameObject()
     BodyInstance->MassInKg = MassInKg;
     BodyInstance->bSimulatePhysics = bSimulate;
     BodyInstance->bEnableGravity = bApplyGravity;
+    
+    // Release 빌드에서 충돌 감지 강화 설정
+    BodyInstance->CollisionEnabled = ECollisionEnabled::QueryAndPhysics;  // 물리와 쿼리 모두 활성화
+    BodyInstance->bUseCCD = true;                                        // CCD 활성화
+    BodyInstance->bStartAwake = true;                                    // 항상 깨어있는 상태로 시작
+    BodyInstance->PositionSolverIterationCount = 8;                     // 위치 솔버 반복 횟수 증가
+    BodyInstance->VelocitySolverIterationCount = 4;                     // 속도 솔버 반복 횟수 증가
+    
+    // Release 빌드에서 물리 설정 확인 로깅
+    UE_LOG(ELogLevel::Display, TEXT("CreatePhysXGameObject for %s: MassInKg=%.2f, bSimulatePhysics=%s, bEnableGravity=%s, CollisionEnabled=%d"), 
+           *GetName(), BodyInstance->MassInKg, 
+           BodyInstance->bSimulatePhysics ? TEXT("TRUE") : TEXT("FALSE"),
+           BodyInstance->bEnableGravity ? TEXT("TRUE") : TEXT("FALSE"),
+           (int32)BodyInstance->CollisionEnabled);
     ////////////////////////
     
     FVector Location = GetComponentLocation();
@@ -663,13 +678,65 @@ void UPrimitiveComponent::CreatePhysXGameObject()
         case EGeomType::ECapsule:
         {
             PxShape* PxCapsule = GEngine->PhysicsManager->CreateCapsuleShape(Offset, GeomPQuat, Extent.x, Extent.z);
-            BodySetup->AggGeom.SphereElems.Add(PxCapsule);
+            BodySetup->AggGeom.CapsuleElems.Add(PxCapsule);
             break;
         }
         }
     }
     
-    GameObject* Obj = GEngine->PhysicsManager->CreateGameObject(PPos, PQuat, BodyInstance,  BodySetup, RigidBodyType);
+    // *** 중요: 실제 PhysX GameObject 생성 부분이 누락되어 있었음! ***
+    // Shape를 생성했으니 이제 실제 PhysX GameObject를 생성해야 함
+    if (GEngine && GEngine->PhysicsManager)
+    {
+        BodyInstance->BIGameObject = GEngine->PhysicsManager->CreateGameObject(
+            PPos, PQuat, BodyInstance, BodySetup, RigidBodyType
+        );
+        
+        if (BodyInstance->BIGameObject)
+        {
+            UE_LOG(ELogLevel::Display, TEXT("PhysX GameObject created successfully for %s"), *GetName());
+        }
+        else
+        {
+            UE_LOG(ELogLevel::Error, TEXT("Failed to create PhysX GameObject for %s"), *GetName());
+        }
+    }
+    else
+    {
+        UE_LOG(ELogLevel::Error, TEXT("PhysicsManager is null, cannot create PhysX GameObject for %s"), *GetName());
+    }
+    
+    // Release 빌드에서 물리 오브젝트 생성 후 상태 확인
+    #ifdef NDEBUG
+    if (BodyInstance && BodyInstance->BIGameObject)
+    {
+        if (BodyInstance->BIGameObject->DynamicRigidBody)
+        {
+            UE_LOG(ELogLevel::Display, TEXT("Release Build: PhysX DynamicRigidBody created successfully for %s"), *GetName());
+            
+            // 물리 상태 강제 확인
+            bool bIsKinematic = BodyInstance->BIGameObject->DynamicRigidBody->getRigidBodyFlags() & PxRigidBodyFlag::eKINEMATIC;
+            bool bGravityDisabled = BodyInstance->BIGameObject->DynamicRigidBody->getActorFlags() & PxActorFlag::eDISABLE_GRAVITY;
+            
+            UE_LOG(ELogLevel::Display, TEXT("Release Build: %s - Kinematic: %s, Gravity Disabled: %s"), 
+                   *GetName(), 
+                   bIsKinematic ? TEXT("YES") : TEXT("NO"),
+                   bGravityDisabled ? TEXT("YES") : TEXT("NO"));
+        }
+        else if (BodyInstance->BIGameObject->StaticRigidBody)
+        {
+            UE_LOG(ELogLevel::Display, TEXT("Release Build: PhysX StaticRigidBody created successfully for %s"), *GetName());
+        }
+        else
+        {
+            UE_LOG(ELogLevel::Error, TEXT("Release Build: PhysX RigidBody creation failed for %s"), *GetName());
+        }
+    }
+    else
+    {
+        UE_LOG(ELogLevel::Error, TEXT("Release Build: GameObject creation failed for %s"), *GetName());
+    }
+    #endif
 }
 
 void UPrimitiveComponent::BeginPlay()
