@@ -9,6 +9,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/FObjLoader.h"
 #include "SphereTargetComponent.h"
+#include "Engine/Contents/ObstacleFireball.h"
 
 ASnowBall::ASnowBall()
 {
@@ -39,7 +40,6 @@ void ASnowBall::BeginPlay()
         Cast<ATarget>(OtherActor)->bDead = true;
         UE_LOG(ELogLevel::Display,"Kill  Target");
     }
-     UE_LOG(ELogLevel::Display,"Kill  Target");
 }
 );
 }

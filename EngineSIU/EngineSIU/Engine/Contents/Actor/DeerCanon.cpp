@@ -5,7 +5,7 @@
 #include "Engine/FObjLoader.h"
 #include "Engine/Contents/ObstacleFireball.h"
 #include "World/World.h"
-
+#include "Engine/Contents/Actor/SphereTargetComponent.h"
 ADeerCanon::ADeerCanon()
 {
     Deer = AddComponent<UStaticMeshComponent>("DeerCanon");
