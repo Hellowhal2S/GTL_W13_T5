@@ -13,8 +13,8 @@ public:
     ~ATarget();
     virtual void BeginPlay() override;
 
-    UStaticMeshComponent* Target = nullptr;
-    //USkeletalMeshComponent* Target = nullptr;
+    //UStaticMeshComponent* Target = nullptr;
+    USkeletalMeshComponent* Target = nullptr;
     USphereTargetComponent* SphereComponent = nullptr;
     virtual void Tick(float DeltaTime) override;
     bool bDead = false;

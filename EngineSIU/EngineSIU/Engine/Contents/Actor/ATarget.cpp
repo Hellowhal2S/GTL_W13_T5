@@ -14,15 +14,15 @@
 
 ATarget::ATarget()
 {
-    Target = AddComponent<UStaticMeshComponent>(TEXT("Target"));
+    /*Target = AddComponent<UStaticMeshComponent>(TEXT("Target"));
     Target->SetStaticMesh(FObjManager::GetStaticMesh(L"Contents/Penguin/Penguin.obj"));
     Target->bSimulate = true;
-    SetRootComponent(Target);
+    SetRootComponent(Target);*/
 
-    /*Target = AddComponent<USkeletalMeshComponent>(TEXT("Target"));
+    Target = AddComponent<USkeletalMeshComponent>(TEXT("Target"));
     Target->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/SkeletalPenguin/SkeletalPenguin"));
     Target->bSimulate = true;
-    SetRootComponent(Target);*/
+    SetRootComponent(Target);
 
     SphereComponent = AddComponent<USphereTargetComponent>(TEXT("Collision"));
     SphereComponent->SetupAttachment(Target);
@@ -58,8 +58,8 @@ void ATarget::Tick(float DeltaTime)
         if (AccTime >2.0f)
         {
             UEditorEngine* EditorEngine = Cast<UEditorEngine>(GEngine);
-            GetComponentByClass<UStaticMeshComponent>()->bSimulate = false;
-            EditorEngine->PhysicsManager->DestroyGameObject(GetComponentByClass<UStaticMeshComponent>()->BodyInstance->BIGameObject);
+            GetComponentByClass<USkeletalMeshComponent>()->bSimulate = false;
+            EditorEngine->PhysicsManager->DestroyGameObject(GetComponentByClass<USkeletalMeshComponent>()->BodyInstance->BIGameObject);
             SetActorLocation(FVector(-200,-200,-200));
             // GetComponentByClass<UStaticMeshComponent>()->CreatePhysXGameObject();
             if (GEngine->ActiveWorld->GetGameMode())
