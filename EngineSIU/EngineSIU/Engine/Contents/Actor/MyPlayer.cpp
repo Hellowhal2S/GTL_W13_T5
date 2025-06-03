@@ -18,7 +18,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Engine/FObjLoader.h"
 #include "Particles/ParticleSystem.h"
-
+#include "Components/TextComponent.h"
 
 FVector AMyPlayer::InitialVector = FVector::ZeroVector;
 FRotator AMyPlayer::InitialRotator = FRotator::ZeroRotator; 
@@ -121,6 +121,10 @@ void AMyPlayer::Tick(float DeltaTime)
             {
                 bExist = true;
                 Target = Cast<ASnowBall>(iter);
+            }
+            if (Cast<UTextComponent>(iter))
+            {
+                iter->Destroy();
             }
         }
         if (bExist)

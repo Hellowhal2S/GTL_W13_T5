@@ -52,7 +52,7 @@ void EndUI::Render()
     {
         Engine->EndPIE();
         Engine->NewLevel();
-        Engine->LoadLevel("Saved/test.Scene");
+        Engine->LoadLevel("Saved/MainScene.Scene");
         Engine->StartPIE();
     }
     if (ImGui::Button("Exit", ImVec2(100, 50)))
