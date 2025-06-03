@@ -80,59 +80,98 @@ function ReturnTable:BindContactEvents()
     print("SnowBall contact events bound successfully")
 end
 
--- 앞으로 굴리기 (액터의 Forward 방향) - 각속도 직접 제어
+-- 앞으로 굴리기 (액터의 Forward 방향) - 각속도 + 선형속도 제어
 function ReturnTable:OnPressW(dt)
+    -- 액터의 Forward 벡터로 선형 이동
+    local forwardVector = GetActorForwardVector(self.this)
+    local currentSpeed = isGrounded and rollAngularSpeed or airControlSpeed
+    
+    -- 선형속도 추가 (앞쪽으로)
+    local linearVelocity = FVector(
+        forwardVector.X * currentSpeed * dt,
+        forwardVector.Y * currentSpeed * dt,
+        forwardVector.Z * currentSpeed * dt
+    )
+    AddLinearVelocityToSnowBall(linearVelocity)
+    
     -- 액터의 Right 벡터를 회전축으로 사용 (Forward 방향으로 굴리기 위해)
     local rightVector = GetActorRightVector(self.this)
-    local currentSpeed = isGrounded and rollAngularSpeed or airControlSpeed
-    currentSpeed = currentSpeed * dt
     local angularVelocity = FVector(
-        rightVector.X * currentSpeed,
-        rightVector.Y * currentSpeed,
-        rightVector.Z * currentSpeed
+        rightVector.X * currentSpeed * dt,
+        rightVector.Y * currentSpeed * dt,
+        rightVector.Z * currentSpeed * dt
     )
-    -- 새로운 함수 사용 (구현 필요)
     AddAngularVelocityToSnowBall(angularVelocity)
 end
 
--- 뒤로 굴리기 (액터의 Forward 반대 방향) - 각속도 직접 제어
+-- 뒤로 굴리기 (액터의 Forward 반대 방향) - 각속도 + 선형속도 제어
 function ReturnTable:OnPressS(dt)
+    -- 액터의 Forward 벡터 반대로 선형 이동
+    local forwardVector = GetActorForwardVector(self.this)
+    local currentSpeed = isGrounded and rollAngularSpeed or airControlSpeed
+    
+    -- 선형속도 추가 (뒤쪽으로)
+    local linearVelocity = FVector(
+        -forwardVector.X * currentSpeed * dt,
+        -forwardVector.Y * currentSpeed * dt,
+        -forwardVector.Z * currentSpeed * dt
+    )
+    AddLinearVelocityToSnowBall(linearVelocity)
+    
     -- 액터의 Right 벡터 반대를 회전축으로 사용 (Backward 방향으로 굴리기 위해)
     local rightVector = GetActorRightVector(self.this)
-    local currentSpeed = isGrounded and rollAngularSpeed or airControlSpeed
-    currentSpeed = currentSpeed * dt
     local angularVelocity = FVector(
-        -rightVector.X * currentSpeed,
-        -rightVector.Y * currentSpeed,
-        -rightVector.Z * currentSpeed
+        -rightVector.X * currentSpeed * dt,
+        -rightVector.Y * currentSpeed * dt,
+        -rightVector.Z * currentSpeed * dt
     )
     AddAngularVelocityToSnowBall(angularVelocity)
 end
 
--- 왼쪽으로 굴리기 (액터의 Right 반대 방향) - 각속도 직접 제어
+-- 왼쪽으로 굴리기 (액터의 Right 반대 방향) - 각속도 + 선형속도 제어
 function ReturnTable:OnPressA(dt)
+    -- 액터의 Right 벡터 반대로 선형 이동
+    local rightVector = GetActorRightVector(self.this)
+    local currentSpeed = isGrounded and rollAngularSpeed or airControlSpeed
+    
+    -- 선형속도 추가 (왼쪽으로)
+    local linearVelocity = FVector(
+        -rightVector.X * currentSpeed * dt,
+        -rightVector.Y * currentSpeed * dt,
+        -rightVector.Z * currentSpeed * dt
+    )
+    AddLinearVelocityToSnowBall(linearVelocity)
+    
     -- 액터의 Forward 벡터를 회전축으로 사용 (Left 방향으로 굴리기 위해)
     local forwardVector = GetActorForwardVector(self.this)
-    local currentSpeed = isGrounded and rollAngularSpeed or airControlSpeed
-    currentSpeed = currentSpeed * dt
     local angularVelocity = FVector(
-        forwardVector.X * currentSpeed,
-        forwardVector.Y * currentSpeed,
-        forwardVector.Z * currentSpeed
+        forwardVector.X * currentSpeed * dt,
+        forwardVector.Y * currentSpeed * dt,
+        forwardVector.Z * currentSpeed * dt
     )
     AddAngularVelocityToSnowBall(angularVelocity)
 end
 
--- 오른쪽으로 굴리기 (액터의 Right 방향) - 각속도 직접 제어
+-- 오른쪽으로 굴리기 (액터의 Right 방향) - 각속도 + 선형속도 제어
 function ReturnTable:OnPressD(dt)
+    -- 액터의 Right 벡터로 선형 이동
+    local rightVector = GetActorRightVector(self.this)
+    local currentSpeed = isGrounded and rollAngularSpeed or airControlSpeed
+    
+    -- 선형속도 추가 (오른쪽으로)
+    local linearVelocity = FVector(
+        rightVector.X * currentSpeed * dt,
+        rightVector.Y * currentSpeed * dt,
+        rightVector.Z * currentSpeed * dt
+    )
+    AddLinearVelocityToSnowBall(linearVelocity)
+    
     -- 액터의 Forward 벡터 반대를 회전축으로 사용 (Right 방향으로 굴리기 위해)
     local forwardVector = GetActorForwardVector(self.this)
-    local currentSpeed = isGrounded and rollAngularSpeed or airControlSpeed
-    currentSpeed = currentSpeed * dt
     local angularVelocity = FVector(
-        -forwardVector.X * currentSpeed,
-        -forwardVector.Y * currentSpeed,
-        -forwardVector.Z * currentSpeed
+        -forwardVector.X * currentSpeed * dt,
+        -forwardVector.Y * currentSpeed * dt,
+        -forwardVector.Z * currentSpeed * dt
     )
     AddAngularVelocityToSnowBall(angularVelocity)
 end
@@ -153,7 +192,7 @@ function ReturnTable:Tick(dt)
     -- 매 프레임마다 실행되는 로직
     -- 필요하면 공중에서의 추가 제어나 댐핑 등을 구현
     if isGrounded then
-        GrowSnowBall(dt) -- 바닥에 닿아있을 때 눈덩이 성장
+        GrowSnowBall(dt / 2) -- 바닥에 닿아있을 때 눈덩이 성장
     end
     if wantInAir then
         timeSinceLastContact = timeSinceLastContact + dt
