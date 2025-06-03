@@ -52,46 +52,49 @@ void AMyPlayer::Tick(float DeltaTime)
     APlayer::Tick(DeltaTime);
     AccTime += DeltaTime;
     UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
-    // if (!FirstCT)
-    // {
-    //     FViewTargetTransitionParams Params;
-    //     Params.BlendTime = 10.0f;
-    //     Params.BlendFunction = VTBlend_Cubic;
-    //     Params.BlendExp = 3.f;
-    //     
-    //     AActor* TargetActor = GEngine->ActiveWorld->SpawnActor<AActor>();
-    //
-    //     TargetActor->SetActorLocation(FVector(500,-500,600));
-    //     TargetActor->SetActorRotation(FRotator(0.f, 90.f, 0.f));
-    //     GEngine->ActiveWorld->GetPlayerController()->SetViewTarget(TargetActor, Params);
-    //     
-    //     
-    //     SetActorLocation(FVector(500,-500,600));
-    //     SetActorRotation(FRotator(0.f, 90.f, 0.f));
-    //     FirstCT = true;
-    // }
-    // else if (!SecondCT && AccTime > 10.05f && AccTime < 20.0f)
-    // {
-    //     GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Location = FVector(500,-500,600);
-    //     GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Rotation = FRotator(0.f, 90.f, 0.f);
-    //     
-    //     FViewTargetTransitionParams Params;
-    //     Params.BlendTime = 10.0f;
-    //     Params.BlendFunction = VTBlend_Cubic;
-    //     Params.BlendExp = 3.f;
-    //     
-    //     AActor* TargetActor = GEngine->ActiveWorld->SpawnActor<AActor>();
-    //
-    //     TargetActor->SetActorLocation(FVector(1100 ,0,600));
-    //     TargetActor->SetActorRotation(FRotator(0.f, 180.f, 0.f));
-    //     GEngine->ActiveWorld->GetPlayerController()->SetViewTarget(TargetActor, Params);
-    //     
-    //     GEngine->ActiveWorld->GetPlayerController()->SetActorLocation(FVector(1100 ,0,600));
-    //     GEngine->ActiveWorld->GetPlayerController()->SetActorRotation(FRotator(0.f, 180.f, 0.f));
-    //     
-    //     SecondCT = true;
-    // }
-    // else if (AccTime > 20.0f)
+    if (!FirstCT)
+    {
+        GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Location = FVector(-2130,-1700,-100);
+        GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Rotation = FRotator(0.f, 90.f, 0.f);
+        
+        FViewTargetTransitionParams Params;
+        Params.BlendTime = 10.0f;
+        Params.BlendFunction = VTBlend_Cubic;
+        Params.BlendExp = 3.f;
+        
+        AActor* TargetActor = GEngine->ActiveWorld->SpawnActor<AActor>();
+    
+        TargetActor->SetActorLocation(FVector(300,0,600));
+        TargetActor->SetActorRotation(FRotator(0.f, 180.f, 0.f));
+        GEngine->ActiveWorld->GetPlayerController()->SetViewTarget(TargetActor, Params);
+        
+        
+        SetActorLocation(FVector(300,0,600));
+        SetActorRotation(FRotator(0.f, 180.f, 0.f));
+        FirstCT = true;
+    }
+    else if (!SecondCT && AccTime > 10.05f && AccTime < 15.0f)
+    {
+        GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Location = FVector(300,0,600);
+        GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Rotation = FRotator(0.f, 180.f, 0.f);
+        
+        FViewTargetTransitionParams Params;
+        Params.BlendTime = 5.0f;
+        Params.BlendFunction = VTBlend_Cubic;
+        Params.BlendExp = 3.f;
+        
+        AActor* TargetActor = GEngine->ActiveWorld->SpawnActor<AActor>();
+    
+        TargetActor->SetActorLocation(FVector(0 ,0,550));
+        TargetActor->SetActorRotation(FRotator(0.f, 180.f, 0.f));
+        GEngine->ActiveWorld->GetPlayerController()->SetViewTarget(TargetActor, Params);
+        
+        GEngine->ActiveWorld->GetPlayerController()->SetActorLocation(FVector(0 ,0,550));
+        GEngine->ActiveWorld->GetPlayerController()->SetActorRotation(FRotator(0.f, 180.f, 0.f));
+        
+        SecondCT = true;
+    }
+    else if (AccTime > 15.0f)
     {
         if (!bInitiatlize)
         {
