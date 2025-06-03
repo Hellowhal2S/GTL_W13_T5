@@ -8,9 +8,6 @@ UParticleModuleVelocityOverLife::UParticleModuleVelocityOverLife()
     bSpawnModule = false;
     bUpdateModule = true;
 
-    bInWorldSpace = false;
-    bApplyOwnerScale = false;
-
     bUseConstantChange = true;
     bUseVelocityCurve = false;
 
@@ -79,16 +76,6 @@ void UParticleModuleVelocityOverLife::Update(FParticleEmitterInstance* Owner, in
         float t = FMath::Clamp(Particle.RelativeTime, 0.0f, 1.0f);
         float curveAlpha = 1.0f - FMath::Pow(1.0f - t, CurveScale);
         NewVelocity = FMath::Lerp(InitialVelocity, EndVelocity, curveAlpha);
-    }
-
-    // 월드공간 변환 및 오너 스케일 적용
-    if (bInWorldSpace)
-    {
-        NewVelocity = Owner->Component->GetComponentToWorld().TransformVector(NewVelocity);
-    }
-    if (bApplyOwnerScale)
-    {
-        NewVelocity *= Owner->Component->GetComponentToWorld().GetScale3D();
     }
 
     Particle.BaseVelocity = NewVelocity;

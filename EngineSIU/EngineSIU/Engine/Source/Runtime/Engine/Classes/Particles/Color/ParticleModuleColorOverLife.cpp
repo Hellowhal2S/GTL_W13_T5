@@ -42,8 +42,6 @@ void UParticleModuleColorOverLife::Update(FParticleEmitterInstance* Owner, int32
 
         Particle->Color.Lerp(Particle->BaseColor, Color, Particle->RelativeTime);
     }
-
-    
 }
 
 void UParticleModuleColorOverLife::DisplayProperty()
