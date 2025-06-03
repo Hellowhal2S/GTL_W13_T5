@@ -42,7 +42,6 @@ void ASnowBall::BeginPlay()
      UE_LOG(ELogLevel::Display,"Kill  Target");
 }
 );
-    
 }
 
 void ASnowBall::Tick(float DeltaTime)

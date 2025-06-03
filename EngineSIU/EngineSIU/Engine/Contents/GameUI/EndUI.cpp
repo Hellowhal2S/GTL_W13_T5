@@ -18,8 +18,8 @@ void EndUI::Render()
     ImFont* IconFont = IO.Fonts->Fonts[FEATHER_FONT];
     constexpr ImVec2 IconSize = ImVec2(32, 32);
 
-    float PanelWidth = 200;
-    float PanelHeight = 200;
+    float PanelWidth = 300;
+    float PanelHeight = 300;
 
     float PanelPosX = (Width) * 0.4f;
     float PanelPosY = (Height) * 0.5f;
@@ -44,6 +44,10 @@ void EndUI::Render()
     ImGui::PushStyleColor(ImGuiCol_Button, defaultColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoveredColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, activeColor);
+    if (GEngine->ActiveWorld->GetGameMode())
+    {
+        ImGui::Text("Score %d", GEngine->ActiveWorld->GetGameMode()->Score);
+    }
     if (ImGui::Button("ReStart", ImVec2(100, 50)))
     {
         Engine->EndPIE();

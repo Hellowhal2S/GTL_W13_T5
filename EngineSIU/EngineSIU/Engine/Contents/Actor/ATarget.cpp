@@ -1,9 +1,11 @@
 ﻿#include "ATarget.h"
 
+#include "PhysicsManager.h"
 #include "SnowBall.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/FObjLoader.h"
 #include "SphereTargetComponent.h"
+#include "Engine/EditorEngine.h"
 #include "Engine/Engine.h"
 #include "GameFramework/GameMode.h"
 #include "World/World.h"
@@ -17,8 +19,10 @@ ATarget::ATarget()
 
     SphereComponent = AddComponent<USphereTargetComponent>(TEXT("Collision"));
     SphereComponent->SetupAttachment(Target);
+}
 
-
+ATarget::~ATarget()
+{
 }
 
 void ATarget::BeginPlay()
@@ -30,10 +34,7 @@ void ATarget::BeginPlay()
         {
             if (Cast<ASnowBall>(OtherActor) != nullptr)
             {
-                if (GEngine->ActiveWorld->GetGameMode())
-                    GEngine->ActiveWorld->GetGameMode()->Score+= 100;
                 UE_LOG(ELogLevel::Error, TEXT("DDDDDDDDDDDD"));
-                
             }
         }
         );
@@ -48,6 +49,16 @@ void ATarget::Tick(float DeltaTime)
     {
         AccTime += DeltaTime;
         if (AccTime >2.0f)
-            Destroy();
+        {
+            UEditorEngine* EditorEngine = Cast<UEditorEngine>(GEngine);
+            GetComponentByClass<UStaticMeshComponent>()->bSimulate = false;
+            EditorEngine->PhysicsManager->DestroyGameObject(GetComponentByClass<UStaticMeshComponent>()->BodyInstance->BIGameObject);
+            SetActorLocation(FVector(-200,-200,-200));
+            // GetComponentByClass<UStaticMeshComponent>()->CreatePhysXGameObject();
+            if (GEngine->ActiveWorld->GetGameMode())
+                GEngine->ActiveWorld->GetGameMode()->Score+= 100;
+            bDead = false;
+
+        }
     }
 }

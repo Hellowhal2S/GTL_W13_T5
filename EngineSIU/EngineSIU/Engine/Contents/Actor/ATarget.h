@@ -9,7 +9,7 @@ class ATarget : public AActor
     DECLARE_CLASS(ATarget, AActor)
 public:
     ATarget();
-
+    ~ATarget();
     virtual void BeginPlay() override;
 
     
