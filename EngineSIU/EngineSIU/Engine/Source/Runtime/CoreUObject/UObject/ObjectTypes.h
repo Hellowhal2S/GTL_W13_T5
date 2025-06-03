@@ -25,6 +25,7 @@ enum OBJECTS : uint8
     OBJ_ObstcleMud,
     OBJ_SNOWBALL,
     OBJ_TARGET,
+    OBJ_DEERCANON,
     OBJ_END
 };
 
