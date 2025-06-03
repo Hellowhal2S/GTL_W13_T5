@@ -12,9 +12,10 @@ public:
     virtual void BeginPlay() override;
 
     virtual void Tick(float DeltaTime) override;
-
+    static FVector InitialVector;
+    static FRotator InitialRotator;
     void UpdateCameraRotation();
-
+    void CameraInitialize();
     POINT    PrevCursorPos = { 0, 0 };
     bool     CursorInit    = false;
     float    Yaw          = 180.0f;        // 누적 Yaw 값 (라디안 혹은 도 단위)
@@ -27,4 +28,8 @@ public:
     UCameraComponent* Camera = nullptr;;
     USceneComponent* DefaultSceneComponent = nullptr;
     ASnowBall* Target;
+    bool FirstCT =false;
+    bool SecondCT =false;
+    bool bInitiatlize =false;
+    float AccTime = 0.0f;
 };

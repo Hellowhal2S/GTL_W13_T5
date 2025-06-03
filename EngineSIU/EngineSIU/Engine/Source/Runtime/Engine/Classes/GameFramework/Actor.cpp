@@ -453,7 +453,16 @@ bool AActor::BindSelfLuaProperties()
     LuaTable["ApplyTorque"] = LuaState["ApplyTorque"];
     LuaTable["ApplyTorqueToSnowBall"] = LuaState["ApplyTorqueToSnowball"];
     LuaTable["ApplyJumpImpulseToSnowBall"] = LuaState["ApplyJumpImpulseToSnowBall"];
+
+    LuaTable["SetAngularVelocityToSnowBall"] = LuaState["SetAngularVelocityToSnowBall"];
+    LuaTable["AddAngularVelocityToSnowBall"] = LuaState["AddAngularVelocityToSnowBall"];
+    LuaTable["SetLinearVelocityToSnowBall"] = LuaState["SetLinearVelocityToSnowBall"];
+    LuaTable["AddLinearVelocityToSnowBall"] = LuaState["AddLinearVelocityToSnowBall"];
+    LuaTable["GetLinearVelocityFromSnowBall"] = LuaState["GetLinearVelocityFromSnowBall"];
+    LuaTable["GetAngularVelocityFromSnowBall"] = LuaState["GetAngularVelocityFromSnowBall"];
+
     LuaTable["ApplyForceAtPosition"] = LuaState["ApplyForceAtPosition"];
+    LuaTable["GrowSnowBall"] = LuaState["GrowSnowBall"];
     
     // EngineTypes 테이블도 접근 가능하도록 설정
     LuaTable["EngineTypes"] = LuaState["EngineTypes"];
@@ -468,6 +477,7 @@ bool AActor::BindSelfLuaProperties()
     LuaTable["GetActorRotation"] = LuaState["GetActorRotation"];
     LuaTable["GetActorForwardVector"] = LuaState["GetActorForwardVector"];
     LuaTable["GetActorRightVector"] = LuaState["GetActorRightVector"];
+    LuaTable["GetActorLocation"] = LuaState["GetActorLocation"];
 
     // 이 아래에서 또는 하위 클래스 함수에서 멤버 변수 등록.
 

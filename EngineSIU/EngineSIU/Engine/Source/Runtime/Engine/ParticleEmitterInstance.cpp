@@ -12,10 +12,17 @@
 #include "Engine/FObjLoader.h"
 //#include "Particles/ParticleModuleRequired.h"
 
+FParticleEmitterInstance::~FParticleEmitterInstance()
+{
+    Release();
+}
+
 void FParticleEmitterInstance::Initialize()
 {
+    Release();
+
     CurrentLODLevel = SpriteTemplate->GetLODLevel(CurrentLODLevelIndex);
-    
+
     const TArray<UParticleModule*>& Modules = CurrentLODLevel->GetModules();
 
     if (CurrentLODLevel->RequiredModule->bUseMaxDrawCount)
@@ -39,6 +46,32 @@ void FParticleEmitterInstance::Initialize()
     SpawnFraction = 0.0f;
 
     bEnabled = true;
+    bOnceBurstOnBegin = Component->bOnceBurstOnBegin;
+}
+
+void FParticleEmitterInstance::Release()
+{
+    if (ParticleData)
+    {
+        delete[] ParticleData;
+        ParticleData = nullptr;
+    }
+    if (ParticleIndices)
+    {
+        delete[] ParticleIndices;
+        ParticleIndices = nullptr;
+    }
+    if (InstanceData)
+    {
+        delete[] InstanceData;
+        InstanceData = nullptr;
+    }
+
+    ActiveParticles = 0;
+    ParticleCounter = 0;
+    AccumulatedTime = 0.0f;
+    SpawnFraction = 0.0f;
+    CurrentLODLevel = nullptr;
 }
 
 void FParticleEmitterInstance::Tick(float DeltaTime)
@@ -108,7 +141,7 @@ void FParticleEmitterInstance::KillParticle(int32 Index)
             ParticleStride
         );
 
-        // 접근될 일은 없지만 방어적으로 기존 마지막 파티클을 초기화
+         //접근될 일은 없지만 방어적으로 기존 마지막 파티클을 초기화
         std::memset(
             ParticleData + ParticleStride * LastIndex,
             0,
@@ -132,10 +165,16 @@ int32 FParticleEmitterInstance::CalculateSpawnCount(float DeltaTime)
 
     if (SpawnModule->bProcessBurstList)
     {
-        if (CurrentTimeForBurst > SpawnModule->BurstTime)
+        if (Component->bOnceBurstOnBegin && !bOnceBurstOnBegin)
+        {
+            return 0;
+        }
+
+        if (CurrentTimeForBurst > SpawnModule->BurstTime || bOnceBurstOnBegin)
         {
             SpawnCount = SpawnModule->BurstCount;
             CurrentTimeForBurst = 0.f;
+            bOnceBurstOnBegin = false;
         }
     }
     else
@@ -182,7 +221,7 @@ void FParticleEmitterInstance::PreSpawn(FBaseParticle* Particle, const FVector& 
 void FParticleEmitterInstance::PostSpawn(FBaseParticle* Particle, float Interp, float SpawnTime)
 {
     Particle->OldLocation = Particle->Location;
-    Particle->Location   += FVector(Particle->Velocity) * SpawnTime;
+    Particle->Location += FVector(Particle->Velocity) * SpawnTime;
 }
 
 void FParticleEmitterInstance::UpdateModules(float DeltaTime)
@@ -199,7 +238,7 @@ void FParticleEmitterInstance::UpdateModules(float DeltaTime)
             int32 Offset = Module->GetInstancePayloadSize();
             Module->Update(this, Offset, DeltaTime);
         }
-        
+
         if (Module->bFinalUpdateModule)
         {
             int32 Offset = Module->GetInstancePayloadSize();
@@ -345,7 +384,7 @@ uint32 FParticleEmitterInstance::GetModuleDataOffset(UParticleModule* Module)
     {
         return 0;
     }
-    
+
     uint32* Offset = SpriteTemplate->ModuleOffsetMap.Find(Module);
     return (Offset != nullptr) ? *Offset : 0;
 }
@@ -364,14 +403,14 @@ FDynamicEmitterDataBase* FParticleSpriteEmitterInstance::GetDynamicData(bool bSe
     FDynamicSpriteEmitterData* NewEmitterData = new FDynamicSpriteEmitterData(CurrentLODLevel->RequiredModule);
 
     // Now fill in the source data
-    if(!FillReplayData( NewEmitterData->Source ) )
+    if (!FillReplayData(NewEmitterData->Source))
     {
         delete NewEmitterData;
         return nullptr;
     }
 
     // Setup dynamic render data.  Only call this AFTER filling in source data for the emitter.
-    NewEmitterData->Init( bSelected );
+    NewEmitterData->Init(bSelected);
 
     return NewEmitterData;
 }
@@ -384,7 +423,7 @@ bool FParticleSpriteEmitterInstance::FillReplayData(FDynamicEmitterReplayDataBas
     }
 
     // Call parent implementation first to fill in common particle source data
-    if(!FParticleEmitterInstance::FillReplayData( OutData ) )
+    if (!FParticleEmitterInstance::FillReplayData(OutData))
     {
         return false;
     }
@@ -392,12 +431,12 @@ bool FParticleSpriteEmitterInstance::FillReplayData(FDynamicEmitterReplayDataBas
     OutData.eEmitterType = EDynamicEmitterType::DET_Sprite;
     SpriteTemplate->EmitterType = EDynamicEmitterType::DET_Sprite;
 
-    FDynamicSpriteEmitterReplayDataBase* NewReplayData = dynamic_cast< FDynamicSpriteEmitterReplayDataBase* >( &OutData );
+    FDynamicSpriteEmitterReplayDataBase* NewReplayData = dynamic_cast<FDynamicSpriteEmitterReplayDataBase*>(&OutData);
 
     NewReplayData->MaterialInterface = CurrentLODLevel->RequiredModule->MaterialInterface;
     NewReplayData->RequiredModule = CurrentLODLevel->RequiredModule->CreateRendererResource();
     NewReplayData->MaterialInterface = CurrentLODLevel->RequiredModule->MaterialInterface;
-    
+
     // NewReplayData->InvDeltaSeconds = (LastDeltaTime > KINDA_SMALL_NUMBER) ? (1.0f / LastDeltaTime) : 0.0f;
     // NewReplayData->LWCTile = ((Component == nullptr) || CurrentLODLevel->RequiredModule->bUseLocalSpace) ? FVector::Zero() : Component->GetLWCTile();
 
@@ -417,7 +456,7 @@ bool FParticleSpriteEmitterInstance::FillReplayData(FDynamicEmitterReplayDataBas
     // NewReplayData->MacroUVOverride.bOverride = CurrentLODLevel->RequiredModule->bOverrideSystemMacroUV;
     // NewReplayData->MacroUVOverride.Radius = CurrentLODLevel->RequiredModule->MacroUVRadius;
     // NewReplayData->MacroUVOverride.Position = FVector(CurrentLODLevel->RequiredModule->MacroUVPosition);
-        
+
     // NewReplayData->bLockAxis = false;
     // if (bAxisLockEnabled == true)
     // {

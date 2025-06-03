@@ -11,7 +11,8 @@
 #include "World/World.h"
 #include "Physics/PhysicsManager.h"
 #include "GameFramework/PlayerController.h"
-
+#include "Components/StaticMeshComponent.h"
+#include "Engine/Contents/Actor/SphereTargetComponent.h"
 TMap<FString, FLuaTableScriptInfo> FLuaScriptManager::ScriptCacheMap;
 TSet<ULuaScriptComponent*> FLuaScriptManager::ActiveLuaComponents;
 TSet<UAnimStateMachine*> FLuaScriptManager::ActiveAnimLua;
@@ -162,11 +163,102 @@ void FLuaScriptManager::BindEngineAPIs()
         }
     });
 
+    // === 새로운 속도 제어 함수들 바인딩 추가 ===
+    
+    // 각속도 직접 설정 함수들
+    LuaState.set_function("SetAngularVelocityToSnowBall", [](const FVector& angularVelocity) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->SetAngularVelocityToActor(SnowBallActor, angularVelocity);
+                    break;
+                }
+            }
+        }
+    });
+
+    LuaState.set_function("AddAngularVelocityToSnowBall", [](const FVector& angularVelocity) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->AddAngularVelocityToActor(SnowBallActor, angularVelocity);
+                    break;
+                }
+            }
+        }
+    });
+
+    // 선형속도 직접 설정 함수들
+    LuaState.set_function("SetLinearVelocityToSnowBall", [](const FVector& velocity) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->SetLinearVelocityToActor(SnowBallActor, velocity);
+                    break;
+                }
+            }
+        }
+    });
+
+    LuaState.set_function("AddLinearVelocityToSnowBall", [](const FVector& velocity) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->AddLinearVelocityToActor(SnowBallActor, velocity);
+                    break;
+                }
+            }
+        }
+    });
+
+    // 속도 조회 함수들
+    LuaState.set_function("GetLinearVelocityFromSnowBall", []() -> FVector {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    return GEngine->PhysicsManager->GetLinearVelocityFromActor(SnowBallActor);
+                }
+            }
+        }
+        return FVector::ZeroVector;
+    });
+
+    LuaState.set_function("GetAngularVelocityFromSnowBall", []() -> FVector {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    return GEngine->PhysicsManager->GetAngularVelocityFromActor(SnowBallActor);
+                }
+            }
+        }
+        return FVector::ZeroVector;
+    });
+
     // 특정 위치에 힘 적용 함수 바인딩 추가
     LuaState.set_function("ApplyForceAtPosition", [](const FVector& force, const FVector& position, int forceMode) {
         if (GEngine && GEngine->PhysicsManager) {
             if (AActor* currentActor = GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor()) {
                 GEngine->PhysicsManager->ApplyForceAtPositionToActor(currentActor, force, position, forceMode);
+            }
+        }
+    });
+
+    LuaState.set_function("GrowSnowBall", [](float deltaRadius) {
+        if (GEngine && GEngine->PhysicsManager) {
+            for (const AActor* actor : GEngine->ActiveWorld->GetActiveLevel()->Actors) {
+                ASnowBall* SnowBallActor = Cast<ASnowBall>(actor);
+                if (SnowBallActor) {
+                    GEngine->PhysicsManager->GrowBall(SnowBallActor, deltaRadius);
+                    SnowBallActor->SnowBallComponent->AddScale(FVector(deltaRadius));
+                    SnowBallActor->GetComponentByClass<USphereTargetComponent>()->SetRadius(SnowBallActor->GetComponentByClass<USphereTargetComponent>()->GetRadius() + deltaRadius*1.2);
+                    break;
+                }
             }
         }
     });
@@ -223,7 +315,11 @@ void FLuaScriptManager::BindEngineAPIs()
 
     LuaState.set_function("GetActorRightVector", [](AActor* actor) {
         return actor->GetActorRightVector();
-        });
+    });
+
+    LuaState.set_function("GetActorLocation", [](AActor* actor) {
+        return actor->GetActorLocation();
+    });
 
     UE_LOG(ELogLevel::Display, TEXT("Engine APIs bound to Lua"));
 }

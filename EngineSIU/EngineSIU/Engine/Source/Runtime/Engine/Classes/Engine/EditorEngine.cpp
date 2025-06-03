@@ -18,6 +18,7 @@
 #include "World/ParticleViewerWorld.h"
 #include "Physics/PhysicsManager.h"
 #include "SkeletalMesh.h"
+#include "SoundManager.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 #include "Particles/ParticleSystem.h"
 
@@ -659,6 +660,7 @@ void UEditorEngine::EndPIE()
     Handler->OnPIEModeEnd();
     // 다시 EditorWorld로 돌아옴.
     ActiveWorld = EditorWorld;
+    FSoundManager::GetInstance().StopAllSounds();
 }
 
 void UEditorEngine::EndSkeletalMeshViewer()

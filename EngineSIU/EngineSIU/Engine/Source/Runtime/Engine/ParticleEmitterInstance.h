@@ -50,8 +50,13 @@ public:
     DistributionFloat* SpawnRateDistribution;
     float SpawnFraction = 0;
 
+    bool bOnceBurstOnBegin = false;
+
 public:
+    virtual ~FParticleEmitterInstance();
+
     void Initialize();
+    void Release();
 
     void Tick(float DeltaTime);
     void SpawnParticles(int32 Count, float StartTime, float Increment, 

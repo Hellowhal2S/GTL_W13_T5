@@ -236,7 +236,6 @@ void APlayerCameraManager::DoUpdateCamera(float DeltaTime)
             //@TODO: CAMERA: Make sure the sense is correct!  BlendViewTargets(ViewTarget, PendingViewTarget, BlendPct);
             NewPOV.BlendViewInfo(PendingViewTarget.POV, BlendPct);
             
-            UE_LOG(ELogLevel::Error, TEXT("%.2f %.2f %.2f"), NewPOV.Location.X, NewPOV.Location.Y, NewPOV.Location.Z);
         }
         else
         {
@@ -307,7 +306,6 @@ void APlayerCameraManager::SetViewTarget(class AActor* NewTarget, struct FViewTa
 
 		AssignViewTarget(PCOwner->GetPossessedActor(), ViewTarget);
 		AssignViewTarget(NewTarget, PendingViewTarget, TransitionParams);
-
 	}
 
 	BlendParams = TransitionParams;
@@ -323,9 +321,10 @@ void APlayerCameraManager::UpdateViewTarget(FTViewTarget& OutVT, float DeltaTime
 
 	// Store previous POV, in case we need it later
 	FMinimalViewInfo OrigPOV = OutVT.POV;
-
+    
 	// Reset the view target POV fully
-	static const FMinimalViewInfo DefaultViewInfo;
+	static FMinimalViewInfo DefaultViewInfo;
+    DefaultViewInfo.Location = FVector(1000,100,100);
 	OutVT.POV = DefaultViewInfo;
 	OutVT.POV.FOV = DefaultFOV;
 
@@ -405,4 +404,14 @@ void APlayerCameraManager::StartVignetteAnimation(float FromIntensity, float ToI
 float APlayerCameraManager::GetLetterBoxRatio()
 {
     return LetterBoxWidth / LetterBoxHeight;
+}
+
+void APlayerCameraManager::SetDoFSettings(float InFStop, float InSensorWidth, float InFocalDistance)
+{
+    F_Stop = InFStop;
+    SensorWidth = InSensorWidth;
+    FocalDistance = InFocalDistance;
+    
+    // 로그로 DoF 설정 변경을 확인할 수 있도록 함
+    UE_LOG(ELogLevel::Warning, TEXT("DoF Settings Updated - F_Stop: %.2f, SensorWidth: %.2f mm, FocalDistance: %.2f cm"), F_Stop, SensorWidth, FocalDistance);
 }
