@@ -34,7 +34,7 @@ void ATarget::BeginPlay()
         {
             if (Cast<ASnowBall>(OtherActor) != nullptr)
             {
-                UE_LOG(ELogLevel::Error, TEXT("DDDDDDDDDDDD"));
+                UE_LOG(ELogLevel::Error, TEXT("Penguin Killed"));
             }
         }
         );

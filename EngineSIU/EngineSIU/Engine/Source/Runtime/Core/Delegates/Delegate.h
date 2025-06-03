@@ -14,7 +14,7 @@
 class FDelegateHandle
 {
 	friend struct std::hash<FDelegateHandle>;
-
+public: 
 	uint64 HandleId;
 	explicit FDelegateHandle() : HandleId(0) {}
 	explicit FDelegateHandle(uint64 HandleId) : HandleId(HandleId) {}
