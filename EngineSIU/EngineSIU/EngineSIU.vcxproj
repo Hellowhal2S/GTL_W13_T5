@@ -205,7 +205,6 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Contents\ObstacleBase.cpp" />
-    <ClCompile Include="Engine\Contents\AnimInstance\MyAnimInstance.cpp" />
     <ClCompile Include="Engine\Contents\Actor\ATarget.cpp" />
     <ClCompile Include="Engine\Contents\Actor\MyPlayer.cpp" />
     <ClCompile Include="Engine\Contents\Actor\SnowBall.cpp" />
@@ -437,7 +436,6 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClCompile Include="Engine\Source\ThirdParty\ImGui\include\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\Source\ThirdParty\tinyfiledialogs\include\tinyfiledialogs.cpp" />
     <ClCompile Include="Engine\Contents\ExplosionParticleActor.cpp" />
-    <ClCompile Include="LuaScripts\LuaScriptComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Particles\Size\UParticleModuleSizeOverLife.cpp" />
     <None Include="Shaders\ParticleSpriteVertexShader.hlsl" />
     <None Include="Shaders\ParticleSpritePixelShader.hlsl" />
@@ -529,7 +527,6 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Contents\ObstacleBase.h" />
-    <ClInclude Include="Engine\Contents\AnimInstance\MyAnimInstance.h" />
     <ClInclude Include="Engine\Contents\Actor\ATarget.h" />
     <ClInclude Include="Engine\Contents\Actor\MyPlayer.h" />
     <ClInclude Include="Engine\Contents\Actor\SnowBall.h" />
@@ -868,7 +865,6 @@ xcopy /y /d "$(SolutionDir)$(ProjectName)\Engine\Source\ThirdParty\FBX\lib\x64\$
     <ClInclude Include="Engine\Source\ThirdParty\tinyfiledialogs\include\tinyfiledialogs.h" />
     <ClInclude Include="Engine\Contents\ExplosionParticleActor.h" />
     <ClInclude Include="LuaScripts\LuaBindingHelpers.h" />
-    <ClInclude Include="LuaScripts\LuaScriptComponent.h" />
     <ClInclude Include="LuaScripts\LuaScriptFileUtils.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Particles\Velocity\ParticleModuleVelocity.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Particles\Location\ParticleModuleLocation.h" />
