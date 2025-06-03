@@ -48,7 +48,7 @@ void StartUI::Render()
     {
         Engine->EndPIE();
         Engine->NewLevel();
-        Engine->LoadLevel("Saved/test.Scene");
+        Engine->LoadLevel("Saved/MainScene.Scene");
         Engine->StartPIE();
     }
     ImGui::PopStyleColor(3);  // 3개 푸시했으므로 3개 팝
