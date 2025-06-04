@@ -110,6 +110,7 @@ void AMyPlayer::Tick(float DeltaTime)
     }
     else if (AccTime > 15.0f)
     {
+        GEngine->ActiveWorld->GetGameMode()->ScoreFlag = true;
         if (!bInitiatlize)
         {
             CameraInitialize();

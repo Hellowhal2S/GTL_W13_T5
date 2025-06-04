@@ -8,7 +8,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Contents/Actor/SnowBall.h"
 #include "Engine/World/World.h"
-
+#include "Components/TextComponent.h"
 void AGameMode::PostSpawnInitialize()
 {
     AActor::PostSpawnInitialize();
@@ -100,10 +100,16 @@ void AGameMode::Tick(float DeltaTime)
     }
     if (bGameOver)
         return;
-
-    for (auto iter : GEngine->ActiveWorld->GetActiveLevel()->Actors)
+    FWString WScore = std::to_wstring(Life);
+    if (ScoreFlag)
     {
-        
+        for (auto iter : TObjectRange<UTextComponent>())
+        {
+            if (iter->GetWorld()== GetWorld())
+            {
+                Cast<UTextComponent>(iter)->SetText(WScore);
+            }
+        }
     }
     
     if (Life <= 0)

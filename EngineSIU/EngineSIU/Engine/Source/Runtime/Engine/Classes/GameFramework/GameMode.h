@@ -53,10 +53,10 @@ public:
     int32 Life = 3;
     bool bGameOver = false;
     int32 Score = 0;
+    bool ScoreFlag =false;
 private:
     bool bGameRunning = false; // 내부 
     bool bGameEnded = true;
-
     float LogTimer = 0.f;
     float LogInterval = 1.f;  // 1초마다 로그
 };
