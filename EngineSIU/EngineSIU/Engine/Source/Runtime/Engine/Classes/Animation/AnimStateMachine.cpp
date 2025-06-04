@@ -36,23 +36,20 @@ void UAnimStateMachine::ProcessState(float DeltaTime)
 
     sol::table StateInfo = result.as<sol::table>();
     FString StateName = StateInfo["anim"].get_or(std::string("")).c_str();
-    float Blend = StateInfo["blend"].get_or(0.f);
-
-    // 디버깅 출력 추가
+    float Blend = StateInfo["blend"].get_or(0.f);    // 디버깅 출력 추가
     //UE_LOGFMT(ELogLevel::Display, "ProcessState - Animation Name: {}", StateName);
     //UE_LOGFMT(ELogLevel::Display, "ProcessState - Blend Time: {}", Blend);
 
     if (OwningAnimInstance)
     {
-        UAnimSequence* NewAnim = Cast<UAnimSequence>(UAssetManager::Get().GetAnimation(StateName));
-        if (NewAnim)
+        UAnimSequence* NewAnim = Cast<UAnimSequence>(UAssetManager::Get().GetAnimation(StateName));        if (NewAnim)
         {
             //UE_LOGFMT(ELogLevel::Display, "Found animation: {}", NewAnim->GetName());
             OwningAnimInstance->SetAnimation(NewAnim, Blend, false, false);
         }
         else
         {
-            //UE_LOGFMT(ELogLevel::Warning, "Animation not found: {}", StateName);
+           // UE_LOGFMT(ELogLevel::Warning, "Animation not found: {}", StateName);
         }
     }
     else

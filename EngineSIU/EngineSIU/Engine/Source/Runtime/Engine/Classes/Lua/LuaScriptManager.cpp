@@ -365,9 +365,19 @@ sol::table FLuaScriptManager::CreateLuaTable(const FString& ScriptName)
         NewInfo.ScriptTable = ReturnValue.as<sol::table>();
         NewInfo.LastWriteTime = std::filesystem::last_write_time(ScriptName.ToWideString());
         ScriptCacheMap.Add(ScriptName, NewInfo);
-    }    // Return the cached script table directly to ensure state persistence
-    // across multiple function calls (OnOverlap, OnEndOverlap, Update)
-    return ScriptCacheMap[ScriptName].ScriptTable;
+    }
+
+    //return ScriptCacheMap[ScriptName];
+
+    sol::table& ScriptClass = ScriptCacheMap[ScriptName].ScriptTable;
+
+    sol::table NewEnv = LuaState.create_table();
+    for (auto& pair : ScriptClass)
+    {
+        NewEnv.set(pair.first, pair.second);
+    }
+
+    return NewEnv;
 }
 
 void FLuaScriptManager::RegisterActiveLuaComponent(ULuaScriptComponent* LuaComponent)

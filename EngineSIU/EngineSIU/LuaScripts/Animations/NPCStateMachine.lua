@@ -1,5 +1,5 @@
 AnimFSM = {
-    state = "Idle",
+    state = "Sleep",
     blend = 0.4, -- 기본 블렌드 타임
     --stateOrder = { "Idle", "SlowRun", "FastRun", "NarutoRun", "Runaway"},
     stateOrder = { "Idle", "Bray", "Walk", "Shake", "Preen", "Sit1", "Sleep"},
@@ -36,33 +36,41 @@ AnimFSM = {
         Sleep = 0.4
     },
 
-   -- 트리거 상태 관련 변수
-    isTriggerOn = false,
-
-    -- OnOverlap: 무조건 Walk 상태로 변경
+    -- 트리거 상태 관련 변수
+    isTriggerOn = false,    -- OnOverlap: 무조건 Walk 상태로 변경
     OnOverlap = function(self, other)
-        print("OnOverlap 호출 - Walk 상태로 변경")
+        print("========================================================")
+        print("========================================================")
+        print("self : ", tostring(self))
+        print("OnOverlap 호출 - 이전 상태: " .. self.state)
         self.state = "Walk"
         self.blend = self.blendMap[self.state] or 0.4
         self.isTriggerOn = true
+        print("OnOverlap 완료 - 새로운 상태: " .. self.state)
     end,
 
     -- OnEndOverlap: 무조건 Idle 상태로 변경
     OnEndOverlap = function(self, other)
-        print("OnEndOverlap 호출 - Idle 상태로 변경")
+        print("========================================================")
+        print("========================================================")
+        print("self : ", tostring(self))
+        print("OnEndOverlap 호출 - 이전 상태: " .. self.state)
         self.state = "Idle"
         self.blend = self.blendMap[self.state] or 0.4
         self.isTriggerOn = false
+        print("OnEndOverlap 완료 - 새로운 상태: " .. self.state)
     end,
-
+    
     Update = function(self, DeltaTime)
+        print("self : ", tostring(self))
+        --print("Update 함수 호출")
         local animName = self.animMap[self.state] or self.animMap["Idle"]
         local blendTime = self.blend or 0.4
         
         -- 디버깅을 위한 출력
         --print("Update - Current State: " .. self.state)
         --print("Update - Animation Name: " .. animName)
-        -- print("Update - Blend Time: " .. blendTime)
+        --print("Update - Blend Time: " .. blendTime)
         
         return { anim = animName, blend = blendTime }
     end
