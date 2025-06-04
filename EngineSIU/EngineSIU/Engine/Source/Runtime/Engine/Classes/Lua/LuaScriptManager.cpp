@@ -120,6 +120,41 @@ void FLuaScriptManager::BindEngineAPIs()
         }
     });
 
+    // controllerRelease 함수 바인딩 추가
+    LuaState.set_function("controllerRelease", [this](const std::string& key, const std::function<void()>& callback) {
+        if (GEngine && GEngine->ActiveWorld) {
+            APlayerController* PC = GEngine->ActiveWorld->GetPlayerController();
+            if (PC && PC->GetInputComponent()) {
+                // 키 릴리즈 이벤트를 위한 델리게이트 바인딩
+                FSlateAppMessageHandler* Handler = GEngineLoop.GetAppMessageHandler();
+                if (Handler) {
+                    // 키 릴리즈 델리게이트에 바인딩
+                    Handler->OnKeyUpDelegate.AddLambda([key, callback](const FKeyEvent& InKeyEvent) {
+                        // 지정된 키가 릴리즈되었는지 확인
+                        FString keyName = key.c_str();
+                        if (keyName == "SpaceBar" && InKeyEvent.GetKey() == EKeys::SpaceBar) {
+                            callback();
+                        }
+                        else if (keyName == "W" && InKeyEvent.GetKey() == EKeys::W) {
+                            callback();
+                        }
+                        else if (keyName == "S" && InKeyEvent.GetKey() == EKeys::S) {
+                            callback();
+                        }
+                        else if (keyName == "A" && InKeyEvent.GetKey() == EKeys::A) {
+                            callback();
+                        }
+                        else if (keyName == "D" && InKeyEvent.GetKey() == EKeys::D) {
+                            callback();
+                        }
+                        // 필요한 다른 키들도 추가 가능
+                    });
+                    UE_LOG(ELogLevel::Display, TEXT("Controller release binding registered for key: %s"), *FString(key.c_str()));
+                }
+            }
+        }
+    });
+
     // 물리 함수들 바인딩
     LuaState.set_function("ApplyForce", [](const FVector& force, int forceMode) {
         if (GEngine && GEngine->PhysicsManager) {

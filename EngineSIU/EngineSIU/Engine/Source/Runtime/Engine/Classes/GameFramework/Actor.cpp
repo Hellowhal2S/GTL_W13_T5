@@ -449,6 +449,9 @@ bool AActor::BindSelfLuaProperties()
 
     LuaTable["controller"] = LuaState["controller"];
 
+    // controllerRelease 함수도 추가
+    LuaTable["controllerRelease"] = LuaState["controllerRelease"];
+
     LuaTable["ApplyForce"] = LuaState["ApplyForce"];
     LuaTable["ApplyTorque"] = LuaState["ApplyTorque"];
     LuaTable["ApplyTorqueToSnowBall"] = LuaState["ApplyTorqueToSnowball"];
