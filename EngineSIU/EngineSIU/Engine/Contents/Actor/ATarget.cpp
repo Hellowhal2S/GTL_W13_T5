@@ -12,6 +12,8 @@
 #include "World/World.h"
 #include "Engine/AssetManager.h"
 #include "Engine/Contents/AnimInstance/LuaScriptAnimInstance.h"
+#include "Math/MathUtility.h"
+#include <random>
 
 
 ATarget::ATarget()
@@ -39,7 +41,7 @@ UObject* ATarget::Duplicate(UObject* InOuter)
 {
     ThisClass* NewActor = Cast<ThisClass>(Super::Duplicate(InOuter));
     NewActor->Target = GetComponentByClass<USkeletalMeshComponent>();
-        
+
     /*AddComponent<USkeletalMeshComponent>(TEXT("Target"));
     NewActor->Target->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/SkeletalPenguin/SkeletalPenguin"));
     NewActor->Target->bSimulate = false;
@@ -51,13 +53,28 @@ UObject* ATarget::Duplicate(UObject* InOuter)
 
     /*AddComponent<USphereTargetComponent>(TEXT("Collision"));
     NewActor->SphereComponent->SetupAttachment(Target);*/
-    
+
     return NewActor;
 }
 
 void ATarget::BeginPlay()
 {
     AActor::BeginPlay();
+
+    // 초기 위치 저장 (펭귄 움직임의 중심점)
+    InitialLocation = GetActorLocation();
+
+    // AnimInstance 초기화 확인 및 설정
+    ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(GetComponentByClass<USkeletalMeshComponent>()->GetAnimInstance());
+    if (AnimInstance)
+    {
+        UE_LOGFMT(ELogLevel::Display, "ATarget::BeginPlay - AnimInstance found: {}", AnimInstance->GetClass()->GetName());
+
+
+    }
+
+    // 초기 Idle 애니메이션 상태 설정
+    StartIdleAnimation();
 
     //// StateMachine 파일 경로 명시적으로 지정 (필요시)
     //Target->StateMachineFileName = TEXT("LuaScripts/Animations/NPCStateMachine.lua");
@@ -72,70 +89,307 @@ void ATarget::BeginPlay()
 
     // Trigger 이벤트에 StateMachine 연동
 
-    SphereComponent->SetRadius(100.f);
-
-    GetComponentByClass<USphereTargetComponent>()->OnComponentBeginOverlap.AddLambda(
+    SphereComponent->SetRadius(100.f);    GetComponentByClass<USphereTargetComponent>()->OnComponentBeginOverlap.AddLambda(
         [this](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
         {
-            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
-            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
-            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
-            UE_LOG(ELogLevel::Error, TEXT("ATarget OnOverlap 함수 호출"));
-            ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(GetComponentByClass<USkeletalMeshComponent>()->GetAnimInstance());
-
-            if (Cast<ASnowBall>(OtherActor) != nullptr)
+            ASnowBall* Ball = Cast<ASnowBall>(OtherActor);
+            if (Ball != nullptr)
             {
-                UE_LOG(ELogLevel::Error, TEXT("Penguin Killed"));
-                this->bDead = true;
-            } 
+                // 공과의 거리 계산
+                float DistanceToActor = FVector::Dist(GetActorLocation(), OtherActor->GetActorLocation());
 
-            if (AnimInstance && AnimInstance->StateMachine && AnimInstance->StateMachine->LuaTable.valid())
-            {
-                sol::function OnOverlap = AnimInstance->StateMachine->LuaTable["OnOverlap"];
-                if (OnOverlap.valid())
-                    OnOverlap(AnimInstance->StateMachine->LuaTable, OtherActor);
+                UE_LOGFMT(ELogLevel::Display, "Penguin detected ball at distance: {}", DistanceToActor);
+
+                // 가까운 거리 (작은 Overlap) - 직접 충돌, 펭귄 사망
+                if (DistanceToActor < 30.0f)
+                {
+                    UE_LOG(ELogLevel::Warning, TEXT("Penguin hit by ball - Death!"));
+                    HandleDeathByBall(Ball);
+                }
+                // 먼 거리 (큰 Overlap) - 위험 감지, 회피 행동 시작
+                else if (DistanceToActor < 100.0f)
+                {
+                    UE_LOG(ELogLevel::Display, TEXT("Penguin detected danger - Starting escape behavior"));
+                    bIsDangerNear = true;
+                    DangerousActor = OtherActor;
+                    SetAnimationState("Walk");
+                }
             }
         }
-
     );    GetComponentByClass<USphereTargetComponent>()->OnComponentEndOverlap.AddLambda(
         [this](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex)
         {
-            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
-            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
-            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
-            UE_LOG(ELogLevel::Error, TEXT("ATarget OnEndOverlap 함수 호출"));
-            ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(GetComponentByClass<USkeletalMeshComponent>()->GetAnimInstance());
-
-            if (AnimInstance && AnimInstance->StateMachine && AnimInstance->StateMachine->LuaTable.valid())
+            ASnowBall* Ball = Cast<ASnowBall>(OtherActor);
+            if (Ball != nullptr && DangerousActor == OtherActor)
             {
-                sol::function OnEndOverlap = AnimInstance->StateMachine->LuaTable["OnEndOverlap"];
-                if (OnEndOverlap.valid())
-                    OnEndOverlap(AnimInstance->StateMachine->LuaTable, OtherActor);
+                UE_LOG(ELogLevel::Display, TEXT("Penguin - Danger passed, returning to normal behavior"));
+                bIsDangerNear = false;
+                DangerousActor = nullptr;
+
+                // 정상 행동으로 복귀 - Idle 애니메이션 시작
+                StartIdleAnimation();
             }
         }
-
     );
-   
+
 }
 
 void ATarget::Tick(float DeltaTime)
 {
     AActor::Tick(DeltaTime);
 
+    // 펭귄 행동 처리 (죽지 않은 상태에서만)
+    if (!bDead)
+    {
+        if (bIsDangerNear)
+        {
+            // 위험 회피 행동
+            HandleDangerEscape(DeltaTime);
+        }
+        else
+        {
+            // 정상적인 움직임과 Idle 애니메이션 처리
+            if (bIsMovingToTarget)
+            {
+                HandlePenguinMovement(DeltaTime);
+            }
+            else
+            {
+                HandleIdleAnimation(DeltaTime);
+            }
+        }
+    }
+
+    // 사망 처리
     if (bDead)
     {
         AccTime += DeltaTime;
-        if (AccTime >2.0f)
+        if (AccTime > 2.0f)
         {
             UEditorEngine* EditorEngine = Cast<UEditorEngine>(GEngine);
             GetComponentByClass<USkeletalMeshComponent>()->bSimulate = false;
-            // EditorEngine->PhysicsManager->DestroyGameObject(GetComponentByClass<USkeletalMeshComponent>()->BodyInstance->BIGameObject);
-            SetActorLocation(FVector(-200,-200,-200));
-            // GetComponentByClass<UStaticMeshComponent>()->CreatePhysXGameObject();
+            SetActorLocation(FVector(-200, -200, -200));
             if (GEngine->ActiveWorld->GetGameMode())
-                GEngine->ActiveWorld->GetGameMode()->Score+= 100;
+                GEngine->ActiveWorld->GetGameMode()->Score += 100;
             bDead = false;
+            AccTime = 0.0f;
 
+            // 부활 후 정상 상태로 복귀
+            InitialLocation = GetActorLocation();
+            StartIdleAnimation();
         }
     }
+}
+
+void ATarget::HandlePenguinMovement(float DeltaTime)
+{
+    // 시간 업데이트
+    TimeSinceLastTargetChange += DeltaTime;
+
+    // 목표 위치가 설정되어 있다면 그쪽으로 이동
+    if (bIsMovingToTarget)
+    {
+        FVector CurrentLocation = GetActorLocation();
+        FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
+        float DistanceToTarget = FVector::Dist(CurrentLocation, TargetLocation);
+
+        // 목표에 가까우면 도착으로 처리
+        if (DistanceToTarget < 10.0f)
+        {
+            bIsMovingToTarget = false;
+            TimeSinceLastTargetChange = 0.0f;
+
+            // Idle 상태로 변경
+            StartIdleAnimation();
+        }
+        else
+        {
+            // 목표 방향으로 이동
+            FVector NewLocation = CurrentLocation + (Direction * MovementSpeed * DeltaTime);
+
+            // 초기 위치에서 반경을 벗어나지 않도록 제한
+            if (FVector::Dist(NewLocation, InitialLocation) <= MovementRadius)
+            {
+                SetActorLocation(NewLocation);
+
+                // 이동 중이므로 Walk 애니메이션 상태 유지
+                if (CurrentAnimationState != "Walk")
+                {
+                    SetAnimationState("Walk");
+                }                // 이동 방향으로 회전 (Yaw만 사용하여 수평 회전)
+                if (!Direction.IsZero())
+                {
+                    // 이동 방향을 기반으로 Yaw 회전 계산
+                    float YawRotation = FMath::RadiansToDegrees(FMath::Atan2(Direction.Y, Direction.X));
+                    FRotator NewRotation(0.0f, YawRotation, 0.0f); // Pitch=0, Yaw=계산된 각도, Roll=0
+                    SetActorRotation(NewRotation);
+                }
+            }
+            else
+            {
+                // 반경을 벗어나려고 하면 새로운 목표 설정
+                SetNewTargetLocation();
+            }
+        }
+    }
+}
+
+void ATarget::SetNewTargetLocation()
+{
+    // 초기 위치 주변의 랜덤한 위치를 목표로 설정
+    float RandomAngle = RandomRange(0.0f, 2.0f * PI);
+    float RandomRadius = RandomRange(20.0f, MovementRadius - 10.0f); // 약간 여유를 둠
+
+    FVector RandomOffset;
+    RandomOffset.X = FMath::Cos(RandomAngle) * RandomRadius;
+    RandomOffset.Y = FMath::Sin(RandomAngle) * RandomRadius;
+    RandomOffset.Z = 0.0f; // 높이는 변경하지 않음
+
+    TargetLocation = InitialLocation + RandomOffset;
+    bIsMovingToTarget = true;
+
+    UE_LOGFMT(ELogLevel::Display, "Penguin new target set: ({}, {}, {})",
+        TargetLocation.X, TargetLocation.Y, TargetLocation.Z);
+}
+
+void ATarget::SetAnimationState(const FString& StateName)
+{
+    // 같은 애니메이션이면 변경하지 않음
+    if (CurrentAnimationState == StateName)
+    {
+        return;
+    }
+
+    CurrentAnimationState = StateName;
+
+    ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(GetComponentByClass<USkeletalMeshComponent>()->GetAnimInstance());
+
+    if (AnimInstance && AnimInstance->StateMachine && AnimInstance->StateMachine->LuaTable.valid())
+    {
+        // Lua 테이블의 state 직접 변경
+        AnimInstance->StateMachine->LuaTable["state"] = *StateName;
+    }
+}
+
+void ATarget::HandleDangerEscape(float DeltaTime)
+{
+    if (!DangerousActor)
+    {
+        bIsDangerNear = false;
+        return;
+    }
+
+    FVector CurrentLocation = GetActorLocation();
+    FVector DangerLocation = DangerousActor->GetActorLocation();
+
+    // 위험한 객체로부터 반대 방향으로 이동
+    FVector EscapeDirection = (CurrentLocation - DangerLocation).GetSafeNormal();
+
+    // 좌우로 약간 흔들리는 움직임 추가 (무서워하는 느낌)
+    float SideMovement = FMath::Sin(DeltaTime * 8.0f) * 30.0f; // 빠른 좌우 움직임
+    FVector RightVector = FVector::CrossProduct(EscapeDirection, FVector::UpVector);
+    FVector FinalDirection = EscapeDirection + (RightVector * SideMovement * 0.01f);
+    FinalDirection = FinalDirection.GetSafeNormal();
+
+    // 빠른 속도로 이동
+    FVector NewLocation = CurrentLocation + (FinalDirection * DangerEscapeSpeed * DeltaTime);
+
+    // 초기 위치에서 반경을 벗어나지 않도록 제한
+    if (FVector::Dist(NewLocation, InitialLocation) <= MovementRadius)
+    {
+        SetActorLocation(NewLocation);
+
+        // 회피 중에는 Walk 애니메이션 유지
+        if (CurrentAnimationState != "Walk")
+        {
+            SetAnimationState("Walk");
+        }        // 이동 방향으로 회전 (위험 회피 중)
+        if (!FinalDirection.IsZero())
+        {
+            // 회피 방향을 기반으로 Yaw 회전 계산
+            float YawRotation = FMath::RadiansToDegrees(FMath::Atan2(FinalDirection.Y, FinalDirection.X));
+            FRotator NewRotation(0.0f, YawRotation, 0.0f); // Pitch=0, Yaw=계산된 각도, Roll=0
+            SetActorRotation(NewRotation);
+        }
+    }
+}
+
+void ATarget::HandleIdleAnimation(float DeltaTime)
+{
+    IdleAnimationTimer += DeltaTime;
+
+    // Idle 애니메이션 지속 시간이 끝나면
+    if (IdleAnimationTimer >= IdleAnimationDuration)
+    {
+        // 다음 행동 결정: 50% 확률로 이동 또는 다른 Idle 애니메이션
+        if (RandomBool())
+        {
+            // 새로운 목적지로 이동 시작
+            SetNewTargetLocation();
+        }
+        else
+        {
+            // 다른 Idle 애니메이션 시작
+            StartIdleAnimation();
+        }
+    }
+}
+
+void ATarget::StartIdleAnimation()
+{
+    // Idle 또는 Bray 중 랜덤 선택
+    FString IdleAnimations[] = { "Idle", "Bray" };
+    FString SelectedAnimation = IdleAnimations[RandomRange(0, 1)];
+
+    SetAnimationState(SelectedAnimation);
+
+    // 3-5초 지속 시간 설정
+    IdleAnimationDuration = RandomRange(3.0f, 5.0f);
+    IdleAnimationTimer = 0.0f;
+
+}
+
+void ATarget::HandleDeathByBall(AActor* Ball)
+{
+    bDead = true;
+    AccTime = 0.0f;
+
+    // 공과 반대 방향으로 넉백 효과
+    FVector BallLocation = Ball->GetActorLocation();
+    FVector CurrentLocation = GetActorLocation();
+    FVector KnockbackDirection = (CurrentLocation - BallLocation).GetSafeNormal();
+
+    // 넉백 거리 설정
+    FVector KnockbackLocation = CurrentLocation + (KnockbackDirection * 50.0f);
+    SetActorLocation(KnockbackLocation);
+
+    // 사망 애니메이션 (Sleep)
+    SetAnimationState("Sleep");
+
+    UE_LOG(ELogLevel::Warning, TEXT("Penguin killed by ball - Playing death animation"));
+}
+
+// 랜덤 함수 헬퍼 구현
+bool ATarget::RandomBool()
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(0, 1);
+    return dis(gen) == 1;
+}
+
+float ATarget::RandomRange(float Min, float Max)
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(Min, Max);
+    return dis(gen);
+}
+
+int32 ATarget::RandomRange(int32 Min, int32 Max)
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<int32> dis(Min, Max);
+    return dis(gen);
 }
