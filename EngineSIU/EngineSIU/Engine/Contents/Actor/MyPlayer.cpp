@@ -66,7 +66,7 @@ void AMyPlayer::Tick(float DeltaTime)
     APlayer::Tick(DeltaTime);
     AccTime += DeltaTime;
     UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
-    if (!FirstCT)
+    /*if (!FirstCT)
     {
         GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Location = FVector(-2130,-1700,-100);
         GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Rotation = FRotator(0.f, 90.f, 0.f);
@@ -107,8 +107,8 @@ void AMyPlayer::Tick(float DeltaTime)
         GEngine->ActiveWorld->GetPlayerController()->SetActorRotation(FRotator(0.f, 180.f, 0.f));
         
         SecondCT = true;
-    }
-    else if (AccTime > 15.0f)
+    }*/
+    //else if (AccTime > 15.0f)
     {
         if (!bInitiatlize)
         {
@@ -122,7 +122,7 @@ void AMyPlayer::Tick(float DeltaTime)
                 bExist = true;
                 Target = Cast<ASnowBall>(iter);
             }
-            if (Cast<UTextComponent>(iter))
+            if (iter->GetComponentByClass<UTextComponent>())
             {
                 iter->Destroy();
             }

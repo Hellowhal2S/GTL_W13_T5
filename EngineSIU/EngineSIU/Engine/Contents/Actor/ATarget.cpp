@@ -38,15 +38,19 @@ ATarget::~ATarget()
 UObject* ATarget::Duplicate(UObject* InOuter)
 {
     ThisClass* NewActor = Cast<ThisClass>(Super::Duplicate(InOuter));
-
-    NewActor->Target = AddComponent<USkeletalMeshComponent>(TEXT("Target"));
+    NewActor->Target = GetComponentByClass<USkeletalMeshComponent>();
+        
+    /*AddComponent<USkeletalMeshComponent>(TEXT("Target"));
     NewActor->Target->SetSkeletalMeshAsset(UAssetManager::Get().GetSkeletalMesh("Contents/SkeletalPenguin/SkeletalPenguin"));
     NewActor->Target->bSimulate = false;
     NewActor->Target->SetAnimClass(ULuaScriptAnimInstance::StaticClass());
-    NewActor->SetRootComponent(Target);
+    NewActor->Target->StateMachineFileName = TEXT("LuaScripts/Animations/NPCStateMachine.lua");
+    NewActor->SetRootComponent(NewActor->Target);*/
 
-    NewActor->SphereComponent = AddComponent<USphereTargetComponent>(TEXT("Collision"));
-    NewActor->SphereComponent->SetupAttachment(Target);
+    NewActor->SphereComponent = GetComponentByClass<USphereTargetComponent>();
+
+    /*AddComponent<USphereTargetComponent>(TEXT("Collision"));
+    NewActor->SphereComponent->SetupAttachment(Target);*/
     
     return NewActor;
 }
@@ -73,7 +77,11 @@ void ATarget::BeginPlay()
     GetComponentByClass<USphereTargetComponent>()->OnComponentBeginOverlap.AddLambda(
         [this](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
         {
-            ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(Target->GetAnimInstance());
+            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
+            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
+            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
+            UE_LOG(ELogLevel::Error, TEXT("ATarget OnOverlap 함수 호출"));
+            ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(GetComponentByClass<USkeletalMeshComponent>()->GetAnimInstance());
 
             if (Cast<ASnowBall>(OtherActor) != nullptr)
             {
@@ -88,18 +96,16 @@ void ATarget::BeginPlay()
             }
         }
 
-    );
-
-    GetComponentByClass<USphereTargetComponent>()->OnComponentEndOverlap.AddLambda(
+    );    GetComponentByClass<USphereTargetComponent>()->OnComponentEndOverlap.AddLambda(
         [this](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex)
         {
-            ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(Target->GetAnimInstance());
+            ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(GetComponentByClass<USkeletalMeshComponent>()->GetAnimInstance());
 
             if (AnimInstance && AnimInstance->StateMachine && AnimInstance->StateMachine->LuaTable.valid())
             {
-                sol::function OnOverlap = AnimInstance->StateMachine->LuaTable["OnEndOverlap"];
-                if (OnOverlap.valid())
-                    OnOverlap(AnimInstance->StateMachine->LuaTable, OtherActor);
+                sol::function OnEndOverlap = AnimInstance->StateMachine->LuaTable["OnEndOverlap"];
+                if (OnEndOverlap.valid())
+                    OnEndOverlap(AnimInstance->StateMachine->LuaTable, OtherActor);
             }
         }
 

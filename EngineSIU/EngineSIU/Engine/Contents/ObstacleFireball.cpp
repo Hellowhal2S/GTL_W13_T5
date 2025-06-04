@@ -47,8 +47,7 @@ void AObstacleFireball::BeginPlay()
     {
         if (Cast<ASnowBall>(OtherActor) != nullptr)
         {
-            UE_LOG(ELogLevel::Display,"SnowBall!!!!!");
-            GEngine->PhysicsManager->ApplyForceToActor(OtherActor, this->GetActorForwardVector() * 1000000, 0);
+            GEngine->PhysicsManager->ApplyForceToActor(OtherActor, this->GetActorForwardVector() * 5000000, 0);
             float Delta = -5;
             GEngine->PhysicsManager->GrowBall(OtherActor, Delta);
             Cast<ASnowBall>(OtherActor)->SnowBallComponent->AddScale(FVector(Delta));
