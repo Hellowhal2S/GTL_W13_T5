@@ -50,13 +50,13 @@ public:
 
     FGameInfo GameInfo;
 
-    int32 Life = 3;
+    int32 Life = 2;
     bool bGameOver = false;
-    int32 Score = 0;
+    int32 Score = 100;
+    bool ScoreFlag =false;
 private:
     bool bGameRunning = false; // 내부 
     bool bGameEnded = true;
-
     float LogTimer = 0.f;
     float LogInterval = 1.f;  // 1초마다 로그
 };

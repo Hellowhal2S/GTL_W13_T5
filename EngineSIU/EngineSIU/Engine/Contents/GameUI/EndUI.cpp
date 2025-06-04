@@ -44,10 +44,7 @@ void EndUI::Render()
     ImGui::PushStyleColor(ImGuiCol_Button, defaultColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoveredColor);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, activeColor);
-    if (GEngine->ActiveWorld->GetGameMode())
-    {
-        ImGui::Text("Score %d", GEngine->ActiveWorld->GetGameMode()->Score);
-    }
+
     if (ImGui::Button("ReStart", ImVec2(100, 50)))
     {
         Engine->EndPIE();

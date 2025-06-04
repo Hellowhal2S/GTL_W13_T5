@@ -100,6 +100,8 @@ int32 FEngineLoop::Init(HINSTANCE hInstance)
     FSoundManager::GetInstance().Initialize();
     FSoundManager::GetInstance().LoadSound("Ice1", "Contents/Sounds/ArcticRim.mp3");
     FSoundManager::GetInstance().LoadSound("CreepyHollow", "Contents/Sounds/CreepyHollow.mp3");
+    FSoundManager::GetInstance().LoadSound("jump", "Contents/Sounds/jump.mp3");
+    FSoundManager::GetInstance().LoadSound("rock", "Contents/Sounds/rock.mp3");
 
     UpdateUI();
 

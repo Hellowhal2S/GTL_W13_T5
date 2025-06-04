@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <UserInterface/Console.h>
 
+#include "SoundManager.h"
 #include "Lua/LuaTypes/LuaUserTypes.h"
 #include "Lua/LuaScriptComponent.h"
 #include "Animation/AnimStateMachine.h"
@@ -355,7 +356,12 @@ void FLuaScriptManager::BindEngineAPIs()
     LuaState.set_function("GetActorLocation", [](AActor* actor) {
         return actor->GetActorLocation();
     });
-
+    LuaState.set_function("PlayJumpSound", []() {
+        FSoundManager::GetInstance().PlaySound("jump");
+    });
+    LuaState.set_function("PlayRockSound", []() {
+            FSoundManager::GetInstance().PlaySound("rock");
+        });
     UE_LOG(ELogLevel::Display, TEXT("Engine APIs bound to Lua"));
 }
 
