@@ -21,6 +21,7 @@
 #include "SoundManager.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 #include "Particles/ParticleSystem.h"
+#include "Engine/Contents/Actor/SnowBall.h"
 
 extern FEngineLoop GEngineLoop;
 
@@ -591,6 +592,15 @@ void UEditorEngine::BindEssentialObjects()
             break;
         }
     }
+
+    for (const auto Iter : ActiveWorld->GetActiveLevel()->Actors)
+    {
+        if (Iter->IsA<ASnowBall>())
+        {
+            SnowBall = Iter;
+            break;
+        }
+    }
     
     //실수로 안만들면 넣어주기
     if (ActiveWorld->GetMainPlayer() == nullptr)
@@ -607,7 +617,7 @@ void UEditorEngine::BindEssentialObjects()
     PlayerController->SetActorTickInEditor(false);
     ActiveWorld->SetPlayerController(PlayerController);
     
-    ActiveWorld->GetPlayerController()->Possess(ActiveWorld->GetMainPlayer());
+    ActiveWorld->GetPlayerController()->Possess(ActiveWorld->GetMainPlayer()); 
 }
 
 void UEditorEngine::SetPhysXScene(UWorld* World)

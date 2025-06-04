@@ -99,7 +99,8 @@ private:
     FVector CameraLocation;
     FVector CameraRotation;
 
-
+public:
+    AActor* SnowBall = nullptr;
 };
 
 

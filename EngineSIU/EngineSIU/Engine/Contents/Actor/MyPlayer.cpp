@@ -220,7 +220,7 @@ void AMyPlayer::UpdateCameraRotation()
     Pitch -= deltaY * Sensitivity; // Y축은 반대로 (마우스 위로 움직이면 카메라가 위를 봄)
     
     // Pitch 각도 제한 (너무 위아래로 돌아가지 않도록)
-    Pitch = FMath::Clamp(Pitch, -40.0f, 20.0f);
+    Pitch = FMath::Clamp(Pitch, -40.0f, 40.0f);
 
     // 마우스 커서를 화면 중앙으로 다시 이동 (무한 회전을 위해)
     SetCursorPos(centerX, centerY);

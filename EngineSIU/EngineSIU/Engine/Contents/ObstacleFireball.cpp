@@ -23,8 +23,8 @@ AObstacleFireball::AObstacleFireball() : OvelapHandler()
     Collision->SetupAttachment(StaticMeshComponent);
     Collision->SetRadius(5.0f);
     
-    SpeedGenerator.MaxValue = 500;
-    SpeedGenerator.MinValue = 300;
+    SpeedGenerator.MaxValue = 1200;
+    SpeedGenerator.MinValue = 800;
 
 }
 
@@ -41,7 +41,7 @@ void AObstacleFireball::BeginPlay()
 {
     Super::BeginPlay();
     Speed = SpeedGenerator.GetValue();
-    Fire(GetActorForwardVector());
+    //Fire(GetActorForwardVector());
     OvelapHandler =  GetComponentByClass<USphereTargetComponent>()->OnComponentBeginOverlap.AddLambda(
     [this](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
     {
@@ -75,6 +75,7 @@ void AObstacleFireball::Tick(float DeltaTime)
 
     // Test Code //
     AccumulatedTime += DeltaTime;
+
     if (AccumulatedTime >= 10.0f) // Fireball lifetime
     {
         bIsFired = false;
@@ -83,12 +84,16 @@ void AObstacleFireball::Tick(float DeltaTime)
         {
             CreateExplosion();
         }
+    }
 
+    if (bIsCreatedExplosion)
+    {
+        DestroyTime += DeltaTime;
+    }
 
-        if (AccumulatedTime >= 14.0f)
-        {
-            Destroy();
-        }
+    if (DestroyTime >= 4.0f)
+    {
+        Destroy();
     }
     ///////////////
 }

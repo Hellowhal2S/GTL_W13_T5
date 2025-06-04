@@ -38,5 +38,6 @@ private:
     FVector Direction;
 
     float AccumulatedTime = 0.0f;
+    float DestroyTime = 0.0f;
 };
 

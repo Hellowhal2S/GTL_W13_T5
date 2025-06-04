@@ -9,6 +9,9 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Engine/FObjLoader.h"
 #include "Particles/ParticleSystem.h"
+#include "Distribution/DistributionVector.h"
+#include "Distribution/DistributionFloat.h"
+#include "Engine/EditorEngine.h"
 
 ADeerCanon::ADeerCanon()
 {
@@ -28,6 +31,8 @@ ADeerCanon::ADeerCanon()
     FireballParticleSystem = UAssetManager::Get().GetParticleSystem(FullPath);
 
     ParticleSystemComp->SetParticleSystem(FireballParticleSystem);
+
+    
 }
 
 ADeerCanon::~ADeerCanon()
@@ -39,11 +44,25 @@ void ADeerCanon::Tick(float DeltaTime)
     AActor::Tick(DeltaTime);
     CurCoolTime += DeltaTime;
     if (CurCoolTime >= CoolTime)
-    {
-        CurCoolTime -= CoolTime;
+    { 
+        CoolTime = FDistributionFloat(5, 10).GetValue();
+        CurCoolTime = 0;
+
         AObstacleFireball* FireBall = GEngine->ActiveWorld->SpawnActor<AObstacleFireball>();
-        SpawnPoint = GetComponentByClass<USceneComponent>();
-        FireBall->SetActorLocation(SpawnPoint->GetComponentLocation());
-        FireBall->Fire(GEngine->ActiveWorld->GetPlayerController()->GetPossessedActor()->GetActorLocation() - SpawnPoint->GetComponentLocation());
+        TArray<USceneComponent*> Components = GetComponentsByClass<USceneComponent>();
+        //SpawnPoint = GetComponentByClass<USceneComponent>()
+        for (auto iter : Components)
+        {
+            if (Cast<UStaticMeshComponent>(iter))
+                continue;
+            else
+                SpawnPoint = Cast<USceneComponent>(iter);
+        }
+        FVector SpawnPosition = SpawnPoint->GetComponentLocation();
+        FireBall->SetActorLocation(SpawnPosition);
+        FVector TargetPosition = Cast<UEditorEngine>(GEngine)->SnowBall->GetActorLocation();
+        TargetPosition -= SpawnPosition;
+        TargetPosition += FDistributionVector(FVector::OneVector * -30, FVector::OneVector * 30).GetValue();
+        FireBall->Fire(TargetPosition);
     }
 }
