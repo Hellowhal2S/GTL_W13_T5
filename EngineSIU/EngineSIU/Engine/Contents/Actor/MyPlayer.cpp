@@ -66,6 +66,31 @@ void AMyPlayer::Tick(float DeltaTime)
     APlayer::Tick(DeltaTime);
     AccTime += DeltaTime;
     UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
+    if (EndGame)
+        return;
+    if (GEngine->ActiveWorld->GetGameMode()->bGameOver)
+    {
+        FVector tmp = GetActorLocation();
+        FRotator tmpRotator = GetActorRotation();
+        GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Location = tmp;
+        GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Rotation = tmpRotator;
+
+        FViewTargetTransitionParams Params;
+        Params.BlendTime = 10.0f;
+        Params.BlendFunction = VTBlend_Cubic;
+        Params.BlendExp = 3.f;
+        
+        AActor* TargetActor = GEngine->ActiveWorld->SpawnActor<AActor>();
+    
+        TargetActor->SetActorLocation(FVector(-2660,0,650));
+        TargetActor->SetActorRotation(GetActorRotation());
+        GEngine->ActiveWorld->GetPlayerController()->SetViewTarget(TargetActor, Params);
+        
+        SetActorLocation(FVector(-2660,0,650));
+        EndGame=true;
+        return;
+    }
+    
     if (!FirstCT)
     {
         GEngine->ActiveWorld->GetPlayerController()->PlayerCameraManager->ViewTarget.POV.Location = FVector(-2130,-1700,-100);
@@ -110,22 +135,37 @@ void AMyPlayer::Tick(float DeltaTime)
     }
     else if (AccTime > 15.0f)
     {
+        GEngine->ActiveWorld->GetGameMode()->ScoreFlag = true;
         if (!bInitiatlize)
         {
             CameraInitialize();
         }
         bool bExist = false;
-        for (auto iter : GetWorld()->GetActiveLevel()->Actors)
+        if (Counter > 0)
         {
-            if (Cast<ASnowBall>(iter))
+            for (auto iter : GetWorld()->GetActiveLevel()->Actors)
             {
-                bExist = true;
-                Target = Cast<ASnowBall>(iter);
+                if (Cast<ASnowBall>(iter))
+                {
+                    bExist = true;
+                    Target = Cast<ASnowBall>(iter);
+                }
+                if (iter->GetComponentByClass<UTextComponent>())
+                {
+                    iter->Destroy();
+                }
             }
-            if (iter->GetComponentByClass<UTextComponent>())
-            {
-                iter->Destroy();
-            }
+            AActor* SpawnedActor = nullptr;
+            SpawnedActor = GEngine->ActiveWorld->SpawnActor<AActor>();
+            SpawnedActor->SetActorLabel(TEXT("OBJ_TEXT"));
+            UTextComponent* TextComponent = SpawnedActor->AddComponent<UTextComponent>();
+            TextComponent->SetTexture(L"Assets/Texture/font.png");
+            TextComponent->SetRowColumnCount(106, 106);
+            FWString WScore = std::to_wstring(GEngine->ActiveWorld->GetGameMode()->Score);
+            TextComponent->SetText(WScore);
+            SpawnedActor->SetRootComponent(TextComponent);
+            SpawnedActor->SetActorLocation(FVector(-2660,0,650));
+            SpawnedActor->SetActorScale(FVector(50,50,50));
         }
         if (bExist)
             SetActorLocation(Target->SnowBallComponent->GetRelativeLocation());

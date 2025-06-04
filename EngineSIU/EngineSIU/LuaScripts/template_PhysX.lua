@@ -195,6 +195,7 @@ function ReturnTable:OnPressSpace(dt)
             wantInAir = true
             timeSinceLastJump = 0.0
             timeSinceGrounded = 0.0
+            PlayJumpSound();
         end
     end
 end
