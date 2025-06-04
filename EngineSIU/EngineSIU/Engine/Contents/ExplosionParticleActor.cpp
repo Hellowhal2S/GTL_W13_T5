@@ -12,10 +12,6 @@ AExplosionParticleActor::AExplosionParticleActor()
     
     ParticleSystemComponent->SetParticleSystem(ParticleSystem);
     ParticleSystemComponent->bOnceBurstOnBegin = true;
-
-    auto* CollisionComp = AddComponent<USphereComponent>("SphereCollision");
-    CollisionComp->AttachToComponent(RootComponent);
-    CollisionComp->SetRadius(5.0f);
 }
 
 void AExplosionParticleActor::Tick(float DeltaTime)
