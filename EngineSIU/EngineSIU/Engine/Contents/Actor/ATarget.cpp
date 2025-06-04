@@ -311,13 +311,24 @@ void ATarget::HandleDeathByBall(AActor* Ball)
     bDead = true;
     AccTime = 0.0f;
 
-    // 넉백 시작/목표 위치 계산
     FVector BallLocation = Ball->GetActorLocation();
     FVector CurrentLocation = GetActorLocation();
+
+    // 기본 넉백 방향 (공에서 펭귄으로)
     FVector KnockbackDirection = (CurrentLocation - BallLocation).GetSafeNormal();
 
+    // 위쪽 방향(Z축) 랜덤 가중치 추가
+    float UpwardStrength = RandomRange(0.3f, 0.7f); // 0.3~0.7 사이 랜덤값 (조절 가능)
+    FVector Upward = FVector(0, 0, 1) * UpwardStrength;
+
+    // 넉백 방향에 위쪽 성분을 더함
+    FVector FinalKnockbackDir = (KnockbackDirection + Upward).GetSafeNormal();
+
+    // 넉백 세기(거리)도 약간 랜덤하게
+    float KnockbackDistance = RandomRange(150.0f, 300.0f);
+
     KnockbackStartLocation = CurrentLocation;
-    KnockbackTargetLocation = CurrentLocation + (KnockbackDirection * 50.0f); // 50.0f는 넉백 거리
+    KnockbackTargetLocation = CurrentLocation + (FinalKnockbackDir * KnockbackDistance);
     KnockbackElapsed = 0.0f;
     bIsKnockback = true;
 

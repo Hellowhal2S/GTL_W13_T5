@@ -20,7 +20,7 @@ public:
 
     // 펭귄 움직임 관련 변수들
     FVector InitialLocation;    // 초기 배치 위치
-    float MovementRadius = 100.0f;    // 움직임 반경
+    float MovementRadius = 80.0f;    // 움직임 반경
     float MovementSpeed = 10.0f;    // 이동 속도
     FVector TargetLocation;    // 목표 위치
     bool bIsMovingToTarget = false;    // 목표 지점으로 이동 중인지
@@ -34,7 +34,7 @@ public:
     // Knockback 관련 변수
     FVector KnockbackStartLocation;
     FVector KnockbackTargetLocation;
-    float KnockbackDuration = 0.3f; // 넉백에 걸리는 시간(초)
+    float KnockbackDuration = 1.f; // 넉백에 걸리는 시간(초)
     float KnockbackElapsed = 0.0f;
     bool bIsKnockback = false;
 
