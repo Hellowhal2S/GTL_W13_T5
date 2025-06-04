@@ -36,10 +36,10 @@ struct FMinimalViewInfo
         , Rotation(AMyPlayer::InitialRotator)
         , FOV(90.0f)
         , PerspectiveNearClip(0.1f)
-        , PerspectiveFarClip(1000000.0f)
+        , PerspectiveFarClip(50000.0f)
         /*, OrthoWidth(512.0f)
         , OrthoNearClipPlane(1.0f)
-        , OrthoFarClipPlane(10000.0f)
+        , OrthoFarClipPlane(50000.0f)
         , AspectRatio(1.33333333f)*/
     {
     }

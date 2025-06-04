@@ -567,7 +567,7 @@ void FShadowManager::UpdateCascadeMatrices(const std::shared_ptr<FEditorViewport
 
     const FMatrix CamView = Viewport->GetViewMatrix();
     const float NearClip = Viewport->GetCameraNearClip();
-    const float FarClip = Viewport->GetCameraFarClip(); // 또는 CSM 최대 거리
+    const float FarClip = 1000.0f;//Viewport->GetCameraFarClip(); // 또는 CSM 최대 거리
     const float FOV = Viewport->GetCameraFOV();         // Degrees
     const float AspectRatio = Viewport->AspectRatio;
 
@@ -586,7 +586,7 @@ void FShadowManager::UpdateCascadeMatrices(const std::shared_ptr<FEditorViewport
         float p = (float)i / (float)NumCascades;
         float logSplit = NearClip * powf(EffectiveFarClip / NearClip, p);
         float uniSplit = NearClip + (EffectiveFarClip - NearClip) * p;
-        CascadeSplits[i] = 0.7f * logSplit + 0.3f * uniSplit; // 혼합 비율은 조정 가능
+        CascadeSplits[i] = 0.5f * logSplit + 0.5f * uniSplit; // 혼합 비율은 조정 가능
     }
 
     const FMatrix InvCamView = FMatrix::Inverse(CamView);

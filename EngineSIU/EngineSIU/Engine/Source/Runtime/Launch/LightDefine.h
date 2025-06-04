@@ -39,7 +39,7 @@ struct FDirectionalLightInfo
     float ShadowNearPlane = 1.0F;
 
     // 섀도우 계산을 위한 라이트 시점의 Far Plane
-    float ShadowFarPlane = 1000.0f;
+    float ShadowFarPlane = 50000.0f;
 
 };
 
