@@ -62,7 +62,7 @@ AnimFSM = {
     end,
     
     Update = function(self, DeltaTime)
-        print("self : ", tostring(self))
+        --print("self : ", tostring(self))
         --print("Update 함수 호출")
         local animName = self.animMap[self.state] or self.animMap["Idle"]
         local blendTime = self.blend or 0.4
