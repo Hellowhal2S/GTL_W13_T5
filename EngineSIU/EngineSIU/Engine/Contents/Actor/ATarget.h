@@ -27,19 +27,22 @@ public:
     float TimeSinceLastTargetChange = 0.0f;    // 마지막 목표 변경 후 시간
     float TargetChangeInterval = 3.0f;    // 목표 변경 간격 (초)
 
-    bool bIsDangerNear = false;    // 위험(공) 감지 상태
-    float DangerEscapeSpeed = 30.0f;    // 위험 회피 시 이동 속도
     float IdleAnimationTimer = 0.0f;    // Idle/Bray 애니메이션 지속 시간
     float IdleAnimationDuration = 0.0f;    // 현재 Idle 애니메이션 목표 지속 시간
     FString CurrentAnimationState = "Idle";    // 현재 애니메이션 상태
-    AActor* DangerousActor = nullptr;    // 위험한 액터 참조
+
+    // Knockback 관련 변수
+    FVector KnockbackStartLocation;
+    FVector KnockbackTargetLocation;
+    float KnockbackDuration = 0.3f; // 넉백에 걸리는 시간(초)
+    float KnockbackElapsed = 0.0f;
+    bool bIsKnockback = false;
 
     // 펭귄 움직임 관련 함수들
     void HandlePenguinMovement(float DeltaTime);
     void SetNewTargetLocation();
     void SetAnimationState(const FString& StateName);
-    
-    void HandleDangerEscape(float DeltaTime);    // 위험 회피 행동
+
     void HandleIdleAnimation(float DeltaTime);    // Idle 애니메이션 관리
     void StartIdleAnimation();    // 새로운 Idle 애니메이션 시작
     void HandleDeathByBall(AActor* Ball);    // 공에 맞아 죽는 처리

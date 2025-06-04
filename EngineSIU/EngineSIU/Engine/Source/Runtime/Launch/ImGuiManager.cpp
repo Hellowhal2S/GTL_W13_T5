@@ -123,4 +123,3 @@ void UImGuiManager::Shutdown()
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 }
-

@@ -27,7 +27,7 @@ AnimFSM = {
 
     -- Update 함수: 현재 상태에 맞는 애니메이션 반환
     Update = function(self, DeltaTime)
-        print("Current Animation: ", self.state)
+        --print("Current Animation: ", self.state)
         local animName = self.animMap[self.state] or self.animMap["Idle"]
         local blendTime = self.blendMap[self.state] or 0.4
         
