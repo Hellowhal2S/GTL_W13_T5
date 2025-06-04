@@ -126,7 +126,7 @@ void ATarget::Tick(float DeltaTime)
             UEditorEngine* EditorEngine = Cast<UEditorEngine>(GEngine);
             GetComponentByClass<USkeletalMeshComponent>()->bSimulate = false;
             // EditorEngine->PhysicsManager->DestroyGameObject(GetComponentByClass<USkeletalMeshComponent>()->BodyInstance->BIGameObject);
-            // SetActorLocation(FVector(-200,-200,-200));
+            SetActorLocation(FVector(-200,-200,-200));
             // GetComponentByClass<UStaticMeshComponent>()->CreatePhysXGameObject();
             if (GEngine->ActiveWorld->GetGameMode())
                 GEngine->ActiveWorld->GetGameMode()->Score+= 100;
