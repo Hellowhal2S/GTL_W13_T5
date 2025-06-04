@@ -100,6 +100,10 @@ void ATarget::BeginPlay()
     );    GetComponentByClass<USphereTargetComponent>()->OnComponentEndOverlap.AddLambda(
         [this](UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OhterComponent, int32 OtherBodyIndex)
         {
+            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
+            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
+            UE_LOG(ELogLevel::Error, TEXT("====================================================="));
+            UE_LOG(ELogLevel::Error, TEXT("ATarget OnEndOverlap 함수 호출"));
             ULuaScriptAnimInstance* AnimInstance = Cast<ULuaScriptAnimInstance>(GetComponentByClass<USkeletalMeshComponent>()->GetAnimInstance());
 
             if (AnimInstance && AnimInstance->StateMachine && AnimInstance->StateMachine->LuaTable.valid())
