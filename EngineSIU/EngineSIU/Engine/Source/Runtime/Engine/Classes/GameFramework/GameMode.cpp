@@ -17,32 +17,32 @@ void AGameMode::PostSpawnInitialize()
     
     SetActorTickInEditor(false); // PIE 모드에서만 Tick 수행
 
-    if (FSlateAppMessageHandler* Handler = GEngineLoop.GetAppMessageHandler())
-    {
-        /*Handler->OnPIEModeStartDelegate.AddLambda([this]()
-        {
-            this->InitGame();
-        });*/
-        Handler->OnKeyDownDelegate.AddLambda([this](const FKeyEvent& KeyEvent)
-        {
-            // 키가 Space, 아직 게임이 안 시작됐고, 실패 또는 종료되지 않았다면
-            if (KeyEvent.GetKeyCode() == VK_SPACE &&
-                !bGameRunning && bGameEnded)
-            {
-                StartMatch();
-            }
-        });
-
-        Handler->OnKeyDownDelegate.AddLambda([this](const FKeyEvent& KeyEvent)
-            {
-                // 키가 Space, 아직 게임이 안 시작됐고, 실패 또는 종료되지 않았다면
-                if (KeyEvent.GetKeyCode() == VK_RCONTROL && 
-                    bGameRunning && !bGameEnded)
-                {
-                    EndMatch(false);
-                }
-            });
-    }
+    // if (FSlateAppMessageHandler* Handler = GEngineLoop.GetAppMessageHandler())
+    // {
+    //     /*Handler->OnPIEModeStartDelegate.AddLambda([this]()
+    //     {
+    //         this->InitGame();
+    //     });*/
+    //     // Handler->OnKeyDownDelegate.AddLambda([this](const FKeyEvent& KeyEvent)
+    //     // {
+    //     //     // 키가 Space, 아직 게임이 안 시작됐고, 실패 또는 종료되지 않았다면
+    //     //     // if (KeyEvent.GetKeyCode() == VK_SPACE &&
+    //     //     //     !bGameRunning && bGameEnded)
+    //     //     // {
+    //     //     //     StartMatch();
+    //     //     // }
+    //     // });
+    //     //
+    //     // Handler->OnKeyDownDelegate.AddLambda([this](const FKeyEvent& KeyEvent)
+    //     //     {
+    //     //         // 키가 Space, 아직 게임이 안 시작됐고, 실패 또는 종료되지 않았다면
+    //     //         if (KeyEvent.GetKeyCode() == VK_RCONTROL && 
+    //     //             bGameRunning && !bGameEnded)
+    //     //         {
+    //     //             EndMatch(false);
+    //     //         }
+    //     //     });
+    // }
 }
 
 void AGameMode::InitializeComponent()
@@ -81,6 +81,7 @@ void AGameMode::InitGame()
 
 void AGameMode::StartMatch()
 {
+    return;
     bGameRunning = true;
     bGameEnded = false;
     GameInfo.ElapsedGameTime = 0.0f;
@@ -100,7 +101,7 @@ void AGameMode::Tick(float DeltaTime)
     }
     if (bGameOver)
         return;
-    FWString WScore = std::to_wstring(Life);
+    FWString WScore = std::to_wstring(Score);
     if (ScoreFlag)
     {
         for (auto iter : TObjectRange<UTextComponent>())

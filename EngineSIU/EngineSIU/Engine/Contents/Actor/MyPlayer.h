@@ -36,4 +36,6 @@ public:
     bool SecondCT =false;
     bool bInitiatlize =false;
     float AccTime = 0.0f;
+    int32 Counter = 5;
+    bool EndGame = false;
 };

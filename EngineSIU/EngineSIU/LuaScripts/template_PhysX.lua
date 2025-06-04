@@ -195,6 +195,7 @@ function ReturnTable:OnPressSpace(dt)
             wantInAir = true
             timeSinceLastJump = 0.0
             timeSinceGrounded = 0.0
+            PlayJumpSound();
         end
     end
 end
@@ -236,7 +237,6 @@ function ReturnTable:Tick(dt)
             -- 굴린 거리에 비례하여 성장 (더 많이 굴수록 더 많이 성장)
             local growthAmount = accumulatedRollDistance * dt * 0.5
             GrowSnowBall(growthAmount)
-            PlayJumpSound();
             accumulatedRollDistance = 0.0 -- 누적 거리 리셋
         end
     end
