@@ -101,6 +101,11 @@ void AGameMode::Tick(float DeltaTime)
     if (bGameOver)
         return;
 
+    for (auto iter : GEngine->ActiveWorld->GetActiveLevel()->Actors)
+    {
+        
+    }
+    
     if (Life <= 0)
     {
         bGameOver = true;
